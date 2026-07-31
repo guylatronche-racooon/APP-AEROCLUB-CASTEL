@@ -386,6 +386,13 @@ button, input { font: inherit; }
   padding: 0;
   text-align: left;
 }
+.brand-back {
+  align-items: center;
+  display: flex;
+  font-size: 20px;
+  font-weight: 900;
+  justify-content: center;
+}
 .brand-mark {
   align-items: center;
   background: linear-gradient(145deg, #2bb8ed, #0c8ac5);
@@ -1152,7 +1159,7 @@ button, input { font: inherit; }
     bottom: 0;
     display: grid;
     gap: 8px;
-    grid-template-columns: 48px 1fr 48px;
+    grid-template-columns: 48px 48px 1fr 48px;
     left: 0;
     padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
     position: fixed;
@@ -1957,8 +1964,8 @@ const aircraftList = [
 
   function header(title, subtitle, backScreen, extra) {
     return '<header class="topbar tool-topbar">' +
-      '<button class="brand" data-action="screen" data-screen="' + backScreen + '" aria-label="Retour">' +
-      logoImage('brand-logo') + '<span><strong>' + escapeHtml(title) + '</strong><small>' + escapeHtml(subtitle) + '</small></span></button>' +
+      '<button class="brand" data-action="screen" data-screen="' + backScreen + '" aria-label="Retour" title="Retour">' +
+      '<span class="brand-back" aria-hidden="true">←</span>' + logoImage('brand-logo') + '<span><strong>' + escapeHtml(title) + '</strong><small>' + escapeHtml(subtitle) + '</small></span></button>' +
       '<div class="aircraft"><strong>' + escapeHtml(currentAircraft().registration) + '</strong><span>' + escapeHtml(currentAircraft().type) + '</span></div>' +
       '<div class="top-actions">' + (extra || '') + '<button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div>' +
       '</header>';
@@ -2029,7 +2036,7 @@ const aircraftList = [
       '<div class="phase-title-row"><div><h1>' + escapeHtml(phase.title) + '</h1><p>' + count + ' / ' + phase.items.length + ' éléments confirmés</p></div><strong>' + percent + '%</strong></div><div class="progress-track"><i style="width:' + percent + '%"></i></div><div class="checklist">' + rows + '</div>' +
       '<div class="navigation-actions"><button class="secondary" data-action="phase" data-index="' + (state.phaseIndex - 1) + '"' + (state.phaseIndex === 0 ? ' disabled' : '') + '>← Précédent</button><button class="primary" data-action="phase" data-index="' + (state.phaseIndex + 1) + '"' + (state.phaseIndex === phases.length - 1 ? ' disabled' : '') + '>' + (count === phase.items.length ? 'Phase validée' : 'Continuer') + ' →</button></div></section>' +
       '<aside class="facts-rail"><div class="fact-card accent"><div class="card-heading"><strong>Repères immédiats</strong><button data-action="facts">Tous</button></div><dl>' + facts.slice(0,4).map(function(fact, index) { return '<div class="' + (index === 2 ? 'highlight' : '') + '"><dt>' + escapeHtml(fact[0]) + '</dt><dd>' + escapeHtml(fact[1]) + '</dd></div>'; }).join('') + '</dl></div><div class="fact-card safety"><strong>Sécurité</strong><p>Aide-mémoire transcrit depuis la fiche ' + escapeHtml(aircraft.registration) + '. Le manuel de vol et la check-list approuvée demeurent les références.</p></div><div class="fact-card source"><span>Source</span><strong>' + escapeHtml(checklist.source) + '</strong><small>' + escapeHtml(checklist.sourceNote) + '</small></div></aside></div>' +
-      '<footer class="mobile-footer"><button data-action="screen" data-screen="aircraft">⌂</button><button class="mobile-primary" data-action="phase" data-index="' + (state.phaseIndex + 1) + '"' + (state.phaseIndex === phases.length - 1 ? ' disabled' : '') + '>' + count + '/' + phase.items.length + ' · Continuer</button><button data-action="facts">i</button></footer>' + footerNote() + '</main>';
+      '<footer class="mobile-footer"><button data-action="screen" data-screen="aircraft" aria-label="Retour à l’avion" title="Retour à l’avion">⌂</button><button data-action="phase" data-index="' + (state.phaseIndex - 1) + '" aria-label="Phase précédente" title="Phase précédente"' + (state.phaseIndex === 0 ? ' disabled' : '') + '>←</button><button class="mobile-primary" data-action="phase" data-index="' + (state.phaseIndex + 1) + '"' + (state.phaseIndex === phases.length - 1 ? ' disabled' : '') + '>' + count + '/' + phase.items.length + ' · Continuer</button><button data-action="facts" aria-label="Repères avion" title="Repères avion">i</button></footer>' + footerNote() + '</main>';
   }
 
   function balanceResult(aircraft) {
@@ -2100,13 +2107,13 @@ const aircraftList = [
   function factsOverlay() {
     if (!state.showFacts) return '';
     const aircraft=currentAircraft(), facts=aircraft.checklist ? aircraft.checklist.quickFacts : [];
-    return '<div class="overlay" data-action="close-overlay"><section class="drawer" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="drawer-header"><div><span>'+escapeHtml(aircraft.registration)+' · '+escapeHtml(aircraft.name)+'</span><h2>Repères avion</h2></div><button data-action="facts">×</button></div><dl class="quick-facts">'+facts.map(function(f){return '<div><dt>'+escapeHtml(f[0])+'</dt><dd>'+escapeHtml(f[1])+'</dd></div>';}).join('')+'</dl><div class="drawer-warning">Ces valeurs sont retranscrites depuis la fiche photographiée. Vérifier leur validité avec la documentation approuvée avant utilisation en vol.</div></section></div>';
+    return '<div class="overlay" data-action="close-overlay"><section class="drawer" role="dialog" aria-modal="true"><div class="drawer-header"><div><span>'+escapeHtml(aircraft.registration)+' · '+escapeHtml(aircraft.name)+'</span><h2>Repères avion</h2></div><button data-action="facts">×</button></div><dl class="quick-facts">'+facts.map(function(f){return '<div><dt>'+escapeHtml(f[0])+'</dt><dd>'+escapeHtml(f[1])+'</dd></div>';}).join('')+'</dl><div class="drawer-warning">Ces valeurs sont retranscrites depuis la fiche photographiée. Vérifier leur validité avec la documentation approuvée avant utilisation en vol.</div></section></div>';
   }
 
   function phasesOverlay() {
     if (!state.showPhases) return '';
     const aircraft=currentAircraft(), phases=aircraft.checklist.phases, checked=state.checked[aircraft.id]||{};
-    return '<div class="overlay phase-overlay" data-action="close-overlay"><section class="phase-sheet" role="dialog" aria-modal="true" onclick="event.stopPropagation()"><div class="drawer-header"><h2>Phases de vol</h2><button data-action="phases">×</button></div><nav>'+phases.map(function(phase,index){const count=phase.items.filter(function(_,itemIndex){return checked[itemKey(phase,itemIndex)];}).length;return '<button class="'+(index===state.phaseIndex?'active':'')+'" data-action="phase" data-index="'+index+'"><span>'+(index+1)+'</span><strong>'+escapeHtml(phase.title)+'</strong><small>'+count+'/'+phase.items.length+'</small></button>';}).join('')+'</nav></section></div>';
+    return '<div class="overlay phase-overlay" data-action="close-overlay"><section class="phase-sheet" role="dialog" aria-modal="true"><div class="drawer-header"><h2>Phases de vol</h2><button data-action="phases">×</button></div><nav>'+phases.map(function(phase,index){const count=phase.items.filter(function(_,itemIndex){return checked[itemKey(phase,itemIndex)];}).length;return '<button class="'+(index===state.phaseIndex?'active':'')+'" data-action="phase" data-index="'+index+'"><span>'+(index+1)+'</span><strong>'+escapeHtml(phase.title)+'</strong><small>'+count+'/'+phase.items.length+'</small></button>';}).join('')+'</nav></section></div>';
   }
 
   function render() {
