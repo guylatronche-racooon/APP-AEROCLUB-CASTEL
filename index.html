@@ -1761,6 +1761,83 @@ const dr400QuickFacts = [
   ["Carburant", "110 l principal + 2 × 40 l ailes"],
 ];
 
+const ulmPhases = [
+  {
+    id: "mise-route-ulm",
+    title: "Mise en route",
+    short: "Mise en route",
+    items: [
+      { action: "Frein", response: "SERRÉ", critical: true },
+      { action: "Coupe-batterie", response: "En place · ON" },
+      { action: "Clé de contact", response: "Mise · ON" },
+      { action: "Sécurité parachute", response: "Enlevée", critical: true },
+      { action: "STROB", response: "ON" },
+      { action: "Starter", response: "ACTIF moteur froid · COUPÉ moteur chaud" },
+      { action: "Bobines", response: "ON" },
+      { action: "Abords de l’appareil", response: "Personne devant · rien derrière", critical: true },
+      { action: "Gaz", response: "Tout réduit moteur froid · 1 cm moteur chaud" },
+      { action: "Démarreur", response: "5 s maximum" },
+      { action: "Pression d’huile", response: "≥ 2 et ≤ 5 bar", critical: true },
+      { action: "Chauffe moteur", response: "2 200 tr/min" },
+      { action: "Radio", response: "Volume · fréquences" },
+      { action: "Transpondeur", response: "GND" },
+    ],
+  },
+  {
+    id: "actions-vitales-ulm",
+    title: "Actions vitales",
+    short: "Actions vitales",
+    items: [
+      { action: "A — Accrochage", response: "Ceinture et casque réglés · poches et sacoches fermées", critical: true },
+      { action: "C — Commandes", response: "Libres · bon sens · accélérateur, frein, starter" },
+      { action: "Compensateur", response: "Au neutre" },
+      { action: "Confort", response: "Installation · lunettes · casquettes · siège · etc." },
+      { action: "Cabine", response: "Sans objet non attaché" },
+      { action: "H — Huile", response: "Pression ≥ 2 et ≤ 5 · température ≥ 50 °C", critical: true },
+      { action: "Hélice", response: "Pas de vibrations", critical: true },
+      { action: "E — Essence", response: "Autonomie · bouchon · robinet", note: "12 litres = 1 heure" },
+      { action: "V — Instruments", response: "Vérifiés et réglés" },
+      { action: "Vent", response: "Force · direction" },
+      { action: "Volets", response: "Sortie symétrique · 1 cran pour le décollage" },
+      { action: "Feux NAV", response: "ON" },
+      { action: "Portes", response: "Fermées et verrouillées" },
+      { action: "Contacts · sélection bobines", response: "3 000 tr/min · écart entre les deux : 300 tr/min" },
+      { action: "Ralenti", response: "1 800 tr/min" },
+      { action: "E — Environnement", response: "Sol · approche · contre-QFU" },
+      { action: "R — Radio", response: "Message · transpondeur sur ALT" },
+    ],
+  },
+  {
+    id: "arret-moteur-ulm",
+    title: "Arrêt moteur",
+    short: "Arrêt moteur",
+    items: [
+      { action: "Frein", response: "SERRÉ", critical: true },
+      { action: "Radio", response: "Message puis OFF", verify: true, note: "Texte partiellement masqué sur la fiche photographiée." },
+      { action: "Transpondeur", response: "OFF" },
+      { action: "Moteur", response: "2 000 tr/min", verify: true, note: "Valeur partiellement masquée sur la fiche photographiée." },
+      { action: "Bobines", response: "OFF", verify: true, note: "Réponse partiellement masquée sur la fiche photographiée." },
+      { action: "STROB", response: "OFF" },
+      { action: "Horamètre", response: "Relevé" },
+      { action: "Contact", response: "OFF" },
+      { action: "Parachute", response: "Sécurisé" },
+      { action: "Cahier", response: "Mis à jour" },
+      { action: "Machine", response: "Nettoyée" },
+    ],
+  },
+];
+
+const ulmQuickFacts = [
+  ["Pression d’huile", "2 à 5 bar"],
+  ["Température d’huile", "≥ 50 °C"],
+  ["Démarreur", "5 s max"],
+  ["Chauffe", "2 200 tr/min"],
+  ["Autonomie", "12 l = 1 h"],
+  ["Essai bobines", "3 000 tr/min · écart 300"],
+  ["Ralenti", "1 800 tr/min"],
+  ["Marque d’identification", "16LF"],
+];
+
 
 const sportStarBalance = {
   emptyMass: 345.9,
@@ -1883,6 +1960,20 @@ const aircraftList = [
     },
     balance: dr400Balance,
   },
+  {
+    id: "f-jzgu",
+    registration: "F-JZGU",
+    name: "Super Guépard",
+    type: "ULM · marque d’identification 16LF",
+    checklist: {
+      phases: ulmPhases,
+      quickFacts: ulmQuickFacts,
+      source: "Fiche pilote ULM Super Guépard F-JZGU · 16LF",
+      sourceNote: "3 sections photographiées · 3 lignes partiellement masquées à confirmer",
+      description: "Dérouler les trois sections reçues : mise en route, actions vitales et arrêt moteur.",
+      reviewNote: "La fiche photographiée a été transcrite ; trois lignes partiellement masquées restent signalées « à confirmer ».",
+    },
+  },
 ];
 
 
@@ -1972,19 +2063,20 @@ const aircraftList = [
   }
 
   function homeView() {
-    const cards = aircraftList.map(function(aircraft, index) {
+    const cards = aircraftList.map(function(aircraft) {
       const checklistCopy = aircraft.checklist ? (aircraft.checklist.partial ? 'Check-list partielle' : 'Check-list disponible') : 'Check-list à venir';
+      const balanceCopy = aircraft.balance ? 'Masse & centrage' : 'Masse & centrage à venir';
       return '<button class="aircraft-card" data-action="select-aircraft" data-aircraft="' + aircraft.id + '">' +
-        '<span class="aircraft-number">0' + (index + 1) + '</span>' +
+        '<span class="aircraft-number">' + escapeHtml(aircraft.registration.slice(-2)) + '</span>' +
         '<span class="aircraft-copy"><small>' + escapeHtml(aircraft.name) + '</small><strong>' + escapeHtml(aircraft.registration) + '</strong>' +
-        '<span>' + escapeHtml(checklistCopy) + '<i></i>Masse & centrage</span></span><span class="card-arrow">→</span></button>';
+        '<span>' + escapeHtml(checklistCopy) + '<i></i>' + escapeHtml(balanceCopy) + '</span></span><span class="card-arrow">→</span></button>';
     }).join('');
     return '<main class="' + appClass() + '">' +
       '<header class="cover-topbar"><div class="club-brand">' + logoImage('') + '<span><strong>Aéroclub Jean-Doudiès</strong><small>Outils de vol</small></span></div>' +
       '<div class="cover-actions"><button data-action="documents">Documents de vol</button><button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div></header>' +
       '<section class="cover"><div class="cover-intro"><div class="cover-logo">' + logoImage('') + '</div><div><span class="eyebrow">Aide à la préparation et à l’exécution</span>' +
       '<h1>Outils de vol</h1><p>Choisir l’appareil, puis ouvrir sa check-list ou calculer sa masse et son centrage.</p></div></div>' +
-      '<div class="fleet-heading"><div><span>Flotte du club</span><h2>Choisir un avion</h2></div><small>3 appareils intégrés</small></div>' +
+      '<div class="fleet-heading"><div><span>Flotte du club</span><h2>Choisir un avion</h2></div><small>' + aircraftList.length + ' appareils intégrés</small></div>' +
       '<div class="aircraft-grid">' + cards + '</div>' +
       '<div class="cover-notice"><strong>Version à valider</strong><p>Les documents officiels des avions restent à contrôler avant validation définitive.</p><button data-action="documents">Lire l’avertissement</button></div></section>' + footerNote() + '</main>';
   }
@@ -1993,15 +2085,18 @@ const aircraftList = [
     const aircraft = currentAircraft();
     const balance = aircraft.balance;
     const checklist = aircraft.checklist;
-    const checklistText = checklist ? (checklist.partial ? 'Dérouler les 15 phases reçues, signalées comme incomplètes.' : 'Dérouler les vérifications normales, de la prévol au parking.') : 'La check-list de cet appareil n’a pas encore été transmise.';
+    const checklistText = checklist ? (checklist.description || (checklist.partial ? 'Dérouler les 15 phases reçues, signalées comme incomplètes.' : 'Dérouler les vérifications normales, de la prévol au parking.')) : 'La check-list de cet appareil n’a pas encore été transmise.';
+    const balanceText = balance ? 'Renseigner les occupants, les bagages et le carburant, puis contrôler le point dans l’enveloppe.' : 'Les données nécessaires au calcul de cet appareil n’ont pas encore été transmises.';
+    const reviewText = !checklist ? 'La check-list ' + aircraft.registration + ' n’a pas encore été fournie.' : checklist.reviewNote ? checklist.reviewNote : checklist.partial ? 'La partie reçue a été transcrite ; les autres sections restent à fournir.' : 'La check-list F-HDLT contient encore trois lignes signalées « à confirmer ».';
+    const dataStrip = balance ? '<div class="aircraft-data-strip"><div><span>Masse maximale</span><strong>' + formatFr(balance.maxMass, 0) + ' kg</strong></div><div><span>Masse à vide</span><strong>' + formatFr(balance.emptyMass, 1) + ' kg</strong></div><div><span>Carburant calculé</span><strong>' + formatFr(balance.fuelDensity, 2) + ' kg/l</strong></div><div><span>Motorisation</span><strong>' + escapeHtml(balance.engine) + '</strong></div></div>' : '';
     return '<main class="' + appClass() + '">' + header('OUTILS DE VOL', aircraft.name, 'home', '<button class="desktop-only" data-action="documents">Documents</button>') +
       '<section class="aircraft-hub"><button class="text-back" data-action="screen" data-screen="home">← Choisir un autre avion</button>' +
       '<div class="aircraft-identity"><div class="registration-stamp">' + escapeHtml(aircraft.registration) + '</div><div><span class="eyebrow">' + escapeHtml(aircraft.type) + '</span><h1>' + escapeHtml(aircraft.name) + '</h1><p>Choisir l’outil à utiliser pour cet appareil.</p></div></div>' +
       '<div class="module-grid"><button class="module-card checklist-module" data-action="screen" data-screen="checklist"' + (checklist ? '' : ' disabled') + '>' +
       '<span class="module-index">01</span><span class="module-symbol">✓</span><span class="module-copy"><small>' + (checklist ? 'Fiche propre à l’avion' : 'Document requis') + '</small><strong>Check-list</strong><p>' + escapeHtml(checklistText) + '</p></span><span class="module-cta">' + (checklist ? 'Ouvrir →' : 'À venir') + '</span></button>' +
-      '<button class="module-card balance-module" data-action="screen" data-screen="balance"><span class="module-index">02</span><span class="module-symbol">⚖</span><span class="module-copy"><small>Calcul repris des fichiers transmis</small><strong>Masse & centrage</strong><p>Renseigner les occupants, les bagages et le carburant, puis contrôler le point dans l’enveloppe.</p></span><span class="module-cta">Calculer →</span></button></div>' +
-      '<div class="aircraft-data-strip"><div><span>Masse maximale</span><strong>' + formatFr(balance.maxMass, 0) + ' kg</strong></div><div><span>Masse à vide</span><strong>' + formatFr(balance.emptyMass, 1) + ' kg</strong></div><div><span>Carburant calculé</span><strong>' + formatFr(balance.fuelDensity, 2) + ' kg/l</strong></div><div><span>Motorisation</span><strong>' + escapeHtml(balance.engine) + '</strong></div></div>' +
-      '<div class="validation-note"><strong>Version à valider par le club</strong><span>' + escapeHtml(!checklist ? 'La check-list ' + aircraft.registration + ' n’a pas encore été fournie.' : checklist.partial ? 'La partie reçue a été transcrite ; les autres sections restent à fournir.' : 'La check-list F-HDLT contient encore trois lignes signalées « à confirmer ».') + '</span></div>' +
+      '<button class="module-card balance-module" data-action="screen" data-screen="balance"' + (balance ? '' : ' disabled') + '><span class="module-index">02</span><span class="module-symbol">⚖</span><span class="module-copy"><small>' + (balance ? 'Calcul repris des fichiers transmis' : 'Document requis') + '</small><strong>Masse & centrage</strong><p>' + escapeHtml(balanceText) + '</p></span><span class="module-cta">' + (balance ? 'Calculer →' : 'À venir') + '</span></button></div>' +
+      dataStrip +
+      '<div class="validation-note"><strong>Version à valider par le club</strong><span>' + escapeHtml(reviewText) + '</span></div>' +
       '</section>' + footerNote() + '</main>';
   }
 

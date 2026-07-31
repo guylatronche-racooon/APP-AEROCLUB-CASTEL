@@ -1,4 +1,4 @@
-const CACHE = "acjd-flight-tools-static-v2";
+const CACHE = "acjd-flight-tools-static-v4-super-guepard";
 const CORE = ["/", "/index.html"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
