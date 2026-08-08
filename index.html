@@ -1030,6 +1030,7 @@ button, input { font: inherit; }
   .club-brand strong, .module-brand strong { font-size: 13px; }
   .club-brand small, .module-brand small { font-size: 8px; }
   .cover-actions button:first-child, .module-actions button:first-child { display: none; }
+  .bases-actions button:first-child { display: block; }
   .cover-actions button, .module-actions button { min-height: 38px; padding: 0 11px; }
   .cover { padding: 30px 14px 24px; }
   .cover-intro { gap: 16px; grid-template-columns: 88px 1fr; }
@@ -1245,13 +1246,53 @@ button, input { font: inherit; }
 .static-app .disclaimer .accept-button { display: block; }
 .static-app .balance-chart svg { max-height: 430px; }
 .static-app .app-footer-note {
-  color: var(--muted); font-size: 10px; line-height: 1.5; margin: 18px auto 0;
+  align-items: center; color: var(--muted); display: flex; flex-direction: column;
+  font-size: 10px; gap: 10px; line-height: 1.5; margin: 18px auto 0;
   max-width: 1120px; padding: 0 24px 22px; text-align: center;
 }
+.static-app .app-footer-note button {
+  background: transparent; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--teal-700); cursor: pointer; font-size: 10px; font-weight: 850;
+  min-height: 34px; padding: 0 15px;
+}
+.static-app .bases-page { margin: 0 auto; max-width: 1180px; padding: 30px 22px 48px; }
+.static-app .bases-intro { max-width: 820px; }
+.static-app .bases-intro h1 { font-size: clamp(36px, 6vw, 62px); letter-spacing: -.055em; margin: 7px 0 12px; }
+.static-app .bases-intro p { color: var(--muted); font-size: 13px; line-height: 1.65; margin: 0; }
+.static-app .bases-alert {
+  background: var(--yellow-soft); border: 1px solid #e8d17b; border-radius: 11px;
+  color: #5d4c0f; line-height: 1.55; margin: 24px 0; padding: 16px 18px;
+}
+.static-app .bases-alert strong { display: block; font-size: 11px; letter-spacing: .06em; margin-bottom: 5px; text-transform: uppercase; }
+.static-app .bases-alert span { font-size: 12px; }
+.static-app .bases-grid { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.static-app .bases-card { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 7px 24px rgba(20,50,60,.055); overflow: hidden; }
+.static-app .bases-card-header { background: var(--teal-950); color: #fff; padding: 19px 20px; }
+.static-app .bases-card-header span { color: #8fd8ee; display: block; font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.static-app .bases-card-header h2 { font-size: 24px; margin: 4px 0 0; }
+.static-app .bases-section { border-top: 1px solid var(--line); padding: 17px 20px; }
+.static-app .bases-section:first-of-type { border-top: 0; }
+.static-app .bases-section > strong { display: block; font-size: 10px; letter-spacing: .07em; margin-bottom: 10px; text-transform: uppercase; }
+.static-app .bases-values { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.static-app .bases-values div { background: var(--sky-soft); border-radius: 8px; padding: 10px; }
+.static-app .bases-values span { color: var(--muted); display: block; font-size: 9px; text-transform: uppercase; }
+.static-app .bases-values b { display: block; font-size: 14px; margin-top: 3px; }
+.static-app .bases-table { border-collapse: collapse; font-size: 11px; width: 100%; }
+.static-app .bases-table th, .static-app .bases-table td { border-bottom: 1px solid var(--line); padding: 8px 4px; text-align: right; }
+.static-app .bases-table th:first-child, .static-app .bases-table td:first-child { text-align: left; }
+.static-app .bases-table th { color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.static-app .bases-copy { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 0; }
+.static-app .formula-card { background: var(--sky-soft); border-left: 4px solid var(--sky); border-radius: 8px; margin-top: 18px; padding: 15px 16px; }
+.static-app .formula-card strong { display: block; font-size: 11px; margin-bottom: 6px; text-transform: uppercase; }
+.static-app .formula-card p { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 0; }
 @keyframes screenEnter { from { opacity: .45; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 820px) {
   .static-app .app-footer-note { padding: 0 14px 18px; }
   .static-app .aircraft-card { width: 100%; }
+  .static-app .bases-page { padding: 24px 13px 34px; }
+  .static-app .bases-intro h1 { font-size: 39px; }
+  .static-app .bases-grid { grid-template-columns: 1fr; }
+  .static-app .bases-card-header, .static-app .bases-section { padding-left: 15px; padding-right: 15px; }
 }
 </style>
 </head>
@@ -1489,9 +1530,9 @@ button, input { font: inherit; }
       { action: "LDG LIGHT / AUX GEN + GEN", response: "OFF" },
       { action: "Régime", response: "Ralenti" },
       { action: "Clé ALLUMAGE", response: "L/R puis OFF · enlevée" },
-      { action: "Déverrouillage frein de parc", response: "À confirmer sur la fiche", verify: true },
-      { action: "Compteur TOTAL HOURS", response: "Noté", verify: true, note: "Bas de la photo partiellement masqué." },
-      { action: "MASTER SWITCH puis Battery G3X", response: "OFF", verify: true, note: "Bas de la photo partiellement masqué." },
+      { action: "Déverrouillage frein de parc", response: "À confirmer", verify: true, confirmationNote: "Réalisé à partir des check-lists présentes dans l’avion, dont certains points sont peu lisibles et à confirmer." },
+      { action: "Compteur TOTAL HOURS", response: "Noté", verify: true, confirmationNote: "Réalisé à partir des check-lists présentes dans l’avion, dont certains points sont peu lisibles et à confirmer." },
+      { action: "MASTER SWITCH puis Battery G3X", response: "OFF", verify: true, confirmationNote: "Réalisé à partir des check-lists présentes dans l’avion, dont certains points sont peu lisibles et à confirmer." },
     ],
   },
 ];
@@ -1813,10 +1854,10 @@ const ulmPhases = [
     short: "Arrêt moteur",
     items: [
       { action: "Frein", response: "SERRÉ", critical: true },
-      { action: "Radio", response: "Message puis OFF", verify: true, note: "Texte partiellement masqué sur la fiche photographiée." },
+      { action: "Radio", response: "Message puis OFF", verify: true, confirmationNote: "À confirmer : exactitude de ces points par un responsable du club." },
       { action: "Transpondeur", response: "OFF" },
-      { action: "Moteur", response: "2 000 tr/min", verify: true, note: "Valeur partiellement masquée sur la fiche photographiée." },
-      { action: "Bobines", response: "OFF", verify: true, note: "Réponse partiellement masquée sur la fiche photographiée." },
+      { action: "Moteur", response: "2 000 tr/min", verify: true, confirmationNote: "À confirmer : exactitude de ces points par un responsable du club." },
+      { action: "Bobines", response: "OFF", verify: true, confirmationNote: "À confirmer : exactitude de ces points par un responsable du club." },
       { action: "STROB", response: "OFF" },
       { action: "Horamètre", response: "Relevé" },
       { action: "Contact", response: "OFF" },
@@ -1935,7 +1976,8 @@ const aircraftList = [
       phases: sportStarPhases,
       quickFacts: sportStarQuickFacts,
       source: "Fiche pilote F-HDLT",
-      sourceNote: "3 lignes masquées signalées à confirmer",
+      sourceNote: "À confirmer : exactitude de ces points par un responsable du club.",
+      reviewNote: "Réalisé à partir des check-lists présentes dans l’avion, dont certains points sont peu lisibles et à confirmer.",
     },
     balance: sportStarBalance,
   },
@@ -1969,9 +2011,9 @@ const aircraftList = [
       phases: ulmPhases,
       quickFacts: ulmQuickFacts,
       source: "Fiche pilote ULM Super Guépard F-JZGU · 16LF",
-      sourceNote: "3 sections photographiées · 3 lignes partiellement masquées à confirmer",
+      sourceNote: "À confirmer : exactitude de ces points par un responsable du club.",
       description: "Dérouler les trois sections reçues : mise en route, actions vitales et arrêt moteur.",
-      reviewNote: "La fiche photographiée a été transcrite ; trois lignes partiellement masquées restent signalées « à confirmer ».",
+      reviewNote: "À confirmer : exactitude de ces points par un responsable du club.",
     },
   },
 ];
@@ -2100,6 +2142,48 @@ const aircraftList = [
       '</section>' + footerNote() + '</main>';
   }
 
+  function baseValues(balance) {
+    return '<div class="bases-values">' +
+      '<div><span>Masse à vide</span><b>' + formatFr(balance.emptyMass, 1) + ' kg</b></div>' +
+      '<div><span>Bras à vide</span><b>' + formatFr(balance.emptyArm, 4) + ' m</b></div>' +
+      '<div><span>Masse maximale</span><b>' + formatFr(balance.maxMass, 0) + ' kg</b></div>' +
+      '<div><span>Densité carburant</span><b>' + formatFr(balance.fuelDensity, 2) + ' kg/l</b></div>' +
+      '</div>';
+  }
+
+  function stationRows(balance) {
+    return balance.inputs.map(function(input) {
+      const defaultDisplay = input.unit === 'litres' ? formatFr(input.defaultValue, 0) + ' l' : formatFr(input.defaultValue, 1) + ' kg';
+      const maxDisplay = input.unit === 'litres' ? formatFr(input.max, 0) + ' l' : formatFr(input.max, 0) + ' kg';
+      return '<tr><td>' + escapeHtml(input.rowLabel) + '</td><td>' + formatFr(input.arm, 2) + ' m</td><td>' + defaultDisplay + '</td><td>' + maxDisplay + '</td></tr>';
+    }).join('');
+  }
+
+  function envelopeText(balance) {
+    return balance.envelope.map(function(point) {
+      return formatFr(point[0], 2) + ' m / ' + formatFr(point[1], 0) + ' kg';
+    }).join(' · ');
+  }
+
+  function calculationBasesView() {
+    return '<main class="' + appClass() + '">' +
+      '<header class="cover-topbar"><div class="club-brand">' + logoImage('') + '<span><strong>Aéroclub Jean-Doudiès</strong><small>Bases de calcul</small></span></div><div class="cover-actions bases-actions"><button data-action="screen" data-screen="home">← Avions</button><button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div></header>' +
+      '<section class="bases-page"><div class="bases-intro"><span class="eyebrow">Transparence des calculs</span><h1>Bases de calcul</h1><p>Valeurs actuellement utilisées par l’application. Elles permettent de contrôler comment sont calculés les masses, moments et centres de gravité ; la documentation officielle de vol et la fiche de pesée en vigueur restent les références.</p></div>' +
+      '<div class="bases-alert"><strong>F-HDLT — mise à jour nécessaire</strong><span>À l’heure actuelle, le calcul de masse et centrage du F-HDLT utilise les valeurs du F-HDLV. Il doit être mis à jour à partir de la documentation officielle de vol du F-HDLT.</span></div>' +
+      '<div class="bases-grid">' +
+      '<article class="bases-card"><div class="bases-card-header"><span>F-HDLV · valeurs également appliquées provisoirement au F-HDLT</span><h2>Evektor SportStar</h2></div>' +
+      '<div class="bases-section"><strong>Valeurs générales</strong>' + baseValues(sportStarBalance) + '</div>' +
+      '<div class="bases-section"><strong>Postes de chargement et valeurs de saisie</strong><table class="bases-table"><thead><tr><th>Élément</th><th>Bras</th><th>Prérempli</th><th>Maximum</th></tr></thead><tbody>' + stationRows(sportStarBalance) + '</tbody></table></div>' +
+      '<div class="bases-section"><strong>Enveloppe utilisée</strong><p class="bases-copy">Sommets (centrage / masse) : ' + envelopeText(sportStarBalance) + '.</p></div>' +
+      '<div class="bases-section"><strong>Source</strong><p class="bases-copy">' + escapeHtml(sportStarBalance.source) + '</p></div></article>' +
+      '<article class="bases-card"><div class="bases-card-header"><span>F-GGHL</span><h2>Robin DR400</h2></div>' +
+      '<div class="bases-section"><strong>Valeurs générales</strong>' + baseValues(dr400Balance) + '</div>' +
+      '<div class="bases-section"><strong>Postes de chargement et valeurs de saisie</strong><table class="bases-table"><thead><tr><th>Élément</th><th>Bras</th><th>Prérempli</th><th>Maximum</th></tr></thead><tbody>' + stationRows(dr400Balance) + '</tbody></table></div>' +
+      '<div class="bases-section"><strong>Enveloppe utilisée</strong><p class="bases-copy">Sommets (centrage / masse) : ' + envelopeText(dr400Balance) + '.</p></div>' +
+      '<div class="bases-section"><strong>Source</strong><p class="bases-copy">' + escapeHtml(dr400Balance.source) + '</p></div></article></div>' +
+      '<div class="formula-card"><strong>Formules appliquées</strong><p>Moment de chaque élément = masse × bras. Masse totale = somme des masses. Centre de gravité = somme des moments ÷ masse totale. Pour le carburant, la masse est obtenue avec une densité de ' + formatFr(sportStarBalance.fuelDensity, 2) + ' kg/l.</p></div></section>' + footerNote() + '</main>';
+  }
+
   function checklistView() {
     const aircraft = currentAircraft();
     const checklist = aircraft.checklist;
@@ -2120,7 +2204,7 @@ const aircraftList = [
     const rows = phase.items.map(function(item, index) {
       const key = itemKey(phase, index), done = Boolean(aircraftChecked[key]);
       return '<button class="check-row ' + (done ? 'done ' : '') + (item.critical ? 'critical ' : '') + (item.verify ? 'verify' : '') + '" data-action="check" data-index="' + index + '" aria-pressed="' + done + '">' +
-        '<span class="check-box">' + (done ? '✓' : '') + '</span><span class="item-number">' + (index + 1) + '</span><span class="item-copy"><strong>' + escapeHtml(item.action) + '</strong>' + (item.note ? '<small>' + escapeHtml(item.note) + '</small>' : '') + '</span><span class="dots"></span><span class="response">' + escapeHtml(item.response) + (item.verify ? '<small>À confirmer</small>' : '') + '</span></button>';
+        '<span class="check-box">' + (done ? '✓' : '') + '</span><span class="item-number">' + (index + 1) + '</span><span class="item-copy"><strong>' + escapeHtml(item.action) + '</strong>' + (item.note ? '<small>' + escapeHtml(item.note) + '</small>' : '') + '</span><span class="dots"></span><span class="response">' + escapeHtml(item.response) + (item.confirmationNote ? '<small>' + escapeHtml(item.confirmationNote) + '</small>' : item.verify ? '<small>À confirmer</small>' : '') + '</span></button>';
     }).join('');
     const facts = checklist.quickFacts || [];
     return '<main class="' + appClass() + '">' + header('FLIGHT CHECK', aircraft.name, 'aircraft', '<button class="desktop-only" data-action="screen" data-screen="balance">Masse & centrage</button><button class="desktop-only" data-action="facts">Repères</button>') +
@@ -2189,7 +2273,7 @@ const aircraftList = [
   }
 
   function footerNote() {
-    return '<p class="app-footer-note">Prototype de l’Aéroclub Jean-Doudiès — version à valider. La documentation approuvée de l’aéronef et les consignes du club font foi.</p>';
+    return '<footer class="app-footer-note"><span>Prototype de l’Aéroclub Jean-Doudiès — version à valider. La documentation approuvée de l’aéronef et les consignes du club font foi.</span>' + (state.screen === 'bases' ? '' : '<button data-action="screen" data-screen="bases">Bases de calcul</button>') + '</footer>';
   }
 
   function disclaimer() {
@@ -2213,7 +2297,7 @@ const aircraftList = [
 
   function render() {
     const app=document.getElementById('app');
-    let view=state.screen==='home'?homeView():state.screen==='aircraft'?aircraftView():state.screen==='balance'?balanceView():checklistView();
+    let view=state.screen==='home'?homeView():state.screen==='aircraft'?aircraftView():state.screen==='balance'?balanceView():state.screen==='bases'?calculationBasesView():checklistView();
     app.innerHTML=view+factsOverlay()+phasesOverlay()+disclaimer();
     document.documentElement.style.background=state.night?'#071219':'#eef3f5';
   }
