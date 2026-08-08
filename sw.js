@@ -1,4 +1,4 @@
-const CACHE = "acjd-flight-tools-static-v5-calculation-bases";
+const CACHE = "acjd-flight-tools-static-v6-exact-wording";
 const CORE = ["/", "/index.html"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
