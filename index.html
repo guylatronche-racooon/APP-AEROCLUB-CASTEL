@@ -2457,7 +2457,7 @@ const aircraftList = [
       persist();
       render();
       const replacement=document.querySelector('[data-density="'+densityInput.dataset.density+'"]');
-      if(replacement){replacement.focus();replacement.setSelectionRange&&replacement.setSelectionRange(String(parsed).length,String(parsed).length);}
+      if(replacement){replacement.focus();}
       return;
     }
     const input=event.target.closest('[data-load]');
@@ -2468,7 +2468,7 @@ const aircraftList = [
     persist();
     render();
     const replacement=document.querySelector('[data-load="'+input.dataset.load+'"]');
-    if(replacement){replacement.focus();replacement.setSelectionRange&&replacement.setSelectionRange(String(value).length,String(value).length);}
+    if(replacement){replacement.focus();}
   });
 
   if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(function(){});}
