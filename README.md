@@ -30,10 +30,12 @@ consignes du club restent seules opposables.
    pour la piste sélectionnée ; lorsqu'il existe du dur et de l'herbe, le dur sec est le
    choix initial. Les états mouillés restent hors table tant qu'aucune correction du
    manuel applicable n'a été validée.
-6. **Vent, pente et marge.** La composante longitudinale peut être calculée de manière
-   prudente depuis le METAR, les rafales, le secteur variable et le QFU sélectionné, ou
-   saisie manuellement. Si elle n'est pas calculable, 0 kt est proposé et doit être
-   ajusté. La pente publiée est reprise ; sinon 0 % est proposé et doit être vérifié.
+6. **Vent, pente et marge.** Le vent moyen du METAR propose automatiquement le QFU
+   offrant la meilleure composante longitudinale, sans remplacer la piste en service,
+   la VAC ni les NOTAM. La composante du vent moyen préremplit le calcul ; le secteur
+   variable et les rafales restent affichés séparément. Si le secteur traverse vent de
+   face et vent arrière, 0 kt est proposé et doit être confirmé ou ajusté. La pente
+   publiée est reprise ; sinon 0 % est proposé et doit être vérifié.
    La marge pilote/club vaut 0 % par défaut et reste réglable. Pour un terrain de
    montagne ou une altisurface, la documentation du terrain et la réglementation propre
    aux conditions particulières doivent être consultées.
