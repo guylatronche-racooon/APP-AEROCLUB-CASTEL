@@ -453,6 +453,40 @@ test('La liste rendue ne propose que les états de la piste sélectionnée', () 
   assert.match(grassRunway, />Herbe mouillée</);
 });
 
+test('La fiche terrain rend le lien VAC direct et qualifie les distances absentes', () => {
+  state.aircraftId = 'f-hdlt';
+  setSportStarLoad();
+  setDeparture({ runwayId: '10', surface: 'hard' });
+  state.airfield = {
+    status: 'loaded',
+    cycle: 'AIRAC 08/26',
+    record: {
+      icao: 'LFRN',
+      name: 'RENNES SAINT JACQUES',
+      elevationFt: 124,
+      vacAvailability: 'direct',
+      vacUrl: 'https://www.sia.aviation-civile.gouv.fr/media/dvd/eAIP_06_AUG_2026/Atlas-VAC/PDF_AIPparSSection/VAC/AD/AD-2.LFRN.pdf',
+      sourceNote: 'Distances déclarées importées depuis la VAC en vigueur.',
+      runways: [
+        { id: '10', toraM: 2_102, todaM: 2_102, surface: 'hard', declaredDistanceStatus: 'published' },
+        { id: '27', toraM: null, todaM: null, surface: 'hard', declaredDistanceStatus: 'takeoff_not_published' },
+        { id: '09', toraM: null, todaM: null, surface: 'hard', declaredDistanceStatus: 'conditional_or_ambiguous' },
+      ],
+    },
+  };
+
+  const rendered = performanceView();
+  assert.match(rendered, /Ouvrir la VAC officielle de LFRN/);
+  assert.match(rendered, /10 · TORA 2(?:\s|&nbsp;| )?102 m/);
+  assert.match(rendered, /27 · décollage NIL/);
+  assert.match(rendered, /09 · distance conditionnelle/);
+
+  state.airfield.record.vacAvailability = 'not_published_in_atlas';
+  state.airfield.record.vacUrl = 'https://www.sia.aviation-civile.gouv.fr/atlas-vac.html';
+  const unavailable = performanceView();
+  assert.match(unavailable, /VAC directe non publiée dans l’Atlas/);
+});
+
 test('Humidite : la valeur la plus restrictive est retenue', () => {
   setSportStarLoad();
   setDeparture({

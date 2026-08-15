@@ -22,6 +22,10 @@ test('le jeu SIA AD 1.3 AIRAC 08/26 est valide et daté', () => {
   assert.match(dataset.sourceUrl, /FR-AD-1\.3-fr-FR\.html$/);
   assert.equal(dataset.scope.airfieldCount, 432);
   assert.equal(airfields.length, 432);
+  assert.equal(dataset.vacImport.vacAvailable, 420);
+  assert.equal(dataset.vacImport.runwaysMatched, 1248);
+  assert.equal(dataset.vacImport.runwaysEnriched, 1247);
+  assert.equal(dataset.vacImport.runwaysTakeoffNotPublished, 1);
 });
 
 test('les 432 indicateurs OACI et les QFU sont uniques', () => {
@@ -65,6 +69,14 @@ test('les surfaces et valeurs numériques restent plausibles', () => {
     );
     assert.ok(airfield.vacUrl.startsWith('https://www.sia.aviation-civile.gouv.fr/'));
     assert.ok(airfield.sourceNote.length > 20);
+    assert.ok(['direct', 'not_published_in_atlas'].includes(airfield.vacAvailability));
+    if (airfield.vacAvailability === 'direct') {
+      assert.match(
+        airfield.vacUrl,
+        /\/media\/dvd\/eAIP_06_AUG_2026\/Atlas-VAC\/PDF_AIPparSSection\/VAC\/AD\/AD-2\.[A-Z]{4}\.pdf$/,
+      );
+      assert.equal(airfield.vacSource.cycle, dataset.cycle);
+    }
 
     for (const runway of airfield.runways) {
       assert.ok(knownSurfaceValues.has(runway.surface), `${airfield.icao} ${runway.id}: surface inconnue`);
@@ -88,7 +100,28 @@ test('les surfaces et valeurs numériques restent plausibles', () => {
           `${airfield.icao} ${runway.id}: surface non prise en charge mal classée`,
         );
       }
+      if (runway.declaredDistanceStatus === 'published') {
+        assert.ok(runway.toraM > 0, `${airfield.icao} ${runway.id}: TORA publiée absente`);
+        assert.ok(runway.todaM >= runway.toraM, `${airfield.icao} ${runway.id}: TODA < TORA`);
+        assert.ok(runway.asdaM >= runway.toraM, `${airfield.icao} ${runway.id}: ASDA < TORA`);
+        assert.ok(runway.ldaM === null || runway.ldaM > 0);
+        assert.equal(runway.declaredDistanceSource, 'SIA VAC');
+      }
     }
+  }
+});
+
+test('les VAC disponibles sont directes et les absences Atlas restent explicites', () => {
+  const direct = airfields.filter((airfield) => airfield.vacAvailability === 'direct');
+  const unavailable = airfields.filter((airfield) => airfield.vacAvailability === 'not_published_in_atlas');
+  assert.equal(direct.length, 420);
+  assert.deepEqual(
+    unavailable.map((airfield) => airfield.icao).sort(),
+    ['LFOA', 'LFBC', 'LFXQ', 'LFOE', 'LFSX', 'LFBM', 'LFKK', 'LFSO', 'LFMO', 'LFSI', 'LFKS', 'LFPV'].sort(),
+  );
+  for (const airfield of unavailable) {
+    assert.equal(airfield.vacUrl, 'https://www.sia.aviation-civile.gouv.fr/atlas-vac.html');
+    assert.equal(airfield.vacSource, undefined);
   }
 });
 
@@ -130,13 +163,38 @@ test('LFMW reprend les distances déclarées officielles et garde la surface par
   );
 });
 
-test('une distance non publiée demeure null et ne devient ni zéro ni longueur physique', () => {
-  const runway = byQfu('LFMK', '09');
-  assert.equal(runway.lengthM, 2050);
-  assert.equal(runway.toraM, null);
-  assert.equal(runway.todaM, null);
-  assert.equal(runway.asdaM, null);
-  assert.equal(runway.ldaM, null);
-  assert.notEqual(runway.toraM, 0);
-  assert.notEqual(runway.toraM, runway.lengthM);
+test('les formats VAC complexes sont lus sans confondre piste, configuration ou intersection', () => {
+  assert.deepEqual(
+    ['10', '28', '14', '32', '14L', '32R'].map((qfu) => {
+      const runway = byQfu('LFRN', qfu);
+      return [qfu, runway.toraM, runway.todaM, runway.asdaM, runway.ldaM];
+    }),
+    [
+      ['10', 2102, 2102, 2102, 2031],
+      ['28', 2102, 2102, 2102, 2102],
+      ['14', 850, 850, 850, 850],
+      ['32', 850, 850, 850, 850],
+      ['14L', 549, 549, 549, 549],
+      ['32R', 549, 549, 549, 549],
+    ],
+  );
+
+  assert.deepEqual(
+    ['14L', '32R', '14R', '32L'].map((qfu) => [qfu, byQfu('LFBO', qfu).toraM]),
+    [['14L', 3025], ['32R', 3025], ['14R', 3503], ['32L', 3503]],
+  );
+
+  assert.equal(byQfu('LFPN', '25L').toraM, 945);
+  assert.equal(byQfu('LFPN', '25L').toraMethod, 'explicit');
+  assert.equal(byQfu('LFPB', '09').toraM, 1847, 'la distance réduite depuis TWY A1 est exclue');
+  assert.equal(byQfu('LFPB', '27').declaredDistanceStatus, 'takeoff_not_published');
+  assert.equal(byQfu('LFPB', '27').toraM, null);
+  assert.equal(byQfu('LFPB', '27').todaM, null);
+
+  for (const qfu of ['09', '27']) {
+    const conditional = byQfu('LFCI', qfu);
+    assert.equal(conditional.declaredDistanceStatus, 'conditional_or_ambiguous');
+    assert.equal(conditional.toraM, null);
+    assert.equal(conditional.todaM, null);
+  }
 });

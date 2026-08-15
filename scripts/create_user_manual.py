@@ -828,7 +828,7 @@ def create_manual(toc_pages):
     add_step(doc, "Piste", "contrôler le QFU proposé et le changer si les informations opérationnelles imposent un autre sens.")
     add_step(doc, "Météo", "contrôler l'heure et la station du METAR. Confirmer les conditions seulement après comparaison avec les observations disponibles au terrain.")
     add_step(doc, "TEMSI et WINTEM", "ouvrir AÉROWEB depuis l'encadré permanent et consulter les cartes adaptées au vol. Elles ne modifient pas automatiquement les données de performance.")
-    add_step(doc, "Distances", "vérifier TORA et TODA sur la VAC, l'AIP et les NOTAM. Corriger les valeurs si nécessaire.")
+    add_step(doc, "Distances", "ouvrir le lien direct « VAC officielle », puis comparer la TORA et la TODA préremplies avec la carte, l'AIP et les NOTAM. Corriger les valeurs si une information du jour modifie la distance disponible.")
     add_step(doc, "Surface et pente", "choisir l'état réel de la piste et vérifier la pente. Une valeur 0 % marquée « non publiée » est une valeur par défaut, pas une donnée officielle.")
     add_step(doc, "Vent", "contrôler la composante préremplie. Passer en saisie manuelle si la valeur retenue ne représente pas les conditions au décollage.")
     add_step(doc, "Marge", "renseigner la marge additionnelle décidée selon les consignes du club et l'appréciation du pilote. La valeur initiale 0 % n'est pas une recommandation.")
@@ -847,8 +847,9 @@ def create_manual(toc_pages):
 
     section_intro(doc, "07", "Terrain, météo, piste et vent", "Les préremplissages réduisent la saisie, mais ne déterminent pas la piste en service et ne remplacent pas les informations du jour.")
     heading(doc, "7.1 Données terrain", 2)
-    paragraph(doc, "Le jeu local contient les aérodromes métropolitains du cycle AIRAC 08/26. Il reprend notamment l'altitude, les QFU, les surfaces, les dimensions, les relèvements vrais et les altitudes de seuil. Les distances déclarées TORA et TODA ne sont remplies que lorsqu'elles ont été intégrées depuis une source identifiée.")
-    paragraph(doc, "Une absence de donnée laisse le champ modifiable. La longueur physique d'une piste ne doit pas être confondue avec une TORA ou une TODA publiée.")
+    paragraph(doc, "Le jeu local contient les aérodromes métropolitains du cycle AIRAC 08/26. Il reprend notamment l'altitude, les QFU, les surfaces, les dimensions, les relèvements vrais et les altitudes de seuil. Pour chaque terrain publié dans l'Atlas VAC du même cycle, le bouton ouvre directement le PDF officiel du terrain.")
+    paragraph(doc, "Un import hors ligne lit la table des distances déclarées de chaque VAC. Les départs réduits depuis une intersection ou un taxiway sont écartés. Lorsque la VAC ne donne pas de colonne TORA, l'application retient prudemment la plus petite valeur entre la longueur physique, la TODA et l'ASDA. Une TORA explicitement publiée dans le texte de la VAC remplace cette valeur dérivée.")
+    add_callout(doc, "Cas laissés vides", "Une VAC peut publier plusieurs configurations, omettre les distances d'une bande ou indiquer NIL au décollage. Dans ces cas, l'application ne choisit pas arbitrairement : le menu signale la situation et les champs restent à compléter uniquement à partir de l'information applicable du jour.", "reserve")
     heading(doc, "7.2 METAR et station voisine", 2)
     paragraph(doc, "Le relais interroge Aviation Weather Center. Un METAR n'est utilisé que si la station retournée est celle demandée, si l'heure est cohérente, si l'observation a moins de deux heures et si QNH et température sont présents.")
     paragraph(doc, "Si aucun METAR n'est publié pour le terrain, l'application recherche les observations récentes dans un rayon maximal de 150 km. Elle en présente deux au maximum, classées en tenant compte de la distance, de l'écart d'altitude et de la fraîcheur du rapport. Le pilote doit sélectionner la station : aucun METAR voisin n'est appliqué automatiquement.")
@@ -893,7 +894,7 @@ def create_manual(toc_pages):
     heading(doc, "9.2 Mode hors ligne", 2)
     paragraph(doc, "Les écrans, les données terrain et les documents déjà mis en cache restent accessibles. Sans le relais météo, le terrain peut encore être trouvé localement et les conditions doivent être saisies manuellement. Un METAR mémorisé ne doit pas être considéré comme une observation du jour.")
     heading(doc, "9.3 Cycle AIRAC", 2)
-    paragraph(doc, "Le cycle et sa date d'effet sont affichés avec les données terrain. Un cycle absent, futur ou âgé de plus de 28 jours déclenche un avertissement. La VAC, l'AIP et les NOTAM en vigueur gardent la priorité.")
+    paragraph(doc, "Le cycle et sa date d'effet sont affichés avec les données terrain. Le catalogue et les VAC doivent être réimportés ensemble à chaque cycle. Un cycle absent, futur ou âgé de plus de 28 jours déclenche un avertissement. La VAC, l'AIP et les NOTAM en vigueur gardent la priorité.")
     heading(doc, "9.4 Mise à jour de l'application", 2)
     paragraph(doc, "Le service worker installe une nouvelle version des fichiers lorsque le réseau est disponible. Sur un iPhone, fermer puis rouvrir l'application après une mise à jour importante. Si l'affichage reste ancien, ouvrir le site dans Safari, attendre son chargement complet puis relancer l'icône de l'écran d'accueil.")
 
@@ -903,7 +904,9 @@ def create_manual(toc_pages):
         ("Terrain présent, pas de METAR", "Deux observations voisines au maximum peuvent être proposées.", "Choisir explicitement une station adaptée ou poursuivre en saisie manuelle."),
         ("METAR de station voisine", "La station et l'avertissement restent visibles.", "Comparer avec les observations au terrain avant confirmation."),
         ("METAR ancien ou incohérent", "Aucune valeur météo n'est préremplie.", "Obtenir une observation valide ou saisir manuellement."),
-        ("TORA/TODA absentes", "Les champs restent vides.", "Consulter la VAC, l'AIP et les NOTAM."),
+        ("VAC directe disponible", "Le PDF officiel du terrain s'ouvre sans recherche dans l'Atlas.", "Contrôler la table et les informations du jour."),
+        ("VAC non publiée dans l'Atlas", "Le lien ouvre le portail SIA et l'absence est signalée.", "Consulter l'AIP et la documentation officielle applicable."),
+        ("TORA/TODA absentes ou conditionnelles", "Les champs restent vides ; aucune distance n'est déduite arbitrairement.", "Appliquer uniquement la configuration publiée et en service."),
         ("Pente non publiée", "0 % est proposé et étiqueté par défaut.", "Vérifier la documentation terrain et modifier si nécessaire."),
         ("Piste mouillée", "Le résultat passe hors table.", "Employer uniquement une méthode approuvée applicable."),
     ], [4.4, 6.2, CONTENT_WIDTH_CM - 10.6], font_size=7.9)
@@ -983,8 +986,8 @@ def create_manual(toc_pages):
         ("F-GGHL", "Manuel générique DR400/180, édition 13, table page 5.2", "Non spécifique à l'avion ; applicabilité à confirmer"),
     ], [4.2, 8.4, CONTENT_WIDTH_CM - 12.6], font_size=8.1)
     heading(doc, "B.4 Données terrain", 2)
-    paragraph(doc, "Le fichier local est généré à partir du catalogue SIA AD 1.3 / AIXM du cycle AIRAC 08/26. Il contient 432 aérodromes métropolitains et 1 349 entrées directionnelles. LFRQ et LFMW disposent en plus de distances déclarées intégrées depuis leur documentation courante.")
-    paragraph(doc, "À titre de contrôle : LFRQ, altitude 297 ft, QFU 09/27, asphalte, 2 150 x 45 m ; TORA/TODA 09 : 2 150/2 150 m et 27 : 2 113/2 113 m. LFMW, altitude 553 ft, QFU 11/29, piste revêtue 810 x 30 m ; TORA/TODA 810/810 m.")
+    paragraph(doc, "Le fichier local est généré à partir du catalogue SIA AD 1.3 / AIXM et des VAC du cycle AIRAC 08/26. Il contient 432 aérodromes métropolitains et 1 349 entrées directionnelles. Une VAC directe est disponible pour 420 terrains ; 1 247 QFU disposent d'une TORA/TODA exploitable et un QFU est explicitement indiqué NIL au décollage. Les autres entrées correspondent notamment à des bandes non publiées dans la table ou à des configurations conditionnelles.")
+    paragraph(doc, "À titre de contrôle : LFRN reprend les six entrées 10, 28, 14, 32, 14L et 32R sans mélanger la piste revêtue et la bande non revêtue ; LFPN 25L reprend la TORA explicitement publiée de 945 m ; les distances réduites depuis les taxiways sont exclues. LFRQ conserve TORA/TODA 09 : 2 150/2 150 m et 27 : 2 113/2 113 m.")
 
     section_intro(doc, "ANNEXE C", "Réserves d'emploi et points à valider", "Cette liste accompagne la version de travail. Elle doit être soldée ou maintenue explicitement avant une diffusion opérationnelle.")
     heading(doc, "C.1 Réserves propres aux avions", 2)
@@ -1002,6 +1005,7 @@ def create_manual(toc_pages):
     add_bullet(doc, "La marge additionnelle est réglée à 0 % par défaut. Une valeur club ne doit être intégrée qu'après décision formelle.")
     heading(doc, "C.3 Réserves relatives aux terrains et à la météo", 2)
     add_bullet(doc, "Définir et appliquer une procédure de mise à jour du jeu SIA tous les 28 jours.")
+    add_bullet(doc, "Réimporter le catalogue AD 1.3 et les VAC du même cycle, puis contrôler le rapport d'audit avant publication.")
     add_bullet(doc, "Ne pas confondre longueur physique, TORA, TODA, ASDA et LDA.")
     add_bullet(doc, "Traiter 0 % de pente comme une valeur par défaut lorsque la pente n'est pas publiée.")
     add_bullet(doc, "Une station METAR voisine ne décrit pas automatiquement le terrain demandé.")

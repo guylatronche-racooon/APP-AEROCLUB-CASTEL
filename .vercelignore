@@ -1,0 +1,7 @@
+.agents
+.codex
+artifacts
+dist
+tests
+upload
+*.log

@@ -1,0 +1,442 @@
+{
+  "cycle": "AIRAC 08/26",
+  "effectiveDate": "2026-08-06",
+  "generatedAt": "2026-08-15T21:19:49Z",
+  "sourceTemplate": "https://www.sia.aviation-civile.gouv.fr/media/dvd/eAIP_06_AUG_2026/Atlas-VAC/PDF_AIPparSSection/VAC/AD/AD-2.{ICAO}.pdf",
+  "airfields": 432,
+  "vacAvailable": 420,
+  "vacMissing": [
+    {
+      "icao": "LFOA",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFBC",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFXQ",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFOE",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFSX",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFBM",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFKK",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFSO",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFMO",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFSI",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFKS",
+      "reason": "HTTP 404"
+    },
+    {
+      "icao": "LFPV",
+      "reason": "HTTP 404"
+    }
+  ],
+  "runways": 1349,
+  "runwaysMatched": 1248,
+  "runwaysEnriched": 1247,
+  "runwaysTakeoffNotPublished": 1,
+  "runwaysUnresolved": [
+    {
+      "icao": "LFCI",
+      "runway": "09",
+      "reason": "plusieurs lignes de distances possibles"
+    },
+    {
+      "icao": "LFCI",
+      "runway": "27",
+      "reason": "plusieurs lignes de distances possibles"
+    },
+    {
+      "icao": "LFAY",
+      "runway": "30L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMV",
+      "runway": "17L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMV",
+      "runway": "35R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMV",
+      "runway": "17R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMV",
+      "runway": "35L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHB",
+      "runway": "09",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHB",
+      "runway": "27",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "02",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "20",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "02L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "20R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "02R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "20L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "12L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "30R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "12R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFOQ",
+      "runway": "30L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLD",
+      "runway": "06R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLD",
+      "runway": "24L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFFN",
+      "runway": "10R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFFN",
+      "runway": "28L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJY",
+      "runway": "05C",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJY",
+      "runway": "23C",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJY",
+      "runway": "05L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJY",
+      "runway": "23R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMX",
+      "runway": "02",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMX",
+      "runway": "20",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLC",
+      "runway": "01",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLC",
+      "runway": "19",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLC",
+      "runway": "08L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLC",
+      "runway": "26R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJD",
+      "runway": "12",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFSW",
+      "runway": "22",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNA",
+      "runway": "20L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHU",
+      "runway": "06",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFJE",
+      "runway": "03",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRJ",
+      "runway": "07",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRJ",
+      "runway": "25",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRL",
+      "runway": "05",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRL",
+      "runway": "23",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRL",
+      "runway": "13",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFRL",
+      "runway": "31",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNZ",
+      "runway": "18",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNZ",
+      "runway": "36",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFBL",
+      "runway": "03R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFBL",
+      "runway": "21L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFTB",
+      "runway": "13",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFTB",
+      "runway": "31",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHM",
+      "runway": "15",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFQT",
+      "runway": "22L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFMG",
+      "runway": "18",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFEM",
+      "runway": "04",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFEM",
+      "runway": "22",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLT",
+      "runway": "11",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFSN",
+      "runway": "03R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFSN",
+      "runway": "21L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFIP",
+      "runway": "09",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFIP",
+      "runway": "27",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHE",
+      "runway": "02",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFHE",
+      "runway": "20",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFKH",
+      "runway": "20",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFKE",
+      "runway": "14",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFLN",
+      "runway": "33",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNE",
+      "runway": "10",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNE",
+      "runway": "28",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNE",
+      "runway": "15L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFNE",
+      "runway": "33R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFGC",
+      "runway": "17R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFGC",
+      "runway": "35L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFAV",
+      "runway": "06",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFAV",
+      "runway": "24",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFAV",
+      "runway": "11L",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    },
+    {
+      "icao": "LFAV",
+      "runway": "29R",
+      "reason": "ligne QFU non reconnue dans la table des distances déclarées"
+    }
+  ],
+  "vacMissingCount": 12,
+  "runwaysUnresolvedCount": 75,
+  "catalogueSha256BeforeWrite": "10075bcc864f35bf44bfde8ccea14b25d8a0528dc2e72c1bf152e5d89cd88289"
+}

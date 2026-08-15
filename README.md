@@ -28,6 +28,10 @@ consignes du club restent seules opposables.
    publié, deux observations voisines récentes au maximum sont proposées selon la
    distance, l'écart d'altitude et leur fraîcheur. Aucune n'est appliquée sans choix
    explicite ; l'avertissement de station voisine reste ensuite visible.
+   Pour les VAC disponibles dans l'Atlas, le lien ouvre directement le PDF officiel du
+   terrain. La table des distances déclarées est importée hors ligne ; les départs depuis
+   intersection ou taxiway sont exclus. Une configuration conditionnelle ou une distance
+   indiquée `NIL` reste vide et clairement signalée.
 5. **Nature et état de piste.** Les choix sont « Dur sec », « Dur mouillé », « Herbe
    sèche » et « Herbe mouillée ». Les familles proposées suivent les surfaces publiées
    pour la piste sélectionnée ; lorsqu'il existe du dur et de l'herbe, le dur sec est le
@@ -87,6 +91,17 @@ les refus hors table, le cas 3 000 ft / 38,5 °C, l'humidité facultative, TORA/
 le traitement conservateur d'une masse DR400 inférieure à 900 kg, les expirations météo,
 les stations discordantes, les dates de cycle et les replis du service worker.
 
+L'import des VAC du cycle indiqué par le catalogue se relance avec :
+
+```bash
+python3 scripts/enrich_airfield_vac.py
+```
+
+Le script télécharge les PDF officiels dans un cache local non livré, associe chaque
+ligne de QFU à la bonne piste et écrit un rapport d'audit dans
+`data/sia-vac-import-report.json`. Il n'utilise jamais les distances réduites depuis une
+intersection ou un taxiway.
+
 ## Déploiement Vercel
 
 Le fichier `vercel.json` expose `app/index.html` à la racine, sert le manifeste, les
@@ -98,7 +113,7 @@ un contact opérationnel. Les scans consultés sont ensuite disponibles hors lig
 
 `app/data/airfields.json` suit un schéma local simple : référence de cycle, date d'effet,
 coordonnées ARP, élévation, pistes, QFU, surface, TORA/TODA, pente lorsqu'elle est publiée
-et lien VAC. Il est conçu pour être régénéré et contrôlé à chaque
+et lien direct vers la VAC du même cycle lorsqu'elle existe. Il est conçu pour être régénéré et contrôlé à chaque
 cycle AIRAC depuis les produits numériques du SIA. Une date absente, invalide, future ou
 vieille de plus de 28 jours provoque un avertissement visible.
 
@@ -106,13 +121,17 @@ Sources et attribution :
 
 - [SIA — produits numériques en libre disposition](https://www.sia.aviation-civile.gouv.fr/produits-numeriques-en-libre-disposition.html),
   sous Licence Ouverte / Etalab 2.0 ;
-- [SIA — Atlas VAC](https://www.sia.aviation-civile.gouv.fr/atlas-vac.html), utilisé
-  comme lien de contrôle vers la carte en vigueur ;
+- [SIA — Atlas VAC](https://www.sia.aviation-civile.gouv.fr/atlas-vac.html), dont les
+  PDF officiels sont liés directement et les tables de distances déclarées importées ;
 - métadonnées de cycle, date d'effet et provenance conservées dans le fichier local pour
   rendre chaque préremplissage traçable.
 
-Le jeu local facilite la saisie mais ne constitue ni une API SIA temps réel, ni une copie
-exhaustive de l'AIP. Une absence de fiche, de VAC, de pente, de TODA ou de station météo
+Pour le cycle AIRAC 08/26, l'Atlas fournit une VAC directe pour 420 des 432 aérodromes
+du catalogue et 1 247 QFU reçoivent une TORA/TODA exploitable. Les autres cas sont des
+VAC absentes de l'Atlas, des bandes sans distances déclarées, des configurations
+conditionnelles ou un décollage non publié. Le jeu local facilite la saisie mais ne
+constitue ni une API SIA temps réel, ni une copie exhaustive de l'AIP. Une absence de
+fiche, de VAC, de pente, de TODA ou de station météo
 n'autorise aucune valeur inventée. La VAC en vigueur, l'AIP, les NOTAM et les informations
 opérationnelles du jour font foi.
 

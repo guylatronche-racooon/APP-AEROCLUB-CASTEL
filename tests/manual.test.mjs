@@ -16,6 +16,6 @@ test('le manuel PDF est publié et relié depuis l’application', async () => {
   assert.ok(manualStat.size > 100_000, 'le PDF doit être un document complet');
   assert.match(app, /Manuel d’utilisation et méthodes de calcul/);
   assert.match(app, /\/documents\/manuel-utilisation-outils-de-vol\.pdf/);
-  assert.match(serviceWorker, /acjd-flight-tools-static-v17-nearby-weather/);
+  assert.match(serviceWorker, /acjd-flight-tools-static-v18-vac-catalogue/);
   assert.match(serviceWorker, /\/documents\/manuel-utilisation-outils-de-vol\.pdf/);
 });
