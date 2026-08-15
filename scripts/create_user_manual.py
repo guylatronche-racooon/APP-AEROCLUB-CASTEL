@@ -804,6 +804,8 @@ def create_manual(toc_pages):
     add_step(doc, "Saisir l'OACI", "entrer les quatre lettres de l'aérodrome. Le champ blanc constitue la zone modifiable.")
     add_step(doc, "Charger", "sélectionner « Utiliser le METAR ». L'altitude vient du jeu terrain local ; le QNH, la température et le point de rosée viennent d'une observation récente lorsque celle-ci est exploitable.")
     add_step(doc, "Contrôler", "lire le code de la station, l'heure de l'observation et l'éventuelle mention « station voisine » avant d'utiliser les valeurs.")
+    add_step(doc, "Sans METAR local", "choisir, si elle convient, l'une des deux observations voisines proposées. La distance, l'écart d'altitude et l'âge du METAR sont affichés. Aucune valeur voisine n'est appliquée sans ce choix explicite.")
+    paragraph(doc, "Le lien permanent « Ouvrir AÉROWEB » donne accès au portail officiel de Météo-France pour consulter les cartes TEMSI et WINTEM. Ces cartes complètent la préparation météo ; elles n'alimentent pas le calcul d'altitude-densité.")
     heading(doc, "5.3 Option humidité", 2)
     paragraph(doc, "L'option « Tenir compte de l'humidité » calcule la densité réelle d'un mélange d'air sec et de vapeur d'eau à partir de la pression, de la température et du point de rosée. Elle est indépendante de tout avion et n'est donc rattachée à aucune table constructeur.")
     paragraph(doc, "L'écran affiche, selon le cas, l'altitude-pression, la température ISA, l'écart ISA, l'humidité estimée, l'altitude-densité sèche et l'effet de l'humidité.")
@@ -825,6 +827,7 @@ def create_manual(toc_pages):
     add_step(doc, "Terrain", "saisir l'indicatif OACI dans le champ blanc puis sélectionner « Terrain + METAR ».")
     add_step(doc, "Piste", "contrôler le QFU proposé et le changer si les informations opérationnelles imposent un autre sens.")
     add_step(doc, "Météo", "contrôler l'heure et la station du METAR. Confirmer les conditions seulement après comparaison avec les observations disponibles au terrain.")
+    add_step(doc, "TEMSI et WINTEM", "ouvrir AÉROWEB depuis l'encadré permanent et consulter les cartes adaptées au vol. Elles ne modifient pas automatiquement les données de performance.")
     add_step(doc, "Distances", "vérifier TORA et TODA sur la VAC, l'AIP et les NOTAM. Corriger les valeurs si nécessaire.")
     add_step(doc, "Surface et pente", "choisir l'état réel de la piste et vérifier la pente. Une valeur 0 % marquée « non publiée » est une valeur par défaut, pas une donnée officielle.")
     add_step(doc, "Vent", "contrôler la composante préremplie. Passer en saisie manuelle si la valeur retenue ne représente pas les conditions au décollage.")
@@ -847,7 +850,9 @@ def create_manual(toc_pages):
     paragraph(doc, "Le jeu local contient les aérodromes métropolitains du cycle AIRAC 08/26. Il reprend notamment l'altitude, les QFU, les surfaces, les dimensions, les relèvements vrais et les altitudes de seuil. Les distances déclarées TORA et TODA ne sont remplies que lorsqu'elles ont été intégrées depuis une source identifiée.")
     paragraph(doc, "Une absence de donnée laisse le champ modifiable. La longueur physique d'une piste ne doit pas être confondue avec une TORA ou une TODA publiée.")
     heading(doc, "7.2 METAR et station voisine", 2)
-    paragraph(doc, "Le relais interroge Aviation Weather Center. Un METAR n'est utilisé que si la station retournée est celle demandée, si l'heure est cohérente, si l'observation a moins de deux heures et si QNH et température sont présents. Une station voisine prévue dans le jeu terrain est indiquée explicitement.")
+    paragraph(doc, "Le relais interroge Aviation Weather Center. Un METAR n'est utilisé que si la station retournée est celle demandée, si l'heure est cohérente, si l'observation a moins de deux heures et si QNH et température sont présents.")
+    paragraph(doc, "Si aucun METAR n'est publié pour le terrain, l'application recherche les observations récentes dans un rayon maximal de 150 km. Elle en présente deux au maximum, classées en tenant compte de la distance, de l'écart d'altitude et de la fraîcheur du rapport. Le pilote doit sélectionner la station : aucun METAR voisin n'est appliqué automatiquement.")
+    paragraph(doc, "Après sélection, l'avertissement « observation voisine » reste affiché. L'altitude conserve toujours la valeur du terrain demandé ; seules les données météorologiques proviennent de la station choisie. Pour les performances, le vent et la piste doivent être confirmés en tenant compte des conditions réellement observées au terrain.")
     paragraph(doc, "Le TAF est affiché pour information. Il n'alimente jamais le calcul instantané.")
     heading(doc, "7.3 Proposition de piste", 2)
     paragraph(doc, "Lorsque le METAR contient une direction et une vitesse de vent moyen, l'application calcule la composante longitudinale sur chaque QFU documenté et propose celui qui donne la plus forte composante de face. En cas d'égalité pratique, aucune proposition automatique n'est imposée.")
@@ -864,7 +869,7 @@ def create_manual(toc_pages):
     heading(doc, "7.6 Terrains de montagne", 2)
     paragraph(doc, "Pour un altiport, une altisurface ou un terrain de montagne, consulter la documentation propre au terrain, les procédures, les limitations et la réglementation applicables aux conditions particulières. Le calcul générique de longueur de piste ne couvre pas ces exigences.")
 
-    section_intro(doc, "08", "Lecture des résultats et des messages", "L'application distingue un calcul incomplet, une condition hors table et un résultat chiffré. Le détail sous le bandeau explique toujours la cause retenue.")
+    section_intro(doc, "08", "Lecture des résultats et des messages", "L'application distingue un calcul incomplet, une condition hors table et un résultat chiffré. Le détail sous le bandeau explique toujours la cause retenue.", new_page=False)
     heading(doc, "8.1 États possibles", 2)
     add_data_table(doc, ["État", "Sens", "Action"], [
         ("CALCUL BLOQUÉ", "Il manque une valeur, une confirmation ou un chargement conforme.", "Corriger la donnée indiquée puis confirmer de nouveau."),
@@ -895,8 +900,8 @@ def create_manual(toc_pages):
     section_intro(doc, "10", "Incidents et reprise en saisie manuelle", "Une indisponibilité de terrain ou de météo ne doit jamais conduire à fabriquer une valeur. L'application conserve les champs modifiables pour une reprise contrôlée.")
     add_data_table(doc, ["Situation", "Comportement attendu", "Reprise"], [
         ("Terrain absent", "Altitude et pistes ne sont pas préremplies.", "Saisir depuis la VAC/AIP en vigueur."),
-        ("Terrain présent, pas de METAR", "Les données physiques restent utilisables.", "Saisir QNH, température, rosée et vent après contrôle."),
-        ("METAR de station voisine", "La station est signalée comme voisine.", "Comparer avec les observations au terrain avant confirmation."),
+        ("Terrain présent, pas de METAR", "Deux observations voisines au maximum peuvent être proposées.", "Choisir explicitement une station adaptée ou poursuivre en saisie manuelle."),
+        ("METAR de station voisine", "La station et l'avertissement restent visibles.", "Comparer avec les observations au terrain avant confirmation."),
         ("METAR ancien ou incohérent", "Aucune valeur météo n'est préremplie.", "Obtenir une observation valide ou saisir manuellement."),
         ("TORA/TODA absentes", "Les champs restent vides.", "Consulter la VAC, l'AIP et les NOTAM."),
         ("Pente non publiée", "0 % est proposé et étiqueté par défaut.", "Vérifier la documentation terrain et modifier si nécessaire."),
@@ -1029,6 +1034,8 @@ def create_manual(toc_pages):
     add_hyperlink(p, "sia.aviation-civile.gouv.fr", "https://www.sia.aviation-civile.gouv.fr/")
     p = paragraph(doc, "Aviation Weather Center - Data API : ", size=8.8)
     add_hyperlink(p, "aviationweather.gov/data/api", "https://aviationweather.gov/data/api/")
+    p = paragraph(doc, "Météo-France - AÉROWEB, cartes TEMSI et WINTEM : ", size=8.8)
+    add_hyperlink(p, "aviation.meteo.fr", "https://aviation.meteo.fr/login.php")
     p = paragraph(doc, "Copie publique du manuel générique DR400/180 utilisée : ", size=8.8)
     add_hyperlink(p, "manualzilla.com/doc/6382928", "https://manualzilla.com/doc/6382928/manuel-de-vol-robin-dr400-180")
     p = paragraph(doc, "Fiche de type EASA DR 200/300/400 : ", size=8.8)

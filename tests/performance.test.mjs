@@ -701,7 +701,7 @@ test('La saisie manuelle du vent conserve la provenance METAR de QNH et OAT',()=
   assert.equal(state.departure.conditionsObservedAt,'');
 });
 
-test('Contrat reel relais meteo/interface : ICAO, enveloppes data et terrain voisin', async () => {
+test('Un terrain sans METAR propose deux observations voisines puis charge le choix explicite', async () => {
   setSportStarLoad();
   setDeparture({ icao: 'LFMW', loadConfirmed: 'f-hdlt' });
   const requestedUrls = [];
@@ -719,10 +719,25 @@ test('Contrat reel relais meteo/interface : ICAO, enveloppes data et terrain voi
             icao: 'LFMW',
             name: 'Terrain test',
             elevationFt: 553,
-            metarStation: 'LFMK',
-            metarStationNote: 'Observation voisine',
+            latitude: 43.3125,
+            longitude: 1.9206,
             runways: [{ id: '11', label: '11', toraM: 810, surface: 'hard' }],
           }],
+        }),
+      };
+    }
+    if (String(url).startsWith('/api/weather?icao=LFMW&')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ok: true,
+          metar: { status: 'no_data', data: null },
+          taf: { status: 'no_data', data: null },
+          alternatives: [
+            { station:'LFMK', name:'Carcassonne', distanceKm:33.2, elevationDifferenceFt:-119, ageMinutes:20, rawMetar:'LFMK TEST' },
+            { station:'LFBO', name:'Toulouse-Blagnac', distanceKm:66.4, elevationDifferenceFt:-54, ageMinutes:25, rawMetar:'LFBO TEST' },
+          ],
         }),
       };
     }
@@ -759,18 +774,30 @@ test('Contrat reel relais meteo/interface : ICAO, enveloppes data et terrain voi
 
   await loadDepartureContext();
 
-  assert.ok(requestedUrls.some((url) => url === '/api/weather?icao=LFMK'));
+  assert.ok(requestedUrls.some((url) => url.includes('/api/weather?icao=LFMW&lat=43.3125&lon=1.9206&elevationFt=553')));
   assert.equal(state.departure.elevation, 553);
   assert.equal(state.departure.tora, 810);
   assert.equal(state.departure.toda, 810);
   assert.equal(state.departure.todaDerived, true);
   assert.equal(state.departure.surface, 'hard');
+  assert.equal(state.departure.temperature, '');
+  assert.equal(state.weather.status, 'partial');
+  assert.equal(state.weather.alternatives.length, 2);
+  assert.match(performanceView(),/Aucun METAR publié pour LFMW/);
+  assert.match(performanceView(),/LFMK · Carcassonne/);
+  assert.match(performanceView(),/LFBO · Toulouse-Blagnac/);
+  assert.match(performanceView(),/ne décrit pas nécessairement les conditions à LFMW/);
+
+  await loadDepartureContext('LFMK');
+
+  assert.ok(requestedUrls.some((url) => url === '/api/weather?icao=LFMK'));
   assert.equal(state.departure.temperature, 20);
   assert.equal(state.departure.dewPoint, 10);
   assert.equal(state.departure.qnh, 1015);
   assert.equal(state.weather.status, 'loaded');
   assert.equal(state.weather.station, 'LFMK');
-  assert.equal(state.weather.stationNote, 'Observation voisine');
+  assert.match(state.weather.stationNote, /Observation voisine choisie pour LFMW/);
+  assert.match(state.weather.stationNote, /ne décrit pas nécessairement les conditions au terrain/);
   assert.match(state.weather.rawMetar, /^LFMK /);
   assert.match(state.weather.rawTaf, /^TAF LFMK /);
   assert.match(performanceView(),/STATION VOISINE/);
@@ -953,6 +980,45 @@ test('Altitude-densité : un terrain connu conserve son altitude quand aucun MET
   assert.equal(state.density.qnh, '');
   assert.equal(state.density.temperature, '');
   assert.equal(state.density.dewPoint, '');
+});
+
+test('Altitude-densité : deux METAR voisins sont proposés sans préremplissage avant le choix', async () => {
+  setDensity({ icao:'LFCB' });
+  const observedAt=new Date(Date.now()-15*60*1000).toISOString();
+  fetchImplementation=async (url) => {
+    const address=String(url);
+    if(address==='/data/airfields.json')return {ok:true,json:async()=>({
+      cycle:'TEST',airfields:[{icao:'LFCB',name:'Bagnères de Luchon',elevationFt:2028,latitude:42.8005556,longitude:0.6011111,runways:[]}],
+    })};
+    if(address.startsWith('/api/weather?icao=LFCB&'))return {ok:true,status:200,json:async()=>({
+      metar:{status:'no_data',data:null},alternatives:[
+        {station:'LFBT',name:'Tarbes Lourdes Pyrénées',distanceKm:65,elevationDifferenceFt:-768,ageMinutes:15,rawMetar:'METAR LFBT TEST'},
+        {station:'LFBO',name:'Toulouse Blagnac',distanceKm:112,elevationDifferenceFt:-1529,ageMinutes:20,rawMetar:'METAR LFBO TEST'},
+      ],
+    })};
+    if(address==='/api/weather?icao=LFBT')return {ok:true,status:200,json:async()=>({metar:{status:'fresh',data:{
+      station:'LFBT',raw:'METAR LFBT TEST 31004KT CAVOK 22/12 Q1018',observedAt,reportStatus:'current',temperatureC:22,dewpointC:12,qnhHpa:1018,
+    }}})};
+    throw new Error(`URL inattendue : ${url}`);
+  };
+
+  await loadDensityContext();
+
+  assert.equal(state.density.elevation,2028);
+  assert.equal(state.density.qnh,'');
+  assert.equal(state.densityWeather.alternatives.length,2);
+  assert.match(densityAltitudeView(),/Aucun METAR publié pour LFCB/);
+  assert.match(densityAltitudeView(),/LFBT · Tarbes Lourdes Pyrénées/);
+  assert.match(densityAltitudeView(),/Observation voisine/);
+
+  await loadDensityContext('LFBT');
+
+  assert.equal(state.density.qnh,1018);
+  assert.equal(state.density.temperature,22);
+  assert.equal(state.density.dewPoint,12);
+  assert.equal(state.densityWeather.station,'LFBT');
+  assert.match(state.densityWeather.stationNote,/Observation voisine choisie pour LFCB/);
+  assert.match(densityAltitudeView(),/STATION VOISINE/);
 });
 
 test('Altitude-densité : un METAR exact reste utilisable quand le terrain est absent du jeu local', async () => {
@@ -1147,9 +1213,13 @@ test('Les cinq écrans principaux se rendent sans erreur et exposent leurs avert
   assert.match(performanceHtml, /class="icao-entry"/);
   assert.match(performanceHtml, /placeholder="Ex\. LFRQ"/);
   assert.match(performanceHtml, /autocomplete="off"/);
+  assert.match(performanceHtml, /Cartes TEMSI et WINTEM/);
+  assert.match(performanceHtml, /https:\/\/aviation\.meteo\.fr\/login\.php/);
   const densityHtml=densityAltitudeView();
   assert.match(densityHtml, /Altitude-densité/);
   assert.match(densityHtml, /Calcul atmosphérique général, indépendant de l’avion/);
+  assert.match(densityHtml, /Cartes TEMSI et WINTEM/);
+  assert.match(densityHtml, /https:\/\/aviation\.meteo\.fr\/login\.php/);
   assert.doesNotMatch(densityHtml, /Méthode non prévue dans les tables constructeur/);
 
   const methods = calculationBasesView();

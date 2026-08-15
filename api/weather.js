@@ -11,12 +11,17 @@ const DEFAULT_TIMEOUT_MS = 8_000;
 const MAX_UPSTREAM_REQUESTS_PER_MINUTE = 90;
 const MAX_METAR_OBSERVATION_AGE_MS = 2 * 60 * 60 * 1_000;
 const MAX_FUTURE_CLOCK_SKEW_MS = 5 * 60 * 1_000;
+const NEARBY_METAR_CACHE_MS = 10 * 60 * 1_000;
+const MAX_NEARBY_DISTANCE_KM = 150;
+const MAX_NEARBY_RESULTS = 2;
 
 // Vercel may reuse a warm function instance. This cache is deliberately only an
 // optimisation: correctness never relies on it surviving a cold start.
 const cache = new Map();
 const inFlight = new Map();
 const upstreamRequestTimes = [];
+const nearbyCache = new Map();
+const nearbyInFlight = new Map();
 
 class UpstreamError extends Error {
   constructor(code, message, options = {}) {
@@ -231,6 +236,10 @@ function normalizeMetar(report, icao) {
 
   return {
     station: stationId(report, icao),
+    stationName: firstDefined(report, ['name', 'stationName', 'site']),
+    latitude: finiteNumber(firstDefined(report, ['lat', 'latitude'])),
+    longitude: finiteNumber(firstDefined(report, ['lon', 'longitude'])),
+    elevationM: finiteNumber(firstDefined(report, ['elev', 'elevation'])),
     raw,
     timestamp: observedAt,
     observedAt,
@@ -307,7 +316,7 @@ function responseArray(payload) {
   );
 }
 
-async function fetchAwc(product, icao) {
+async function fetchAwcArray(path, parameters) {
   const now = Date.now();
   while (upstreamRequestTimes.length && upstreamRequestTimes[0] <= now - 60_000) {
     upstreamRequestTimes.shift();
@@ -320,10 +329,12 @@ async function fetchAwc(product, icao) {
     );
   }
   upstreamRequestTimes.push(now);
-  const config = PRODUCTS[product];
-  const url = new URL(`${AWC_BASE_URL}/${config.path}`);
-  url.searchParams.set('ids', icao);
-  url.searchParams.set('format', 'json');
+  const url = new URL(`${AWC_BASE_URL}/${path}`);
+  for (const [name, value] of Object.entries(parameters)) {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(name, String(value));
+    }
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs());
@@ -347,7 +358,7 @@ async function fetchAwc(product, icao) {
     clearTimeout(timer);
   }
 
-  if (response.status === 204) return { kind: 'no_data', data: null };
+  if (response.status === 204) return [];
 
   if (response.status === 429) {
     throw new UpstreamError('rate_limited', 'Le service météo limite temporairement les requêtes.', {
@@ -374,7 +385,12 @@ async function fetchAwc(product, icao) {
     );
   }
 
-  const reports = responseArray(payload);
+  return responseArray(payload);
+}
+
+async function fetchAwc(product, icao) {
+  const config = PRODUCTS[product];
+  const reports = await fetchAwcArray(config.path, { ids: icao, format: 'json' });
   if (reports.length === 0) return { kind: 'no_data', data: null };
 
   const report = reports.find((candidate) => reportStationId(candidate, product) === icao);
@@ -386,6 +402,110 @@ async function fetchAwc(product, icao) {
   }
 
   return { kind: 'data', data: normalizeReport(product, report, icao) };
+}
+
+function degreesToRadians(value) {
+  return value * Math.PI / 180;
+}
+
+function distanceKm(firstLatitude, firstLongitude, secondLatitude, secondLongitude) {
+  const earthRadiusKm = 6371.0088;
+  const latitudeDelta = degreesToRadians(secondLatitude - firstLatitude);
+  const longitudeDelta = degreesToRadians(secondLongitude - firstLongitude);
+  const firstLatitudeRadians = degreesToRadians(firstLatitude);
+  const secondLatitudeRadians = degreesToRadians(secondLatitude);
+  const chord = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(firstLatitudeRadians) * Math.cos(secondLatitudeRadians)
+    * Math.sin(longitudeDelta / 2) ** 2;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(chord), Math.sqrt(1 - chord));
+}
+
+function nearbyCacheKey(icao, latitude, longitude, elevationFt) {
+  return [icao, latitude.toFixed(4), longitude.toFixed(4), Number.isFinite(elevationFt) ? Math.round(elevationFt) : ''].join(':');
+}
+
+async function refreshNearbyMetars(icao, latitude, longitude, elevationFt) {
+  const latitudeDelta = MAX_NEARBY_DISTANCE_KM / 111.32;
+  const longitudeScale = Math.max(0.2, Math.cos(degreesToRadians(latitude)));
+  const longitudeDelta = MAX_NEARBY_DISTANCE_KM / (111.32 * longitudeScale);
+  const bbox = [
+    round(latitude - latitudeDelta, 5),
+    round(longitude - longitudeDelta, 5),
+    round(latitude + latitudeDelta, 5),
+    round(longitude + longitudeDelta, 5),
+  ].join(',');
+  const reports = await fetchAwcArray('metar', { bbox, format: 'json', hours: 2 });
+  const byStation = new Map();
+
+  for (const report of reports) {
+    const station = reportStationId(report, 'metar');
+    if (!station || station === icao) continue;
+    const normalized = normalizeMetar(report, station);
+    if (
+      normalized.reportStatus !== 'current'
+      || !Number.isFinite(normalized.latitude)
+      || !Number.isFinite(normalized.longitude)
+      || !Number.isFinite(normalized.temperatureC)
+      || !Number.isFinite(normalized.qnhHpa)
+    ) continue;
+    const separationKm = distanceKm(latitude, longitude, normalized.latitude, normalized.longitude);
+    if (!Number.isFinite(separationKm) || separationKm > MAX_NEARBY_DISTANCE_KM) continue;
+    const stationElevationFt = Number.isFinite(normalized.elevationM)
+      ? normalized.elevationM * 3.280839895
+      : null;
+    const elevationDifferenceFt = Number.isFinite(elevationFt) && Number.isFinite(stationElevationFt)
+      ? stationElevationFt - elevationFt
+      : null;
+    const ageMinutes = Number.isFinite(normalized.reportAgeSeconds)
+      ? normalized.reportAgeSeconds / 60
+      : null;
+    const candidate = {
+      station,
+      name: normalized.stationName || station,
+      distanceKm: round(separationKm, 1),
+      stationElevationFt: Number.isFinite(stationElevationFt) ? Math.round(stationElevationFt) : null,
+      elevationDifferenceFt: Number.isFinite(elevationDifferenceFt) ? Math.round(elevationDifferenceFt) : null,
+      observedAt: normalized.observedAt,
+      ageMinutes: Number.isFinite(ageMinutes) ? Math.max(0, Math.round(ageMinutes)) : null,
+      rawMetar: normalized.raw,
+      temperatureC: normalized.temperatureC,
+      dewpointC: normalized.dewpointC,
+      qnhHpa: normalized.qnhHpa,
+      windDirectionDeg: normalized.windDirectionDeg,
+      windSpeedKt: normalized.windSpeedKt,
+      windGustKt: normalized.windGustKt,
+      windVariableFromDeg: normalized.windVariableFromDeg,
+      windVariableToDeg: normalized.windVariableToDeg,
+    };
+    const elevationPenalty = Number.isFinite(elevationDifferenceFt) ? Math.abs(elevationDifferenceFt) / 30 : 0;
+    const agePenalty = Number.isFinite(ageMinutes) ? ageMinutes / 10 : 0;
+    candidate.rankScore = separationKm + elevationPenalty + agePenalty;
+    const previous = byStation.get(station);
+    if (!previous || Date.parse(candidate.observedAt || '') > Date.parse(previous.observedAt || '')) {
+      byStation.set(station, candidate);
+    }
+  }
+
+  return Array.from(byStation.values())
+    .sort((first, second) => first.rankScore - second.rankScore || first.distanceKm - second.distanceKm)
+    .slice(0, MAX_NEARBY_RESULTS)
+    .map(({ rankScore, ...candidate }) => candidate);
+}
+
+async function getNearbyMetars(icao, latitude, longitude, elevationFt) {
+  const key = nearbyCacheKey(icao, latitude, longitude, elevationFt);
+  const now = Date.now();
+  const cached = nearbyCache.get(key);
+  if (cached && cached.expiresAtMs > now) return cached.data;
+  if (nearbyInFlight.has(key)) return nearbyInFlight.get(key);
+  const operation = refreshNearbyMetars(icao, latitude, longitude, elevationFt)
+    .then((data) => {
+      nearbyCache.set(key, { data, expiresAtMs: Date.now() + NEARBY_METAR_CACHE_MS });
+      return data;
+    })
+    .finally(() => nearbyInFlight.delete(key));
+  nearbyInFlight.set(key, operation);
+  return operation;
 }
 
 function cacheKey(product, icao) {
@@ -516,6 +636,21 @@ function validatedIcao(req) {
   return ICAO_PATTERN.test(icao) ? icao : null;
 }
 
+function validatedCoordinate(req, name, minimum, maximum) {
+  const raw = queryValue(req, name);
+  if (raw === null || raw === undefined || raw === '') return null;
+  const value = finiteNumber(String(raw));
+  return Number.isFinite(value) && value >= minimum && value <= maximum ? value : null;
+}
+
+function nearbySearchPosition(req) {
+  const latitude = validatedCoordinate(req, 'lat', -90, 90);
+  const longitude = validatedCoordinate(req, 'lon', -180, 180);
+  const elevationFt = validatedCoordinate(req, 'elevationFt', -1500, 16000);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  return { latitude, longitude, elevationFt };
+}
+
 function setCommonHeaders(res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -564,7 +699,23 @@ export default async function handler(req, res) {
     getProduct('metar', icao),
     getProduct('taf', icao),
   ]);
-  const status = overallStatus(metar, taf);
+  const position = nearbySearchPosition(req);
+  let alternatives = [];
+  let alternativesWarning = null;
+  if (metar.status === 'no_data' && position) {
+    try {
+      alternatives = await getNearbyMetars(
+        icao,
+        position.latitude,
+        position.longitude,
+        position.elevationFt,
+      );
+    } catch (error) {
+      alternativesWarning = publicError(error);
+    }
+  }
+  let status = overallStatus(metar, taf);
+  if (alternatives.length && status !== 429) status = 200;
 
   if (status === 200) {
     // The shortest source cadence is one minute (METAR). Vercel's shared cache
@@ -580,7 +731,7 @@ export default async function handler(req, res) {
   }
 
   return sendJson(res, status, {
-    ok: usable(metar) || usable(taf),
+    ok: usable(metar) || usable(taf) || alternatives.length > 0,
     complete: usable(metar) && usable(taf),
     station: icao,
     requestedAt: new Date().toISOString(),
@@ -590,5 +741,7 @@ export default async function handler(req, res) {
     },
     metar,
     taf,
+    alternatives,
+    alternativesWarning,
   });
 }

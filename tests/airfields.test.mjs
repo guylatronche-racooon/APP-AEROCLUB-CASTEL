@@ -46,6 +46,18 @@ test('les surfaces et valeurs numériques restent plausibles', () => {
 
   for (const airfield of airfields) {
     assert.ok(
+      Number.isFinite(airfield.latitude)
+        && airfield.latitude >= -90
+        && airfield.latitude <= 90,
+      `${airfield.icao}: latitude ARP absente ou invalide`,
+    );
+    assert.ok(
+      Number.isFinite(airfield.longitude)
+        && airfield.longitude >= -180
+        && airfield.longitude <= 180,
+      `${airfield.icao}: longitude ARP absente ou invalide`,
+    );
+    assert.ok(
       Number.isFinite(airfield.elevationFt)
         && airfield.elevationFt >= -1500
         && airfield.elevationFt <= 16000,

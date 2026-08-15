@@ -1393,6 +1393,23 @@ button, input { font: inherit; }
 .static-app .weather-readout strong, .static-app .weather-readout code, .static-app .weather-readout small { display: block; }
 .static-app .weather-readout code { font-size: 10px; line-height: 1.4; margin: 5px 0; white-space: normal; }
 .static-app .weather-readout small { color: var(--muted); font-size: 8px; }
+.static-app .metar-alternatives { background: var(--yellow-soft); border: 1px solid #e3c95e; border-radius: 10px; margin-top: 10px; padding: 12px; }
+.static-app .metar-alternatives > strong { display: block; font-size: 12px; }
+.static-app .metar-alternatives > p { color: #5d4c0f; font-size: 9px; line-height: 1.45; margin: 5px 0 10px; }
+.static-app .metar-alternative-list { display: grid; gap: 8px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.static-app .metar-alternative { background: rgba(255,255,255,.72); border: 1px solid #d9bd4d; border-radius: 9px; color: var(--ink); cursor: pointer; min-width: 0; padding: 10px; text-align: left; }
+.static-app .metar-alternative:hover { border-color: var(--teal-700); }
+.static-app .metar-alternative strong, .static-app .metar-alternative span, .static-app .metar-alternative small { display: block; }
+.static-app .metar-alternative strong { font-size: 11px; }
+.static-app .metar-alternative span { color: var(--muted); font-size: 8px; line-height: 1.45; margin-top: 4px; }
+.static-app .metar-alternative code { display: block; font-size: 8px; line-height: 1.35; margin-top: 6px; overflow-wrap: anywhere; }
+.static-app .metar-alternative small { color: #715c10; font-size: 8px; font-weight: 750; line-height: 1.4; margin-top: 7px; }
+.static-app .aviation-weather-links { align-items: center; background: #edf9f5; border: 1px solid #a8daca; border-radius: 11px; display: flex; gap: 16px; justify-content: space-between; margin: 20px 0; padding: 13px 15px; }
+.static-app .aviation-weather-links span, .static-app .aviation-weather-links strong, .static-app .aviation-weather-links small { display: block; }
+.static-app .aviation-weather-links span { color: var(--teal-700); font-size: 8px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.static-app .aviation-weather-links strong { font-size: 13px; margin-top: 3px; }
+.static-app .aviation-weather-links small { color: var(--muted); font-size: 8px; line-height: 1.45; margin-top: 3px; }
+.static-app .aviation-weather-links a { background: var(--teal-950); border-radius: 8px; color: #fff; flex: 0 0 auto; font-size: 10px; font-weight: 850; padding: 11px 13px; text-decoration: none; }
 .static-app .performance-status { align-items: center; border-radius: 12px; display: grid; gap: 13px; grid-template-columns: 46px 1fr; padding: 17px; }
 .static-app .performance-status > span { align-items: center; border: 2px solid currentColor; border-radius: 50%; display: flex; font-size: 22px; font-weight: 900; height: 42px; justify-content: center; width: 42px; }
 .static-app .performance-status small { display: block; font-size: 8px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
@@ -1478,6 +1495,10 @@ button, input { font: inherit; }
 .static-app .validation-checklist li { color: var(--muted); font-size: 10px; line-height: 1.55; margin: 6px 0; }
 .night .density-inputs label > div, .night .density-metrics div { background: #142b3a; border-color: #315978; }
 .night .density-warning { background: #332d13; border-color: #665b2d; color: #f7e49a; }
+.night .metar-alternatives { background: #332d13; border-color: #665b2d; }
+.night .metar-alternatives > p, .night .metar-alternative small { color: #f7e49a; }
+.night .metar-alternative { background: #192512; border-color: #665b2d; }
+.night .aviation-weather-links { background: #102d2a; border-color: #286558; }
 .night .performance-input-panel, .night .performance-result-panel, .night .performance-empty { background: #0d1c23; }
 .night .performance-input-grid label > div, .night .field-row label > div, .night .performance-metrics div, .night .choice-toggle { background: #142b3a; border-color: #315978; }
 .night .field-row .icao-entry input { background: #071219; border-color: #4f91a7; }
@@ -1502,6 +1523,9 @@ button, input { font: inherit; }
   .static-app .density-panel { padding: 15px; }
   .static-app .density-metrics { grid-template-columns: 1fr 1fr; }
   .static-app .density-metrics div:first-child { grid-column: 1 / span 2; }
+  .static-app .metar-alternative-list { grid-template-columns: 1fr; }
+  .static-app .aviation-weather-links { align-items: stretch; flex-direction: column; }
+  .static-app .aviation-weather-links a { text-align: center; }
   .static-app .performance-page { padding: 24px 13px 36px; }
   .static-app .performance-layout { grid-template-columns: 1fr; }
   .static-app .performance-input-grid { grid-template-columns: 1fr 1fr; }
@@ -2423,9 +2447,9 @@ const aircraftList = [
     loads: restoredLoads(),
     density: restoredDensity(),
     departure: restoredDeparture(),
-    weather: { status: 'idle', message: '', rawMetar: '', observedAt: '', windDirectionDeg: null, windSpeedKt: null, windGustKt: null, windVariableFromDeg: null, windVariableToDeg: null },
+    weather: { status: 'idle', message: '', rawMetar: '', observedAt: '', windDirectionDeg: null, windSpeedKt: null, windGustKt: null, windVariableFromDeg: null, windVariableToDeg: null, alternatives: [] },
     airfield: { status: 'idle', message: '', record: null, cycle: '' },
-    densityWeather: { status: 'idle', message: '', rawMetar: '', observedAt: '' },
+    densityWeather: { status: 'idle', message: '', rawMetar: '', observedAt: '', alternatives: [] },
     densityAirfield: { status: 'idle', message: '', record: null, cycle: '' },
     airfieldCatalog: [],
     airfieldCatalogLoading: false,
@@ -2709,13 +2733,48 @@ const aircraftList = [
     return (rounded > 0 ? '+' : rounded < 0 ? '−' : '') + formatFr(Math.abs(rounded), 0) + ' ft';
   }
 
+  function weatherRequestUrl(icao, record, includeAlternatives) {
+    const parameters=['icao='+encodeURIComponent(icao)];
+    const latitude=firstFinite(record&&record.latitude),longitude=firstFinite(record&&record.longitude),elevation=firstFinite(record&&record.elevationFt);
+    if(includeAlternatives&&latitude!==null&&longitude!==null){
+      parameters.push('lat='+encodeURIComponent(latitude));
+      parameters.push('lon='+encodeURIComponent(longitude));
+      if(elevation!==null)parameters.push('elevationFt='+encodeURIComponent(elevation));
+    }
+    return '/api/weather?'+parameters.join('&');
+  }
+
+  function nearbyMetarAlternativesView(context, alternatives, targetIcao) {
+    const candidates=Array.isArray(alternatives)?alternatives.slice(0,2):[];
+    if(!candidates.length)return '';
+    return '<div class="metar-alternatives"><strong>Aucun METAR publié pour '+escapeHtml(targetIcao)+'</strong><p>Deux observations voisines au maximum sont proposées. Choisir explicitement une station après contrôle de sa distance, de son altitude et de l’heure du METAR.</p><div class="metar-alternative-list">'+candidates.map(function(candidate){
+      const station=String(candidate.station||'').toUpperCase();
+      const distance=Number.isFinite(Number(candidate.distanceKm))?formatFr(Number(candidate.distanceKm),1)+' km':'distance inconnue';
+      const elevationDifference=Number.isFinite(Number(candidate.elevationDifferenceFt))?((Number(candidate.elevationDifferenceFt)>0?'+':'')+formatFr(Number(candidate.elevationDifferenceFt),0)+' ft par rapport au terrain'):'écart d’altitude inconnu';
+      const age=Number.isFinite(Number(candidate.ageMinutes))?'âge '+formatFr(Number(candidate.ageMinutes),0)+' min':'heure à vérifier';
+      return '<button class="metar-alternative" data-action="use-weather-alternative" data-weather-context="'+escapeHtml(context)+'" data-station="'+escapeHtml(station)+'"><strong>'+escapeHtml(station+' · '+(candidate.name||station))+'</strong><span>'+escapeHtml([distance,elevationDifference,age].join(' · '))+'</span>'+(candidate.rawMetar?'<code>'+escapeHtml(candidate.rawMetar)+'</code>':'')+'<small>Observation voisine : ce METAR ne décrit pas nécessairement les conditions à '+escapeHtml(targetIcao)+'. Utiliser cette station →</small></button>';
+    }).join('')+'</div></div>';
+  }
+
+  function aviationWeatherLinks() {
+    return '<aside class="aviation-weather-links"><div><span>Préparation météo générale</span><strong>Cartes TEMSI et WINTEM</strong><small>Documents distincts du calcul affiché sur cette page. Accès officiel Météo-France, identification AÉROWEB requise.</small></div><a href="https://aviation.meteo.fr/login.php" target="_blank" rel="noopener">Ouvrir AÉROWEB ↗</a></aside>';
+  }
+
+  function selectedAlternativeNote(targetIcao, candidate) {
+    if(!candidate)return 'Observation voisine choisie pour '+targetIcao+' : elle ne décrit pas nécessairement les conditions au terrain.';
+    const details=[];
+    if(Number.isFinite(Number(candidate.distanceKm)))details.push(formatFr(Number(candidate.distanceKm),1)+' km');
+    if(Number.isFinite(Number(candidate.elevationDifferenceFt)))details.push((Number(candidate.elevationDifferenceFt)>0?'+':'')+formatFr(Number(candidate.elevationDifferenceFt),0)+' ft d’écart d’altitude');
+    return 'Observation voisine choisie pour '+targetIcao+(details.length?' ('+details.join(', ')+')':'')+' : elle ne décrit pas nécessairement les conditions au terrain.';
+  }
+
   function densityAltitudeView() {
     const result = densityAltitudeResult();
     const airfieldDatalist='<datalist id="density-airfields">'+state.airfieldCatalog.map(function(record){return '<option value="'+escapeHtml(record.icao)+'">'+escapeHtml(record.name||'')+'</option>';}).join('')+'</datalist>';
     const metarControl='<label class="choice-toggle density-metar-toggle"><input data-density="useMetarData" type="checkbox" '+(state.density.useMetarData?'checked':'')+'><span><strong>Utiliser les données du METAR</strong><small>Sélectionner un aérodrome pour remplir automatiquement l’altitude terrain, le QNH, la température et le point de rosée lorsqu’ils sont disponibles.</small></span></label>'+(state.density.useMetarData?'<div class="field-row density-metar-field"><label><span>Aérodrome / code OACI à saisir</span><div class="icao-entry"><input data-density="icao" list="density-airfields" maxlength="4" value="'+escapeHtml(state.density.icao)+'" placeholder="Ex. LFRQ" aria-label="Indicatif OACI de l’aérodrome" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="search" autocapitalize="characters"><button data-action="load-density-metar" '+(state.densityWeather.status==='loading'?'disabled':'')+'>'+(state.densityWeather.status==='loading'?'Chargement…':'Utiliser le METAR')+'</button></div><small>Les données terrain et le METAR sont indépendants : si l’un manque, l’autre reste utilisé et les champs manquants restent modifiables.</small></label></div>'+airfieldDatalist:'');
     const densityAirfield=state.densityAirfield.record;
     const weatherNeighbor=Boolean(state.densityWeather.stationNote)||Boolean(state.densityWeather.station&&state.density.icao&&String(state.densityWeather.station).toUpperCase()!==String(state.density.icao).toUpperCase());
-    const densityContextStatus=state.density.useMetarData&&(['loaded','stale','partial','error','missing'].includes(state.densityWeather.status)||state.densityAirfield.message||densityAirfield)?'<div class="weather-readout '+(state.densityWeather.status==='loaded'&&!weatherNeighbor?'':'warning')+'"><strong>'+(densityAirfield?escapeHtml(densityAirfield.icao+' · '+densityAirfield.name):'Terrain non prérempli')+(state.densityWeather.rawMetar?' · METAR '+escapeHtml(state.densityWeather.station||''):'')+(weatherNeighbor?' · STATION VOISINE':'')+'</strong>'+(state.densityWeather.rawMetar?'<code>'+escapeHtml(state.densityWeather.rawMetar)+'</code>':'')+'<small>'+escapeHtml([state.densityAirfield.message,state.densityWeather.stationNote,state.densityWeather.message,state.densityWeather.observedAt?('Observation '+shortUtc(state.densityWeather.observedAt)):''].filter(Boolean).join(' · '))+'</small></div>':'';
+    const densityContextStatus=state.density.useMetarData&&(['loaded','stale','partial','error','missing'].includes(state.densityWeather.status)||state.densityAirfield.message||densityAirfield)?'<div class="weather-readout '+(state.densityWeather.status==='loaded'&&!weatherNeighbor?'':'warning')+'"><strong>'+(densityAirfield?escapeHtml(densityAirfield.icao+' · '+densityAirfield.name):'Terrain non prérempli')+(state.densityWeather.rawMetar?' · METAR '+escapeHtml(state.densityWeather.station||''):'')+(weatherNeighbor?' · STATION VOISINE':'')+'</strong>'+(state.densityWeather.rawMetar?'<code>'+escapeHtml(state.densityWeather.rawMetar)+'</code>':'')+'<small>'+escapeHtml([state.densityAirfield.message,state.densityWeather.stationNote,state.densityWeather.message,state.densityWeather.observedAt?('Observation '+shortUtc(state.densityWeather.observedAt)):''].filter(Boolean).join(' · '))+'</small></div>'+nearbyMetarAlternativesView('density',state.densityWeather.alternatives,state.density.icao):'';
     const inputs = [
       { key: 'elevation', label: 'Altitude du terrain', unit: 'ft', min: -1500, max: 25000, step: 10, note: 'Altitude publiée de l’aérodrome.' },
       { key: 'qnh', label: 'QNH', unit: 'hPa', min: 800, max: 1100, step: 0.1, note: 'Pression réduite au niveau de la mer.' },
@@ -2731,7 +2790,7 @@ const aircraftList = [
       '<div class="density-invalid"><div><strong>Valeur hors plage</strong><p>Vérifier l’altitude, le QNH et la température saisis.</p></div></div>';
     return '<main class="' + appClass() + '">' +
       '<header class="cover-topbar"><div class="club-brand">' + logoImage('') + '<span><strong>Aéroclub Jean-Doudiès</strong><small>Altitude-densité</small></span></div><div class="cover-actions bases-actions"><button data-action="screen" data-screen="home">← Avions</button><button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div></header>' +
-      '<section class="density-page"><div class="density-intro"><span class="eyebrow">Atmosphère et performances</span><h1>Altitude-densité</h1><p>Estimer l’altitude à laquelle l’aéronef « ressent » la densité de l’air du jour. Les valeurs peuvent être saisies manuellement ou chargées depuis les données terrain et un METAR récent ; elles sont effacées à chaque nouvelle ouverture.</p></div>' +
+      '<section class="density-page"><div class="density-intro"><span class="eyebrow">Atmosphère et performances</span><h1>Altitude-densité</h1><p>Estimer l’altitude à laquelle l’aéronef « ressent » la densité de l’air du jour. Les valeurs peuvent être saisies manuellement ou chargées depuis les données terrain et un METAR récent ; elles sont effacées à chaque nouvelle ouverture.</p></div>'+aviationWeatherLinks() +
       '<div class="density-grid"><section class="density-panel"><div class="density-panel-heading"><span>Données du jour</span><h2>Conditions au terrain</h2></div>'+metarControl+densityContextStatus+'<div class="density-inputs">' + inputs + '</div></section>' +
       '<section class="density-panel"><div class="density-panel-heading"><span>Résultat atmosphérique</span><h2>Altitude équivalente</h2></div>' + resultPanel + '</section></div>' +
       '<div class="formula-card"><strong>Méthode appliquée</strong><p>La pression au terrain est estimée depuis le QNH et l’altitude selon l’atmosphère standard. La densité est calculée avec l’équation des gaz parfaits. Lorsque l’option humidité est active, les pressions partielles de l’air sec et de la vapeur d’eau sont calculées séparément à partir du point de rosée, puis la densité obtenue est convertie en altitude-densité ISA.</p></div></section>' + footerNote() + '</main>';
@@ -2924,6 +2983,7 @@ const aircraftList = [
     const metarMeta = [shortUtc(state.weather.observedAt),weatherAgeLabel,state.weather.stationNote,state.weather.message].filter(Boolean).join(' · ');
     const tafMeta = [liveTafState.label,state.weather.tafValidFrom&&state.weather.tafValidTo?('validité '+shortUtc(state.weather.tafValidFrom)+' → '+shortUtc(state.weather.tafValidTo)):''].filter(Boolean).join(' · ');
     const weatherStatus = ['loaded','stale','partial'].includes(state.weather.status) ? '<div class="weather-readout '+(state.weather.status==='loaded'&&liveMetarQuality.usable&&liveTafState.status==='current'&&!weatherIsNeighbor?'':'warning')+'"><strong>'+(state.weather.rawMetar?'METAR '+escapeHtml(state.weather.station||''):'Météo partielle')+(weatherIsNeighbor?' · STATION VOISINE':'')+(state.weather.status==='stale'?' · relais sur cache périmé':'')+(!liveMetarQuality.usable?' · OBSERVATION NON ACTUELLE':'')+'</strong>'+(state.weather.rawMetar?'<code>'+escapeHtml(state.weather.rawMetar)+'</code>':'')+'<small>'+escapeHtml(metarMeta)+'</small>'+(state.weather.rawTaf?'<strong>TAF · '+escapeHtml(tafMeta||'statut non vérifié')+'</strong><code>'+escapeHtml(state.weather.rawTaf)+'</code>':'<strong>TAF · indisponible</strong>')+'</div>' : state.weather.message ? '<div class="weather-readout warning"><strong>Météo non chargée</strong><small>'+escapeHtml(state.weather.message)+'</small></div>' : '';
+    const weatherAlternatives=nearbyMetarAlternativesView('performance',state.weather.alternatives,departure.icao);
     const liveWindAnalysis=['loaded','stale'].includes(state.weather.status)&&departure.conditionsSource==='metar'?metarWindAnalysis(state.weather,selectedRunway):null;
     const windAnalysis=liveWindAnalysis?'<div class="wind-analysis '+(liveWindAnalysis.crossesZero?'warning':'')+'"><strong>Vent METAR sur le QFU '+escapeHtml(liveWindAnalysis.qfu)+'</strong><p>Vent moyen '+String(Math.round(liveWindAnalysis.direction)).padStart(3,'0')+'° / '+formatFr(liveWindAnalysis.speed,0)+' kt : <b>'+escapeHtml(windComponentPhrase(liveWindAnalysis.mean))+'</b>.</p>'+(liveWindAnalysis.sectorFrom!==null&&liveWindAnalysis.sectorTo!==null?'<small>Variation '+String(Math.round(liveWindAnalysis.sectorFrom)).padStart(3,'0')+'V'+String(Math.round(liveWindAnalysis.sectorTo)).padStart(3,'0')+' : de '+escapeHtml(windComponentPhrase(liveWindAnalysis.minimum))+' à '+escapeHtml(windComponentPhrase(liveWindAnalysis.maximum))+'.</small>':'')+(liveWindAnalysis.gust!==null?'<small>Rafale '+formatFr(liveWindAnalysis.gust,0)+' kt signalée : '+escapeHtml(windComponentPhrase(liveWindAnalysis.gustComponent))+'. Elle est affichée mais n’est pas intégrée silencieusement au champ.</small>':'')+'<small>'+(departure.windMode==='metar'?('Valeur proposée dans le calcul : '+escapeHtml(windComponentPhrase(liveWindAnalysis.value))+'. '+escapeHtml(liveWindAnalysis.note)):'Le champ conserve la valeur saisie manuellement par le pilote.')+'</small></div>':'';
     const airfield = state.airfield.record;
@@ -2943,7 +3003,7 @@ const aircraftList = [
     const windMode='<label><span>Source de la composante</span><div><select data-departure="windMode"><option value="metar" '+(departure.windMode==='metar'?'selected':'')+'>Calculer depuis le METAR</option><option value="manual" '+(departure.windMode==='manual'?'selected':'')+'>Saisie manuelle</option></select></div><small>Le vent moyen du METAR est utilisé. La variabilité et les rafales sont affichées séparément ; si la variation traverse vent de face et vent arrière, 0 kt est proposé par défaut.</small></label>';
     const mountainWarning='<div class="mountain-warning"><strong>Terrains de montagne et altisurfaces</strong><p>Se référer à la documentation propre au terrain et à la réglementation applicable : pente, trajectoires, vent, limitations et conditions particulières ne sont pas résumés par ce calculateur.</p></div>';
     return '<main class="'+appClass()+'">'+header('PERFORMANCES',aircraft.name,'aircraft','<button class="desktop-only" data-action="screen" data-screen="balance">Retour à masse & centrage</button>')+
-      '<div class="validation-banner"><strong>'+escapeHtml(result.performance.status.toUpperCase())+'</strong><span>'+escapeHtml(result.performance.source)+'</span>'+performanceSourceLink+'</div><section class="performance-page"><div class="performance-intro"><span class="eyebrow">Décollage</span><h1>Terrain, météo et piste</h1><p>Les paramètres sont vérifiés contre le domaine strict de la table. Aucune extrapolation n’est effectuée.</p><button class="inline-back-button" data-action="screen" data-screen="balance">← Retour à masse & centrage</button></div><div class="performance-layout"><section class="performance-input-panel"><label class="choice-toggle load-confirmation required-choice"><input data-departure="loadConfirmed" type="checkbox" '+(loadConfirmationCurrent?'checked':'')+'><span><strong>Chargement vérifié pour '+escapeHtml(aircraft.registration)+' <em class="requirement-tag required">Obligatoire</em></strong><small>Confirmer seulement après contrôle de chaque poste dans Masse & centrage. Toute modification annule cette confirmation, qui expire après 60 minutes.</small></span></label><div class="field-row"><label><span>Terrain / station OACI à saisir</span><div class="icao-entry"><input data-departure="icao" maxlength="4" value="'+escapeHtml(departure.icao)+'" placeholder="Ex. LFRQ" aria-label="Indicatif OACI de l’aérodrome" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="search" autocapitalize="characters"><button data-action="load-weather" '+(state.weather.status==='loading'?'disabled':'')+'>'+(state.weather.status==='loading'?'Chargement…':'Terrain + METAR')+'</button></div><small>Recherche d’abord les données terrain locales issues du jeu SIA, puis le METAR/TAF via le relais API. Un terrain sans METAR reste utilisable avec ses données terrain et une saisie météo manuelle.</small></label></div>'+runwayPicker+weatherStatus+windAnalysis+conditionsConfirmation+'<div class="performance-input-grid">'+numericInputs+windMode+surfaceSelect+'</div>'+mountainWarning+runwayConfirmation+'<label class="choice-toggle optional-choice"><input data-departure="useHumidity" type="checkbox" '+(departure.useHumidity?'checked':'')+'><span><strong>Comparer avec l’air humide <em class="requirement-tag optional">Facultatif</em></strong><small>Estimation théorique non prévue par le manuel ; la valeur la plus restrictive est retenue. Ne pas cocher cette option ne bloque pas le calcul.</small></span></label></section><section class="performance-result-panel">'+resultCard+'<div class="performance-warning"><strong>Portée : longueur de piste uniquement</strong><p>Ce résultat ne constitue pas une décision globale de décollage. Il n’évalue ni obstacles ou trajectoire après 50 ft, ni gradient de montée, ni vent traversier, rafales, limitations avion, pilote ou exploitation.</p></div><div class="performance-warning"><strong>Limites actives</strong><ul>'+result.performance.limitations.map(function(limit){return '<li>'+escapeHtml(limit)+'</li>';}).join('')+'</ul></div></section></div></section><footer class="tool-mobile-footer"><button data-action="screen" data-screen="balance">← Masse & centrage</button><button data-action="screen" data-screen="aircraft">Avion</button><button data-action="documents">Documents</button></footer>'+footerNote()+'</main>';
+      '<div class="validation-banner"><strong>'+escapeHtml(result.performance.status.toUpperCase())+'</strong><span>'+escapeHtml(result.performance.source)+'</span>'+performanceSourceLink+'</div><section class="performance-page"><div class="performance-intro"><span class="eyebrow">Décollage</span><h1>Terrain, météo et piste</h1><p>Les paramètres sont vérifiés contre le domaine strict de la table. Aucune extrapolation n’est effectuée.</p><button class="inline-back-button" data-action="screen" data-screen="balance">← Retour à masse & centrage</button></div>'+aviationWeatherLinks()+'<div class="performance-layout"><section class="performance-input-panel"><label class="choice-toggle load-confirmation required-choice"><input data-departure="loadConfirmed" type="checkbox" '+(loadConfirmationCurrent?'checked':'')+'><span><strong>Chargement vérifié pour '+escapeHtml(aircraft.registration)+' <em class="requirement-tag required">Obligatoire</em></strong><small>Confirmer seulement après contrôle de chaque poste dans Masse & centrage. Toute modification annule cette confirmation, qui expire après 60 minutes.</small></span></label><div class="field-row"><label><span>Terrain / station OACI à saisir</span><div class="icao-entry"><input data-departure="icao" maxlength="4" value="'+escapeHtml(departure.icao)+'" placeholder="Ex. LFRQ" aria-label="Indicatif OACI de l’aérodrome" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="search" autocapitalize="characters"><button data-action="load-weather" '+(state.weather.status==='loading'?'disabled':'')+'>'+(state.weather.status==='loading'?'Chargement…':'Terrain + METAR')+'</button></div><small>Recherche d’abord les données terrain locales issues du jeu SIA, puis le METAR/TAF via le relais API. Un terrain sans METAR reste utilisable avec ses données terrain et une saisie météo manuelle.</small></label></div>'+runwayPicker+weatherStatus+weatherAlternatives+windAnalysis+conditionsConfirmation+'<div class="performance-input-grid">'+numericInputs+windMode+surfaceSelect+'</div>'+mountainWarning+runwayConfirmation+'<label class="choice-toggle optional-choice"><input data-departure="useHumidity" type="checkbox" '+(departure.useHumidity?'checked':'')+'><span><strong>Comparer avec l’air humide <em class="requirement-tag optional">Facultatif</em></strong><small>Estimation théorique non prévue par le manuel ; la valeur la plus restrictive est retenue. Ne pas cocher cette option ne bloque pas le calcul.</small></span></label></section><section class="performance-result-panel">'+resultCard+'<div class="performance-warning"><strong>Portée : longueur de piste uniquement</strong><p>Ce résultat ne constitue pas une décision globale de décollage. Il n’évalue ni obstacles ou trajectoire après 50 ft, ni gradient de montée, ni vent traversier, rafales, limitations avion, pilote ou exploitation.</p></div><div class="performance-warning"><strong>Limites actives</strong><ul>'+result.performance.limitations.map(function(limit){return '<li>'+escapeHtml(limit)+'</li>';}).join('')+'</ul></div></section></div></section><footer class="tool-mobile-footer"><button data-action="screen" data-screen="balance">← Masse & centrage</button><button data-action="screen" data-screen="aircraft">Avion</button><button data-action="documents">Documents</button></footer>'+footerNote()+'</main>';
   }
 
   function checklistView() {
@@ -3070,7 +3130,7 @@ const aircraftList = [
   function disclaimer() {
     if (!state.showDisclaimer) return '';
     return '<div class="overlay disclaimer-overlay"><section class="disclaimer" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title"><div class="disclaimer-header"><div><span>Avant utilisation</span><h2 id="disclaimer-title">Documentation et responsabilité du pilote</h2></div>'+logoImage('')+'</div>'+
-      '<p class="disclaimer-lead">Cette application constitue uniquement une aide à l’exécution des check-lists et aux calculs de masse, centrage, atmosphère et performances. Les données terrain, METAR et TAF peuvent être absentes, voisines, périmées ou incomplètes. Elle ne remplace ni le manuel de vol, ni les procédures approuvées, ni la préparation réglementaire du vol.</p><div class="manual-download"><div><strong>Manuel d’utilisation et méthodes de calcul</strong><span>Guide détaillé de 21 pages, version 0.9 — document de travail à valider par le club.</span></div><a href="/documents/manuel-utilisation-outils-de-vol.pdf" target="_blank" rel="noopener">Ouvrir le PDF</a></div><div class="documents-block"><strong>Avant chaque vol, vérifier la présence, l’accessibilité et, lorsqu’une durée s’applique, la validité des documents et informations requis.</strong><p>Liste indicative et non exhaustive :</p><ul><li>manuel de vol de l’aéronef ou document équivalent ;</li><li>certificat d’immatriculation original ;</li><li>certificat de navigabilité original ou titre applicable ;</li><li>certificat acoustique, liste des agréments spécifiques et licence de station d’aéronef, si applicables ;</li><li>attestation d’assurance responsabilité civile ;</li><li>carnet de route ou document équivalent ;</li><li>plan de vol ATS, si applicable ;</li><li>VAC, cartes aéronautiques, NOTAM et briefing météo à jour pour le trajet et les déroutements raisonnablement envisageables ;</li><li>procédures et signaux visuels applicables en cas d’interception ;</li><li>MEL ou CDL, si applicable ;</li><li>licence, qualifications, expérience récente et certificat médical du pilote en cours de validité ;</li><li>toute autre autorisation ou documentation exigée par le vol ou les États concernés.</li></ul></div>'+
+      '<p class="disclaimer-lead">Cette application constitue uniquement une aide à l’exécution des check-lists et aux calculs de masse, centrage, atmosphère et performances. Les données terrain, METAR et TAF peuvent être absentes, voisines, périmées ou incomplètes. Elle ne remplace ni le manuel de vol, ni les procédures approuvées, ni la préparation réglementaire du vol.</p><div class="manual-download"><div><strong>Manuel d’utilisation et méthodes de calcul</strong><span>Guide détaillé de 21 pages, version 0.9 — document de travail à valider par le club.</span></div><a href="/documents/manuel-utilisation-outils-de-vol.pdf" target="_blank" rel="noopener">Ouvrir le PDF</a></div><div class="documents-block"><strong>Avant chaque vol, vérifier la présence, l’accessibilité et, lorsqu’une durée s’applique, la validité des documents et informations requis.</strong><p>Liste indicative et non exhaustive :</p><ul><li>manuel de vol de l’aéronef ou document équivalent ;</li><li>certificat d’immatriculation original ;</li><li>certificat de navigabilité original ou titre applicable ;</li><li>certificat acoustique, liste des agréments spécifiques et licence de station d’aéronef, si applicables ;</li><li>attestation d’assurance responsabilité civile ;</li><li>carnet de route ou document équivalent ;</li><li>plan de vol ATS, si applicable ;</li><li>VAC, cartes aéronautiques, NOTAM et briefing météo à jour pour le trajet et les déroutements raisonnablement envisageables ;</li><li>procédures et signaux visuels applicables en cas d’interception ;</li><li>MEL ou CDL, si applicable ;</li><li>licence, qualifications, expérience récente et certificat médical du pilote en cours de validité ;</li><li>toute autre autorisation ou documentation exigée par le vol ou les États concernés.</li></ul></div>'+ 
       '<p>Pour certains vols décollant et atterrissant sur le même aérodrome, ou restant dans une zone déterminée, certains documents peuvent être conservés à l’aérodrome. Ils doivent néanmoins exister, être valides et pouvoir être présentés dans un délai raisonnable.</p><div class="disclaimer-final"><strong>La réglementation en vigueur, la documentation approuvée de l’aéronef et les consignes de l’aéroclub font foi.</strong><span>Le commandant de bord demeure responsable de la préparation, de la décision et de la conduite du vol.</span></div><button class="accept-button" data-action="accept-disclaimer">J’ai compris — accéder à l’application</button></section></div>';
   }
 
@@ -3337,8 +3397,10 @@ const aircraftList = [
     }
   }
 
-  async function loadDensityContext() {
+  async function loadDensityContext(alternativeStation) {
     const requestedIcao=String(state.density.icao||'').trim().toUpperCase();
+    const chosenStation=/^[A-Z]{4}$/.test(String(alternativeStation||'').toUpperCase())?String(alternativeStation).toUpperCase():'';
+    const selectedAlternative=chosenStation&&Array.isArray(state.densityWeather.alternatives)?state.densityWeather.alternatives.find(function(candidate){return String(candidate.station||'').toUpperCase()===chosenStation;}):null;
     state.density.icao=requestedIcao;
     state.density.useMetarData=true;
     if(!/^[A-Z]{4}$/.test(requestedIcao)){
@@ -3351,7 +3413,7 @@ const aircraftList = [
     state.density.temperature='';
     state.density.dewPoint='';
     state.densityAirfield={status:'loading',message:'',record:null,cycle:''};
-    state.densityWeather={status:'loading',message:'',rawMetar:'',observedAt:''};
+    state.densityWeather={status:'loading',message:'',rawMetar:'',observedAt:'',alternatives:[]};
     render();
     let record=null,payload=null;
     try{
@@ -3370,9 +3432,9 @@ const aircraftList = [
       if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
       state.densityAirfield={status:'error',message:'Données terrain indisponibles : saisir l’altitude manuellement.',record:null,cycle:''};
     }
-    const weatherStation=record&&/^[A-Z]{4}$/.test(String(record.metarStation||''))?String(record.metarStation).toUpperCase():requestedIcao;
+    const weatherStation=chosenStation||requestedIcao;
     try{
-      const response=await fetch('/api/weather?icao='+encodeURIComponent(weatherStation),{headers:{Accept:'application/json'}});
+      const response=await fetch(weatherRequestUrl(weatherStation,record,!chosenStation),{headers:{Accept:'application/json'}});
       const weatherPayload=await response.json().catch(function(){return {};});
       const payloadError=weatherPayload&&weatherPayload.error&&weatherPayload.error.message?weatherPayload.error.message:null;
       if(!response.ok)throw new Error(payloadError||('service météo HTTP '+response.status));
@@ -3385,10 +3447,11 @@ const aircraftList = [
       const returnedStation=String(metar.station||'').toUpperCase();
       const stationExact=returnedStation===weatherStation;
       const serverReportCurrent=!metar.reportStatus||metar.reportStatus==='current';
-      const stationNote=record&&record.metarStationNote?record.metarStationNote:'';
-      const details={station:weatherStation,rawMetar:String(metar.raw||metar.rawOb||''),observedAt:String(metar.observedAt||metar.timestamp||''),stationNote:stationNote};
-      if(temperature===null||qnh===null||!observation.usable||!serverReportCurrent||!stationExact){
-        const reason=!stationExact?'station retournée différente':!observation.usable||!serverReportCurrent?'METAR trop ancien ou heure incohérente':'METAR sans température ou QNH';
+      const alternatives=!chosenStation&&Array.isArray(weatherPayload.alternatives)?weatherPayload.alternatives.slice(0,2):[];
+      const stationNote=chosenStation?selectedAlternativeNote(requestedIcao,selectedAlternative):'';
+      const details={station:weatherStation,rawMetar:String(metar.raw||metar.rawOb||''),observedAt:String(metar.observedAt||metar.timestamp||''),stationNote:stationNote,alternatives:alternatives};
+      if(!product.data||temperature===null||qnh===null||!observation.usable||!serverReportCurrent||!stationExact){
+        const reason=!product.data?'aucun METAR publié pour '+requestedIcao:!stationExact?'station retournée différente':!observation.usable||!serverReportCurrent?'METAR trop ancien ou heure incohérente':'METAR sans température ou QNH';
         state.densityWeather=Object.assign({status:'partial',message:reason+' : valeurs météo non utilisées.'},details);
       }else{
         state.density.qnh=qnh;
@@ -3398,13 +3461,15 @@ const aircraftList = [
       }
     }catch(error){
       if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
-      state.densityWeather={status:'error',message:'Aucun METAR exploitable ('+(error&&error.message?error.message:'erreur réseau')+'). QNH et température restent à saisir manuellement.',rawMetar:'',observedAt:'',station:weatherStation,stationNote:record&&record.metarStationNote?record.metarStationNote:''};
+      state.densityWeather={status:'error',message:'Aucun METAR exploitable ('+(error&&error.message?error.message:'erreur réseau')+'). QNH et température restent à saisir manuellement.',rawMetar:'',observedAt:'',station:weatherStation,stationNote:chosenStation?selectedAlternativeNote(requestedIcao,selectedAlternative):'',alternatives:[]};
     }
     persist();render();
   }
 
-  async function loadDepartureContext() {
+  async function loadDepartureContext(alternativeStation) {
     const requestedIcao = String(state.departure.icao || '').trim().toUpperCase();
+    const chosenStation=/^[A-Z]{4}$/.test(String(alternativeStation||'').toUpperCase())?String(alternativeStation).toUpperCase():'';
+    const selectedAlternative=chosenStation&&Array.isArray(state.weather.alternatives)?state.weather.alternatives.find(function(candidate){return String(candidate.station||'').toUpperCase()===chosenStation;}):null;
     state.departure.icao = requestedIcao;
     if (!/^[A-Z]{4}$/.test(requestedIcao)) {
       state.airfield = { status:'error', message:'Saisir un indicateur OACI de quatre lettres.', record:null, cycle:'' };
@@ -3435,7 +3500,7 @@ const aircraftList = [
     state.departure.runwayConfirmed=false;
     state.departure.runwayConfirmedAt='';
     state.airfield = { status:'loading', message:'', record:null, cycle:'' };
-    state.weather = { status:'loading', message:'', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null };
+    state.weather = { status:'loading', message:'', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null, alternatives:[] };
     render();
 
     let record = null;
@@ -3470,9 +3535,9 @@ const aircraftList = [
       state.airfield = { status:'error', message:'Jeu terrain indisponible : conserver une saisie manuelle contrôlée sur la VAC.', record:null, cycle:'' };
     }
 
-    const weatherStation = record && /^[A-Z]{4}$/.test(String(record.metarStation || '')) ? String(record.metarStation).toUpperCase() : requestedIcao;
+    const weatherStation = chosenStation || requestedIcao;
     try {
-      const response = await fetch('/api/weather?icao=' + encodeURIComponent(weatherStation), { headers:{ Accept:'application/json' } });
+      const response = await fetch(weatherRequestUrl(weatherStation,record,!chosenStation), { headers:{ Accept:'application/json' } });
       const payload = await response.json().catch(function(){ return {}; });
       const payloadError = payload && payload.error && payload.error.message ? payload.error.message : null;
       if (!response.ok) throw new Error(payloadError || ('service météo HTTP ' + response.status));
@@ -3489,6 +3554,7 @@ const aircraftList = [
       const stationExact = returnedStation === weatherStation;
       const serverReportCurrent = !metar.reportStatus || metar.reportStatus === 'current';
       const tafState = tafValidity(tafProduct,taf);
+      const alternatives=!chosenStation&&Array.isArray(payload.alternatives)?payload.alternatives.slice(0,2):[];
       const weatherDetails = {
         station:weatherStation,
         rawMetar:String(metar.raw||metar.rawOb||''),
@@ -3502,15 +3568,16 @@ const aircraftList = [
         tafIssuedAt:String(taf.issuedAt||taf.timestamp||''),
         tafValidFrom:String(taf.validFrom||''),
         tafValidTo:String(taf.validTo||''),
-        stationNote:record&&record.metarStationNote?record.metarStationNote:''
+        stationNote:chosenStation?selectedAlternativeNote(requestedIcao,selectedAlternative):'',
+        alternatives:alternatives
         ,windDirectionDeg:firstFinite(metar.windDirectionDeg),
         windSpeedKt:firstFinite(metar.windSpeedKt),
         windGustKt:firstFinite(metar.windGustKt),
         windVariableFromDeg:firstFinite(metar.windVariableFromDeg),
         windVariableToDeg:firstFinite(metar.windVariableToDeg)
       };
-      if (temperature === null || qnh === null || !observation.usable || !serverReportCurrent || !stationExact) {
-        const reason = !stationExact ? 'station retournée différente de la station demandée' : !observation.usable || !serverReportCurrent ? 'heure du METAR absente, incohérente ou observation de plus de 2 heures' : 'METAR sans température ou QNH exploitable';
+      if (!metarProduct.data || temperature === null || qnh === null || !observation.usable || !serverReportCurrent || !stationExact) {
+        const reason = !metarProduct.data ? 'aucun METAR publié pour '+requestedIcao : !stationExact ? 'station retournée différente de la station demandée' : !observation.usable || !serverReportCurrent ? 'heure du METAR absente, incohérente ou observation de plus de 2 heures' : 'METAR sans température ou QNH exploitable';
         state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';resetWindToDefault();state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
         state.weather=Object.assign({status:'partial',message:reason+' : aucune valeur météo n’est préremplie ; saisie manuelle et vérification requises.'},weatherDetails);
         persist();render();return;
@@ -3528,7 +3595,7 @@ const aircraftList = [
       else updateWindComponentFromWeather();
     } catch (error) {
       if (String(state.departure.icao).toUpperCase() !== requestedIcao) return;
-      state.weather = { status:'error', message:'METAR/TAF indisponible (' + (error && error.message ? error.message : 'erreur réseau') + '). Vérifier puis saisir manuellement.', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null };
+      state.weather = { status:'error', message:'METAR/TAF indisponible (' + (error && error.message ? error.message : 'erreur réseau') + '). Vérifier puis saisir manuellement.', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null, stationNote:chosenStation?selectedAlternativeNote(requestedIcao,selectedAlternative):'', alternatives:[] };
       state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';resetWindToDefault();state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
     }
     persist();
@@ -3623,6 +3690,12 @@ const aircraftList = [
         scrollTo(0,0);
         persist();
       }
+    }
+    if(action==='use-weather-alternative'){
+      const station=String(button.dataset.station||'').toUpperCase();
+      if(button.dataset.weatherContext==='density')loadDensityContext(station);
+      else loadDepartureContext(station);
+      return;
     }
     if(action==='load-weather'){loadDepartureContext();return;}
     if(action==='load-density-metar'){loadDensityContext();return;}

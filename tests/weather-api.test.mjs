@@ -271,6 +271,36 @@ test('relais météo AWC', async (suite) => {
       assert.equal(fetchCalls, 2);
     });
 
+    await suite.test('propose au maximum deux METAR voisins classés par distance, altitude et fraîcheur', async () => {
+      const handler = await loadHandler('nearby-metars');
+      const requestedUrls = [];
+      const observation = Math.floor((Date.now() - 20 * 60 * 1000) / 1000);
+      globalThis.fetch = async (url) => {
+        const address = String(url);
+        requestedUrls.push(address);
+        if (address.includes('ids=LFCG')) return upstreamResponse({ status:204 });
+        assert.match(address, /\/metar\?/);
+        assert.match(address, /bbox=/);
+        return upstreamResponse({ body:[
+          { icaoId:'LFMK', name:'CARCASSONNE', lat:43.2158, lon:2.3086, elev:132, obsTime:observation, temp:26, dewp:15, altim:1016, rawOb:'METAR LFMK TEST 29005KT CAVOK 26/15 Q1016' },
+          { icaoId:'LFBO', name:'TOULOUSE BLAGNAC', lat:43.635, lon:1.3678, elev:151, obsTime:observation, temp:25, dewp:14, altim:1017, rawOb:'METAR LFBO TEST 30006KT CAVOK 25/14 Q1017' },
+          { icaoId:'LFBT', name:'TARBES LOURDES PYRENEES', lat:43.1856, lon:-0.0028, elev:384, obsTime:observation, temp:23, dewp:13, altim:1018, rawOb:'METAR LFBT TEST 31004KT CAVOK 23/13 Q1018' },
+        ] });
+      };
+
+      const result = await invoke(handler, { query:{ icao:'LFCG', lat:'43.0077778', lon:'1.1030556', elevationFt:'1376' } });
+
+      assert.equal(result.status,200);
+      assert.equal(result.body.ok,true);
+      assert.equal(result.body.metar.status,'no_data');
+      assert.equal(result.body.alternatives.length,2);
+      assert.deepEqual(result.body.alternatives.map((candidate) => candidate.station),['LFBT','LFBO']);
+      assert.ok(result.body.alternatives[0].distanceKm > 80);
+      assert.ok(Math.abs(result.body.alternatives[0].elevationDifferenceFt) < 150);
+      assert.match(result.body.alternatives[0].rawMetar,/^METAR LFBT/);
+      assert.equal(requestedUrls.length,3);
+    });
+
     await suite.test('refuse un rapport qui ne correspond pas exactement à la station demandée', async () => {
       const handler = await loadHandler('station-mismatch');
       globalThis.fetch = async (url) => upstreamResponse({

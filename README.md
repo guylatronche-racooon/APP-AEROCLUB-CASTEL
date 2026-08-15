@@ -11,7 +11,8 @@ consignes du club restent seules opposables.
    aérodrome : l'altitude publiée vient du jeu terrain local et le relais météo complète
    le QNH, la température et le point de rosée lorsqu'un METAR récent est disponible.
    Terrain et météo restent indépendants, afin qu'une donnée absente n'efface pas celles
-   qui sont utilisables.
+   qui sont utilisables. Les écrans Altitude-densité et Performances donnent aussi un
+   accès permanent à AÉROWEB pour consulter les cartes TEMSI et WINTEM.
 2. **Carburant prérempli au plein.** Masse & centrage initialise chaque réservoir à sa
    capacité publiée : 120 l sur les SportStar, 110 l dans le principal et 80 l dans les
    ailes sur le DR400. Le pilote réduit ensuite les quantités pour représenter le
@@ -23,8 +24,10 @@ consignes du club restent seules opposables.
 4. **Terrains partiellement documentés.** Un terrain peut être présent dans les données
    SIA sans publier de METAR, ne pas avoir de VAC dans l'Atlas, ou être absent du jeu
    local. L'application conserve alors les informations certaines, signale précisément
-   ce qui manque et laisse la saisie manuelle disponible. Une station METAR voisine est
-   identifiée comme telle et ne vaut jamais observation sur le terrain demandé.
+   ce qui manque et laisse la saisie manuelle disponible. Si aucun METAR local n'est
+   publié, deux observations voisines récentes au maximum sont proposées selon la
+   distance, l'écart d'altitude et leur fraîcheur. Aucune n'est appliquée sans choix
+   explicite ; l'avertissement de station voisine reste ensuite visible.
 5. **Nature et état de piste.** Les choix sont « Dur sec », « Dur mouillé », « Herbe
    sèche » et « Herbe mouillée ». Les familles proposées suivent les surfaces publiées
    pour la piste sélectionnée ; lorsqu'il existe du dur et de l'herbe, le dur sec est le
@@ -94,8 +97,8 @@ un contact opérationnel. Les scans consultés sont ensuite disponibles hors lig
 ## Données terrain
 
 `app/data/airfields.json` suit un schéma local simple : référence de cycle, date d'effet,
-élévation, pistes, QFU, surface, TORA/TODA, pente lorsqu'elle est publiée, lien VAC et
-éventuelle station METAR voisine. Il est conçu pour être régénéré et contrôlé à chaque
+coordonnées ARP, élévation, pistes, QFU, surface, TORA/TODA, pente lorsqu'elle est publiée
+et lien VAC. Il est conçu pour être régénéré et contrôlé à chaque
 cycle AIRAC depuis les produits numériques du SIA. Une date absente, invalide, future ou
 vieille de plus de 28 jours provoque un avertissement visible.
 
@@ -116,6 +119,8 @@ opérationnelles du jour font foi.
 Les METAR et TAF ne proviennent pas du fichier SIA. La fonction `api/weather.js` utilise
 le relais de l'[Aviation Weather Center](https://aviationweather.gov/data/api/), contrôle
 l'identité de la station et l'âge réel de l'observation, puis met les réponses en cache.
+Les cartes TEMSI et WINTEM restent consultées sur le portail officiel
+[AÉROWEB de Météo-France](https://aviation.meteo.fr/login.php) et n'alimentent aucun calcul.
 
 ## Persistance et confirmations
 
