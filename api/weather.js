@@ -147,6 +147,25 @@ function relativeHumidity(temperatureC, dewpointC) {
   return round(Math.min(100, Math.max(0, result)), 1);
 }
 
+function variableWindSector(raw) {
+  const match = raw?.match(/(?:^|\s)(\d{3})V(\d{3})(?=\s|$)/);
+  if (!match) return { fromDeg: null, toDeg: null };
+  return { fromDeg: Number(match[1]), toDeg: Number(match[2]) };
+}
+
+function winds(report, raw) {
+  let directionDeg = finiteNumber(firstDefined(report, ['wdir', 'windDirection']));
+  let speedKt = finiteNumber(firstDefined(report, ['wspd', 'windSpeed']));
+  let gustKt = finiteNumber(firstDefined(report, ['wgst', 'windGust']));
+  const match = raw?.match(/(?:^|\s)(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT(?=\s|$)/);
+  if (match) {
+    if (directionDeg === null && match[1] !== 'VRB') directionDeg = Number(match[1]);
+    if (speedKt === null) speedKt = Number(match[2]);
+    if (gustKt === null && match[3]) gustKt = Number(match[3]);
+  }
+  return { directionDeg, speedKt, gustKt, variable: match?.[1] === 'VRB' };
+}
+
 function stationId(report, fallback) {
   const candidate = firstDefined(report, ['icaoId', 'stationId', 'station_id']);
   return typeof candidate === 'string' && ICAO_PATTERN.test(candidate.toUpperCase())
@@ -207,6 +226,8 @@ function normalizeMetar(report, icao) {
       'reportTime',
     ]),
   );
+  const variableSector = variableWindSector(raw);
+  const wind = winds(report, raw);
 
   return {
     station: stationId(report, icao),
@@ -218,9 +239,12 @@ function normalizeMetar(report, icao) {
     dewpointC,
     relativeHumidityPercent: relativeHumidity(temperatureC, dewpointC),
     qnhHpa: qnhHpa(report, raw),
-    windDirectionDeg: finiteNumber(firstDefined(report, ['wdir', 'windDirection'])),
-    windSpeedKt: finiteNumber(firstDefined(report, ['wspd', 'windSpeed'])),
-    windGustKt: finiteNumber(firstDefined(report, ['wgst', 'windGust'])),
+    windDirectionDeg: wind.directionDeg,
+    windSpeedKt: wind.speedKt,
+    windGustKt: wind.gustKt,
+    windVariable: wind.variable,
+    windVariableFromDeg: variableSector.fromDeg,
+    windVariableToDeg: variableSector.toDeg,
     visibilitySm: finiteNumber(firstDefined(report, ['visib', 'visibility'])),
     flightCategory: firstDefined(report, ['fltCat', 'flightCategory']),
     ...reportTimeQuality(observedAt),

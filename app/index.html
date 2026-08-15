@@ -834,6 +834,8 @@ button, input { font: inherit; }
 }
 .balance-warning strong { font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
 .balance-warning p { font-size: 10px; line-height: 1.5; margin: 5px 0 0; }
+.performance-cta { background: var(--teal-950); border: 0; border-radius: 11px; color: #fff; cursor: pointer; font: inherit; font-size: 13px; font-weight: 900; margin-top: 13px; min-height: 50px; padding: 0 18px; width: 100%; }
+.performance-cta:disabled { cursor: not-allowed; opacity: .45; }
 .tool-mobile-footer { display: none; }
 
 .disclaimer-overlay {
@@ -1310,6 +1312,8 @@ button, input { font: inherit; }
 .static-app .density-panel-heading span { color: var(--sky); display: block; font-size: 9px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
 .static-app .density-panel-heading h2 { font-size: 23px; margin: 5px 0 18px; }
 .static-app .density-inputs { display: grid; gap: 13px; }
+.static-app .density-metar-toggle { margin-bottom: 12px; }
+.static-app .density-metar-field { margin-bottom: 10px; }
 .static-app .density-inputs label > span { display: block; font-size: 11px; font-weight: 800; margin-bottom: 6px; }
 .static-app .density-inputs label > div { align-items: center; background: var(--sky-soft); border: 1px solid #c9e4ee; border-radius: 9px; display: grid; grid-template-columns: 1fr auto; min-height: 58px; padding: 0 13px; }
 .static-app .density-inputs input { background: transparent; border: 0; color: var(--ink); font: inherit; font-size: 21px; font-weight: 850; min-width: 0; outline: 0; width: 100%; }
@@ -1341,6 +1345,7 @@ button, input { font: inherit; }
 .static-app .performance-intro { max-width: 800px; }
 .static-app .performance-intro h1 { font-size: clamp(36px, 5vw, 58px); letter-spacing: -.05em; margin: 6px 0 10px; }
 .static-app .performance-intro p { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
+.static-app .inline-back-button { background: transparent; border: 1px solid var(--line); border-radius: 999px; color: var(--teal-700); cursor: pointer; font: inherit; font-size: 10px; font-weight: 850; margin-top: 12px; padding: 8px 12px; }
 .static-app .performance-layout { display: grid; gap: 18px; grid-template-columns: minmax(340px,.9fr) minmax(430px,1.1fr); margin-top: 22px; }
 .static-app .performance-input-panel, .static-app .performance-result-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 7px 24px rgba(20,50,60,.055); padding: 19px; }
 .static-app .performance-input-grid { display: grid; gap: 11px; grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 13px; }
@@ -1371,6 +1376,7 @@ button, input { font: inherit; }
 .static-app .performance-metrics small { color: var(--muted); display: block; font-size: 7px; line-height: 1.35; margin-top: 3px; }
 .static-app .performance-information, .static-app .humidity-comparison, .static-app .performance-warning { border-radius: 9px; margin-top: 12px; padding: 12px 13px; }
 .static-app .performance-information { background: var(--sky-soft); border: 1px solid #c9e4ee; }
+.static-app .performance-information.conservative { background: var(--yellow-soft); border-color: #e3c95e; color: #5d4c0f; }
 .static-app .humidity-comparison { background: var(--yellow-soft); border: 1px solid #e3c95e; color: #5d4c0f; }
 .static-app .performance-warning { background: #f4f6f7; border: 1px solid var(--line); }
 .static-app .performance-information strong, .static-app .humidity-comparison strong, .static-app .performance-warning strong { font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
@@ -1380,6 +1386,14 @@ button, input { font: inherit; }
 .static-app .performance-empty { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
 .static-app .performance-source-link { border: 1px solid currentColor; border-radius: 999px; color: inherit; font-size: 8px; font-weight: 850; padding: 5px 9px; text-decoration: none; white-space: nowrap; }
 .static-app .load-confirmation { border-color: #e3c95e; margin-bottom: 14px; }
+.static-app .required-choice { border-color: #e3c95e; }
+.static-app .optional-choice { border-style: dashed; }
+.static-app .requirement-tag { border-radius: 999px; display: inline-block; font-size: 7px; font-style: normal; letter-spacing: .06em; margin-left: 5px; padding: 3px 6px; text-transform: uppercase; vertical-align: 1px; }
+.static-app .requirement-tag.required { background: #f3ca39; color: #433700; }
+.static-app .requirement-tag.optional { background: #d8eef5; color: var(--teal-700); }
+.static-app .mountain-warning { background: #fff7dd; border: 1px solid #e3c95e; border-radius: 9px; color: #5d4c0f; margin-top: 12px; padding: 12px 13px; }
+.static-app .mountain-warning strong { display: block; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+.static-app .mountain-warning p { font-size: 9px; line-height: 1.55; margin: 5px 0 0; }
 .static-app .airfield-readout { background: var(--sky-soft); border: 1px solid #b9dce8; border-radius: 10px; display: grid; gap: 9px; margin-top: 10px; padding: 12px; }
 .static-app .airfield-readout.stale { background: var(--yellow-soft); border-color: #e3c95e; }
 .static-app .airfield-readout > div > strong, .static-app .airfield-readout > div > small, .static-app .airfield-source { display: block; }
@@ -2058,7 +2072,7 @@ const sportStarBalance = {
       label: "Carburant principal",
       rowLabel: "Carburant",
       unit: "litres",
-      defaultValue: "",
+      defaultValue: 120,
       arm: 0.68,
       massFactor: 0.72,
       max: 120,
@@ -2100,7 +2114,7 @@ const dr400Balance = {
       label: "Carburant principal",
       rowLabel: "Carburant principal",
       unit: "litres",
-      defaultValue: "",
+      defaultValue: 110,
       arm: 1.12,
       massFactor: 0.72,
       includedUnusableLitres: 10,
@@ -2114,7 +2128,7 @@ const dr400Balance = {
       label: "Carburant ailes",
       rowLabel: "Carburant ailes",
       unit: "litres",
-      defaultValue: "",
+      defaultValue: 80,
       arm: 0.1,
       massFactor: 0.72,
       max: 80,
@@ -2186,6 +2200,7 @@ const dr400Performance = {
   altitudes: [0, 4000, 8000],
   isaDeviations: [-20, 0, 20],
   masses: [900, 1100],
+  conservativeBelowMinimumMass: true,
   values: {
     "900": {
       "0": [[180, 360, 225, 405], [200, 400, 255, 455], [225, 440, 285, 500]],
@@ -2202,7 +2217,7 @@ const dr400Performance = {
   headwindFactors: [[0, 1], [10, 0.81], [20, 0.67], [30, 0.56]],
   limitations: [
     "Document générique ancien : l’applicabilité au F-GGHL, son hélice, ses carénages et ses suppléments doit être confirmée.",
-    "Interpolation uniquement entre 900 et 1 100 kg, 0 et 8 000 ft, ISA−20 et ISA+20 °C.",
+    "Points de masse publiés à 900 et 1 100 kg. Sous 900 kg, la ligne 900 kg est retenue sans extrapolation, de façon conservatrice ; au-dessus de 1 100 kg, le calcul est hors table.",
     "Aucune extrapolation et aucune correction de vent arrière ou de pente.",
     "Conditions de la table générique : volets au premier cran ; roulement jusqu’à 1,1 Vs1 et distance totale jusqu’au passage des 15 m à 1,3 Vs1.",
     "Portée limitée aux longueurs de piste : obstacles, trajectoire et gradient de montée, vent traversier et rafales ne sont pas évalués.",
@@ -2283,9 +2298,10 @@ const aircraftList = [
 
   const CHECKLIST_CONTENT_VERSION = '2026-08-14-a';
   const CHECKLIST_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
-  const LOAD_STORAGE_KEY = 'acjd-fleet-weight-balance-static-v3';
-  const DENSITY_STORAGE_KEY = 'acjd-density-altitude-static-v3';
-  const DEPARTURE_STORAGE_KEY = 'acjd-departure-performance-static-v3';
+  const LOAD_STORAGE_KEY = 'acjd-fleet-weight-balance-static-v4';
+  const PREVIOUS_LOAD_STORAGE_KEY = 'acjd-fleet-weight-balance-static-v3';
+  const DENSITY_STORAGE_KEY = 'acjd-density-altitude-static-v4';
+  const DEPARTURE_STORAGE_KEY = 'acjd-departure-performance-static-v4';
   const THEME_KEY = 'acjd-flight-tools-theme-v1';
   const CONDITIONS_CONFIRMATION_MAX_AGE_MS = 60 * 60 * 1000;
 
@@ -2298,6 +2314,27 @@ const aircraftList = [
     'f-hdlv': defaultLoad(sportStarBalance),
     'f-gghl': defaultLoad(dr400Balance)
   };
+
+  function restoredLoads() {
+    const current = readStore(LOAD_STORAGE_KEY, null);
+    if (current) {
+      return Object.fromEntries(Object.keys(DEFAULT_LOADS).map(function(aircraftId) {
+        return [aircraftId, Object.assign({}, DEFAULT_LOADS[aircraftId], current[aircraftId] || {})];
+      }));
+    }
+    const previous = readStore(PREVIOUS_LOAD_STORAGE_KEY, null);
+    if (!previous) return DEFAULT_LOADS;
+    return Object.fromEntries(Object.keys(DEFAULT_LOADS).map(function(aircraftId) {
+      const migrated = Object.assign({}, DEFAULT_LOADS[aircraftId], previous[aircraftId] || {});
+      const aircraft = aircraftList.find(function(candidate) { return candidate.id === aircraftId; });
+      (aircraft && aircraft.balance ? aircraft.balance.inputs : []).forEach(function(input) {
+        if (input.unit === 'litres' && (migrated[input.key] === '' || migrated[input.key] === null || migrated[input.key] === undefined)) {
+          migrated[input.key] = input.defaultValue;
+        }
+      });
+      return [aircraftId, migrated];
+    }));
+  }
 
   function readStore(key, fallback) {
     try {
@@ -2314,23 +2351,26 @@ const aircraftList = [
     return {checked:{},session:freshChecklistSession()};
   }
 
-  const DEPARTURE_DEFAULTS = { icao: 'LFMW', elevation: '', qnh: '', temperature: '', dewPoint: '', useHumidity: false, tora: '', toda: '', todaDerived: false, surface: 'unknown', windComponent: '', slope: '', safetyMarginPercent: '', runwayId: '', loadConfirmed: '', loadConfirmedAt: '', conditionsConfirmed: false, conditionsConfirmedAt: '', conditionsSource: '', conditionsObservedAt: '', runwayConfirmed: false, runwayConfirmedAt: '' };
+  const DEPARTURE_DEFAULTS = { icao: 'LFMW', elevation: '', qnh: '', temperature: '', dewPoint: '', useHumidity: false, tora: '', toda: '', todaDerived: false, surface: 'unknown', windComponent: 0, windMode: 'metar', windSource: 'default', windNote: '0 kt par défaut à ajuster.', slope: 0, slopeSource: 'default', safetyMarginPercent: 0, runwayId: '', loadConfirmed: '', loadConfirmedAt: '', conditionsConfirmed: false, conditionsConfirmedAt: '', conditionsSource: '', conditionsObservedAt: '', runwayConfirmed: false, runwayConfirmedAt: '' };
 
   function restoredDeparture() {
     const restored = Object.assign({}, DEPARTURE_DEFAULTS, readStore(DEPARTURE_STORAGE_KEY, {}));
+    restored.surface=normalizeSurfaceValue(restored.surface);
+    if(restored.slope===''||!Number.isFinite(Number(restored.slope))){restored.slope=0;restored.slopeSource='default';}
+    if(restored.safetyMarginPercent===''||!Number.isFinite(Number(restored.safetyMarginPercent)))restored.safetyMarginPercent=0;
     // Les conditions et confirmations opérationnelles ne traversent jamais un
     // rechargement de l'application. Les valeurs terrain restent visibles mais
     // doivent, elles aussi, être confirmées pour le vol courant.
     return Object.assign(restored, {
-      qnh: '', temperature: '', dewPoint: '', windComponent: '', conditionsSource: '', conditionsObservedAt: '',
+      qnh: '', temperature: '', dewPoint: '', useHumidity:false, windComponent: 0, windMode: 'metar', windSource: 'default', windNote: '0 kt par défaut à ajuster.', conditionsSource: '', conditionsObservedAt: '',
       loadConfirmed: '', loadConfirmedAt: '', conditionsConfirmed: false, conditionsConfirmedAt: '',
       runwayConfirmed: false, runwayConfirmedAt: ''
     });
   }
 
   function restoredDensity() {
-    const restored=Object.assign({elevation:'',qnh:'',temperature:'',dewPoint:'',useHumidity:false},readStore(DENSITY_STORAGE_KEY,{}));
-    return Object.assign(restored,{qnh:'',temperature:'',dewPoint:'',useHumidity:false});
+    const restored=Object.assign({icao:'LFMW',useMetarData:false,elevation:'',qnh:'',temperature:'',dewPoint:'',useHumidity:false},readStore(DENSITY_STORAGE_KEY,{}));
+    return Object.assign(restored,{useMetarData:false,qnh:'',temperature:'',dewPoint:'',useHumidity:false});
   }
 
   const restoredChecklist = restoreChecklistState();
@@ -2341,11 +2381,15 @@ const aircraftList = [
     phaseIndex: 0,
     checked: restoredChecklist.checked,
     checklistSession: restoredChecklist.session,
-    loads: readStore(LOAD_STORAGE_KEY, DEFAULT_LOADS),
+    loads: restoredLoads(),
     density: restoredDensity(),
     departure: restoredDeparture(),
-    weather: { status: 'idle', message: '', rawMetar: '', observedAt: '' },
+    weather: { status: 'idle', message: '', rawMetar: '', observedAt: '', windDirectionDeg: null, windSpeedKt: null, windGustKt: null, windVariableFromDeg: null, windVariableToDeg: null },
     airfield: { status: 'idle', message: '', record: null, cycle: '' },
+    densityWeather: { status: 'idle', message: '', rawMetar: '', observedAt: '' },
+    densityAirfield: { status: 'idle', message: '', record: null, cycle: '' },
+    airfieldCatalog: [],
+    airfieldCatalogLoading: false,
     night: localStorage.getItem(THEME_KEY) === 'night',
     showDisclaimer: true,
     showFacts: false,
@@ -2354,6 +2398,20 @@ const aircraftList = [
 
   function currentAircraft() {
     return aircraftList.find(function(aircraft) { return aircraft.id === state.aircraftId; }) || aircraftList[0];
+  }
+
+  async function ensureAirfieldCatalog() {
+    if(state.airfieldCatalogLoading||state.airfieldCatalog.length)return;
+    state.airfieldCatalogLoading=true;
+    try{
+      const response=await fetch('/data/airfields.json',{cache:'no-cache'});
+      if(!response.ok)throw new Error('catalogue indisponible');
+      const payload=await response.json();
+      const records=Array.isArray(payload)?payload:payload.airfields;
+      state.airfieldCatalog=Array.isArray(records)?records:[];
+    }catch(_){state.airfieldCatalog=[];}
+    state.airfieldCatalogLoading=false;
+    render();
   }
 
   function pointOnSegment(point, start, end) {
@@ -2532,9 +2590,9 @@ const aircraftList = [
       '<div class="bases-section"><strong>Source</strong><p class="bases-copy">' + escapeHtml(dr400Balance.source) + '</p></div></article></div>' +
       '<div class="formula-card"><strong>Formules et arrondis</strong><p>Moment poste = masse × bras. Moment total = moment à vide publié + somme des moments. CG = moment total ÷ masse totale. Le moment à vide officiel est conservé : 95,64 kg·m pour F-HDLT et 201,488 kg·m pour F-GGHL. Carburant : 0,72 kg/l. Sur F-GGHL, les 10 l non consommables sont déjà inclus dans la masse à vide : masse principale ajoutée = max(0, litres totaux à bord − 10) × 0,72. Aucun arrondi intermédiaire n’est appliqué ; l’exemple papier DR400 arrondit 57,6 kg à 58 kg, d’où un petit écart reproductible.</p></div></section>'+
       '<section class="method-section" id="atmosphere"><span class="method-number">02</span><div class="method-heading"><span>Terminologie et thermodynamique</span><h2>Altitude-pression et altitude-densité</h2></div><div class="method-copy-grid"><article><h3>Altitude du terrain</h3><p>C’est l’élévation géométrique publiée sur la carte. Elle ne devient altitude-pression que lorsque la pression correspond à l’atmosphère standard. À QNH 1013,25 hPa, l’altitude-pression est pratiquement égale à l’altitude publiée ; à 15 °C au niveau de la mer, l’altitude-densité vaut environ 0 ft, mais à un terrain élevé elle reste voisine de l’altitude de ce terrain.</p></article><article><h3>Altitude-pression</h3><p>Le moteur estime d’abord la pression statique au terrain à partir du QNH et de l’élévation dans l’atmosphère ISA, puis recherche l’altitude ISA possédant cette même pression. C’est l’axe vertical utilisé par les tables de performance, sous réserve de validation de l’intitulé « altitude de l’aéroport » du scan SportStar.</p></article><article><h3>Altitude-densité</h3><p>La densité est obtenue par l’équation des gaz parfaits avec la pression au terrain et la température extérieure, puis convertie en altitude ISA équivalente. L’altitude-densité sert à comprendre l’état de l’air ; elle ne remplace pas simultanément altitude-pression et température dans une table, car ce serait compter deux fois l’effet thermique.</p></article><article><h3>Humidité facultative</h3><p>Le point de rosée du METAR permet de calculer pression de vapeur, humidité relative et densité réelle de l’air humide. Pour les performances, cette densité est convertie en une altitude-pression sèche équivalente, la table est recalculée, puis la valeur la plus restrictive est retenue. Cette extension est mathématiquement cohérente mais non publiée par le constructeur ; elle est clairement signalée et devient « hors table » si sa projection quitte le domaine.</p></article></div><div class="formula-card"><strong>Constantes</strong><p>ISA au niveau de la mer : 15 °C, 1013,25 hPa et 1,225 kg/m³. Gradient troposphérique : 0,0065 K/m. Gravité : 9,80665 m/s². Constantes spécifiques : air sec 287,05 J/(kg·K), vapeur d’eau 461,495 J/(kg·K). Le point de rosée est converti en pression de vapeur par une relation de Magnus.</p></div></section>'+
-      '<section class="method-section" id="performances"><span class="method-number">03</span><div class="method-heading"><span>Décollage</span><h2>Tables et interpolation</h2><p>Le calcul est effectué après le contrôle masse/centrage. Les distances de roulement et de passage des 15 m / 50 ft sont interpolées séparément, puis arrondies au mètre supérieur. Une interpolation ne crée un résultat qu’entre des points publiés ; aucune extrapolation n’est autorisée.</p></div><ol class="method-steps"><li><strong>Atmosphère.</strong> Calculer l’altitude-pression et la température ISA correspondante.</li><li><strong>Position dans la table.</strong> Écart ISA = OAT − température ISA. Pour le SportStar, les températures ISA imprimées sont interpolées afin de respecter exactement les nœuds publiés.</li><li><strong>Interpolation.</strong> SportStar : bilinéaire altitude-pression × écart ISA. DR400 : trilinéaire masse × altitude-pression × écart ISA. Dur et herbe sont deux colonnes distinctes, jamais interpolées entre elles.</li><li><strong>Corrections.</strong> Aucun gain de masse, vent favorable, pente descendante ou humidité n’est inventé. Le DR400 générique applique seulement les facteurs de vent de face publiés entre 0 et 30 kt. Vent arrière, piste montante et vent au-delà de 30 kt : hors table. Pour le SportStar RTC, aucune correction vent/pente n’est empruntée aux deux séries photographiées mais non identifiées.</li><li><strong>Marge additionnelle.</strong> Une marge pilote/club obligatoire à saisir, de 0 à 100 %, est appliquée après interpolation et après la comparaison d’humidité : distance retenue = distance calculée × (1 + marge/100), puis arrondi au mètre supérieur. Aucune valeur par défaut n’est imposée avant décision du club.</li><li><strong>Piste.</strong> Le roulement retenu est comparé à la TORA ; la distance retenue au passage des 50 ft à la TODA. Les deux marges doivent être positives. Une piste humide, longue, molle ou contaminée est hors table.</li><li><strong>Confirmations.</strong> Chargement, piste et conditions du jour doivent être confirmés explicitement. La confirmation météo expire après 60 minutes, au rechargement de l’application et au retour sur un onglet laissé ouvert.</li><li><strong>Verdict.</strong> Une donnée ou confirmation manquante produit « CALCUL BLOQUÉ ». Un axe ou une condition non couverte produit « HORS TABLE ». Dans les deux cas, les informations certaines sont conservées mais aucun avis de piste n’est donné. Tant que la série SportStar n’est pas validée par le club, une piste suffisante reste affichée comme marge indicative, jamais comme verdict vert approuvé.</li></ol>'+
-      '<div class="method-callout danger"><strong>Exemple volontairement extrême</strong><p>À 3 000 ft de pression et 38,5 °C, la température ISA interpolée du tableau SportStar est 9,05 °C : l’écart vaut ISA+29,45 °C. La table active s’arrête à ISA+20 °C, soit environ 29,05 °C à cette altitude. Le dépassement de 9,45 °C force donc « HORS TABLE » ; aucune distance n’est extrapolée, même si la piste fait 800 m.</p></div><div class="method-copy-grid"><article><h3>SportStar RTC</h3><p>Domaine actif : 0 à 10 000 ft et ISA−10 à ISA+20 °C. La famille est identifiée par « EVEKTOR SPORTSTAR RTC — Page 60 ». Les clichés ne montrent pas toutes les conditions générales — masse de référence, volets, technique, régime, état exact de piste, hélice — qui restent à confirmer. Les valeurs sont appliquées provisoirement à F-HDLT et F-HDLV.</p></article><article><h3>DR400/180</h3><p>Table générique, édition 13, et non une table approuvée spécifiquement pour F-GGHL (N/S 1835). Domaine : 900 à 1 100 kg, 0 à 8 000 ft et ISA−20 à ISA+20 °C. Hélice, carénages, suppléments et révision applicable doivent être validés. Aucun résultat ne doit être présenté comme constructeur propre à HL.</p><p><a href="https://manualzilla.com/doc/6382928/manuel-de-vol-robin-dr400-180" target="_blank" rel="noopener">Copie du manuel générique utilisé ↗</a> · <a href="https://www.easa.europa.eu/en/document-library/type-certificates/aircraft-cs-25-cs-22-cs-23-cs-vla-cs-lsa/easaa367-ceapr-dr-200" target="_blank" rel="noopener">Fiche de type EASA ↗</a></p></article></div>'+performanceReferenceTables()+'</section>'+
-      '<section class="method-section" id="terrains"><span class="method-number">04</span><div class="method-heading"><span>Données publiques et données du jour</span><h2>Terrains, VAC, METAR et TAF</h2></div><div class="method-copy-grid"><article><h3>SIA et VAC</h3><p>Les données numériques SIA sont diffusées par cycle AIRAC sous Licence Ouverte / Etalab 2.0. Elles ne constituent pas une API temps réel simple : un import hors ligne transforme le XML/AIXM en un fichier local léger, portant attribution SIA, cycle, date et source. L’application peut alors proposer élévation, pistes, surfaces, TORA/TODA et un lien vers l’Atlas VAC. La VAC en vigueur, les NOTAM et les distances déclarées priment toujours. Le jeu actuellement livré ne contient qu’une entrée pilote LFMW à valider avant généralisation.</p><p><a href="https://www.sia.aviation-civile.gouv.fr/produits-numeriques-en-libre-disposition.html" target="_blank" rel="noopener">Données ouvertes SIA ↗</a> · <a href="https://www.sia.aviation-civile.gouv.fr/atlas-vac.html" target="_blank" rel="noopener">Atlas VAC ↗</a></p></article><article><h3>METAR et TAF</h3><p>Le navigateur interroge un relais serveur local, qui consulte Aviation Weather Center et met en cache METAR 60 s et TAF 600 s. La station du rapport doit correspondre exactement à celle demandée. Le METAR ne préremplit température, point de rosée et QNH que si son horodatage est cohérent et vieux de moins de deux heures ; la date du fetch seule ne suffit pas. Le TAF est affiché avec le statut du cache et sa période de validité, mais n’alimente jamais un calcul instantané. Une station voisine — par exemple LFMK pour LFMW — n’est jamais équivalente aux conditions sur le terrain : l’écart est signalé.</p><p><a href="https://aviationweather.gov/data/api/" target="_blank" rel="noopener">Documentation AWC ↗</a></p></article><article><h3>Ce que le METAR ne sait pas</h3><p>Il ne garantit ni vent exact au seuil, ni composante sur la piste choisie, ni pente, ni herbe sèche/courte, ni TORA réellement disponible, ni obstacle temporaire. Le point de rosée permet un calcul d’humidité ; il ne transforme pas cette correction en donnée approuvée du manuel.</p></article><article><h3>Défaillance sûre</h3><p>Une API absente, un METAR sans QNH/température, un horodatage absent/futur/ancien, un TAF hors validité, un terrain absent du cycle ou une piste non choisie n’invente aucune valeur. Les conditions météo sont effacées à chaque nouveau chargement de l’application ; la saisie manuelle reste possible mais doit être vérifiée sur les sources opérationnelles.</p></article></div></section>'+
+      '<section class="method-section" id="performances"><span class="method-number">03</span><div class="method-heading"><span>Décollage</span><h2>Tables et interpolation</h2><p>Le calcul est effectué après le contrôle masse/centrage. Les distances de roulement et de passage des 15 m / 50 ft sont interpolées séparément, puis arrondies au mètre supérieur. Une interpolation ne crée un résultat qu’entre des points publiés ; aucune extrapolation n’est autorisée.</p></div><ol class="method-steps"><li><strong>Atmosphère.</strong> Calculer l’altitude-pression et la température ISA correspondante.</li><li><strong>Position dans la table.</strong> Écart ISA = OAT − température ISA. Pour le SportStar, les températures ISA imprimées sont interpolées afin de respecter exactement les nœuds publiés.</li><li><strong>Interpolation.</strong> SportStar : bilinéaire altitude-pression × écart ISA. DR400 : trilinéaire masse × altitude-pression × écart ISA entre 900 et 1 100 kg. Sous 900 kg, la ligne publiée à 900 kg est conservée sans extrapolation vers le bas. Dur et herbe sont deux colonnes distinctes, jamais interpolées entre elles.</li><li><strong>Corrections.</strong> Aucun gain de masse, pente descendante ou humidité n’est inventé. La composante de vent peut être calculée depuis le METAR et le relèvement vrai du QFU ; la combinaison moyenne, rafales et secteur variable la moins favorable est proposée, puis reste modifiable. Le DR400 générique applique seulement les facteurs de vent de face publiés entre 0 et 30 kt. Vent arrière, piste montante et vent au-delà de 30 kt : hors table. Pour le SportStar RTC, aucune correction vent/pente n’est empruntée aux deux séries photographiées mais non identifiées.</li><li><strong>Marge additionnelle.</strong> Une marge pilote/club de 0 à 100 % est appliquée après interpolation et après la comparaison d’humidité : distance retenue = distance calculée × (1 + marge/100), puis arrondi au mètre supérieur. La valeur initiale est 0 % et doit être ajustée selon la politique du club et la décision du pilote ; elle ne prétend pas constituer une consigne du club.</li><li><strong>Piste.</strong> Le roulement retenu est comparé à la TORA ; la distance retenue au passage des 50 ft à la TODA. Les deux marges doivent être positives. Les choix affichés sont « Dur sec », « Dur mouillé », « Herbe sèche » et « Herbe mouillée », filtrés selon la piste sélectionnée. Les deux états mouillés restent hors table tant qu’aucun facteur applicable n’est validé.</li><li><strong>Confirmations.</strong> Chargement, conditions du jour, piste et distances portent le badge « obligatoire » et doivent être confirmés explicitement. La comparaison avec l’air humide porte le badge « facultatif » et ne bloque pas le calcul lorsqu’elle est désactivée. Les confirmations expirent après 60 minutes et ne traversent pas un rechargement.</li><li><strong>Verdict.</strong> Une donnée ou confirmation manquante produit « CALCUL BLOQUÉ ». Un axe ou une condition non couverte produit « HORS TABLE ». Dans les deux cas, les informations certaines sont conservées mais aucun avis de piste n’est donné. Tant que la série SportStar n’est pas validée par le club, une piste suffisante reste affichée comme marge indicative, jamais comme verdict vert approuvé.</li></ol>'+ 
+      '<div class="method-callout danger"><strong>Exemple volontairement extrême</strong><p>À 3 000 ft de pression et 38,5 °C, la température ISA interpolée du tableau SportStar est 9,05 °C : l’écart vaut ISA+29,45 °C. La table active s’arrête à ISA+20 °C, soit environ 29,05 °C à cette altitude. Le dépassement de 9,45 °C force donc « HORS TABLE » ; aucune distance n’est extrapolée, même si la piste fait 800 m.</p></div><div class="method-copy-grid"><article><h3>SportStar RTC</h3><p>Domaine actif : 0 à 10 000 ft et ISA−10 à ISA+20 °C. La famille est identifiée par « EVEKTOR SPORTSTAR RTC — Page 60 ». Les clichés ne montrent pas toutes les conditions générales — masse de référence, volets, technique, régime, état exact de piste, hélice — qui restent à confirmer. Les valeurs sont appliquées provisoirement à F-HDLT et F-HDLV.</p></article><article><h3>DR400/180</h3><p>Table générique, édition 13, et non une table approuvée spécifiquement pour F-GGHL (N/S 1835). Axes publiés : masses 900 et 1 100 kg, altitude 0 à 8 000 ft et ISA−20 à ISA+20 °C. Une masse réelle inférieure à 900 kg utilise explicitement et conservativement la ligne 900 kg ; une masse supérieure à 1 100 kg reste hors table. Hélice, carénages, suppléments et révision applicable doivent être validés. Aucun résultat ne doit être présenté comme constructeur propre à HL.</p><p><a href="https://manualzilla.com/doc/6382928/manuel-de-vol-robin-dr400-180" target="_blank" rel="noopener">Copie du manuel générique utilisé ↗</a> · <a href="https://www.easa.europa.eu/en/document-library/type-certificates/aircraft-cs-25-cs-22-cs-23-cs-vla-cs-lsa/easaa367-ceapr-dr-200" target="_blank" rel="noopener">Fiche de type EASA ↗</a></p></article></div>'+performanceReferenceTables()+'</section>'+ 
+      '<section class="method-section" id="terrains"><span class="method-number">04</span><div class="method-heading"><span>Données publiques et données du jour</span><h2>Terrains, VAC, METAR et TAF</h2></div><div class="method-copy-grid"><article><h3>SIA et VAC</h3><p>Les données numériques SIA sont diffusées par cycle AIRAC sous Licence Ouverte / Etalab 2.0. Un import hors ligne du catalogue officiel AD 1.3/AIXM produit le fichier local utilisé pour rechercher les aérodromes, leur élévation, leurs QFU, dimensions, surfaces, relèvements vrais et altitudes de seuil. Les TORA/TODA ne sont préremplies que lorsqu’une distance déclarée fiable est intégrée ; sinon elles restent à vérifier. La pente n’est pas un champ publié dans cet export : 0 % est alors proposé et explicitement étiqueté « non publiée ». La VAC en vigueur, les NOTAM et les distances déclarées priment toujours.</p><p><a href="https://www.sia.aviation-civile.gouv.fr/donnees-aeronautiques-xml-airac-08-26.html" target="_blank" rel="noopener">XML AIRAC SIA 08/26 ↗</a> · <a href="https://www.sia.aviation-civile.gouv.fr/atlas-vac.html" target="_blank" rel="noopener">Atlas VAC ↗</a></p></article><article><h3>METAR et TAF</h3><p>Le navigateur interroge un relais serveur local, qui consulte Aviation Weather Center et met en cache METAR 60 s et TAF 600 s. Le calculateur d’altitude-densité peut remplir l’élévation depuis le jeu terrain et QNH, température et point de rosée depuis un METAR récent. En performances, direction, vitesse, rafales et secteur variable servent à proposer la composante longitudinale la moins favorable sur le QFU sélectionné ; 0 kt reste la valeur de repli modifiable lorsque ce calcul est impossible. Le TAF est affiché mais n’alimente jamais un calcul instantané. Une station voisine — par exemple LFMK pour LFMW — n’est jamais équivalente aux conditions sur le terrain : l’écart est signalé.</p><p><a href="https://aviationweather.gov/data/api/" target="_blank" rel="noopener">Documentation AWC ↗</a></p></article><article><h3>Ce que le METAR ne sait pas</h3><p>Il ne garantit ni vent exact au seuil, ni état de piste, ni pente, ni herbe sèche/courte, ni TORA réellement disponible, ni obstacle temporaire. Le point de rosée permet un calcul d’humidité ; il ne transforme pas cette correction en donnée approuvée du manuel. Sur un terrain de montagne, un altiport ou une altisurface, la documentation terrain, les procédures et la réglementation propres aux conditions particulières doivent être consultées.</p></article><article><h3>Défaillance sûre</h3><p>Terrain et météo sont chargés indépendamment : terrain présent sans METAR, METAR présent sans terrain, ou saisie entièrement manuelle restent possibles. Une API absente, un METAR sans QNH/température, un horodatage absent/futur/ancien ou une piste non choisie n’invente aucune valeur. Les conditions météo et confirmations sont effacées à chaque nouveau chargement de l’application ; toute valeur par défaut reste signalée et doit être contrôlée.</p></article></div></section>'+ 
       '<section class="method-section" id="sources"><span class="method-number">05</span><div class="method-heading"><span>Traçabilité documentaire</span><h2>Scans utilisés et documents écartés</h2><p>Les deux premières familles Evektor non identifiées restent consultables mais ne participent à aucun calcul. Leurs corrections de vent arrière et de pente ne sont pas transférées au SportStar RTC.</p></div>'+documentsGallery()+'</section>'+
       '<section class="method-section" id="validation"><span class="method-number">06</span><div class="method-heading"><span>Relecture club</span><h2>Points à confirmer avant diffusion</h2></div><ul class="validation-checklist"><li>Applicabilité de la pesée F-HDLT au F-HDLV et enveloppe SportStar numérisée.</li><li>Identification de la série de performances RTC et de toutes ses conditions générales manquantes sur les photos.</li><li>Version exacte du manuel, hélice, suppléments et facteurs applicables au F-GGHL.</li><li>Limites structurelles par poste et traitement éventuel de la catégorie Utilitaire du DR400.</li><li>Jeu SIA, cycle AIRAC, surfaces et distances déclarées ; stratégie de mise à jour tous les 28 jours.</li><li>Textes des check-lists encore incomplets ou peu lisibles.</li><li>Cas de test chiffrés et politique « plus restrictif / hors table ».</li></ul><div class="method-callout"><strong>Principe de publication</strong><p>Après validation, chaque donnée doit porter son aéronef, sa source, sa révision et sa date d’effet. Une nouvelle pesée ou révision de manuel doit invalider explicitement l’ancienne configuration au lieu de la modifier silencieusement.</p></div></section></section>' + footerNote() + '</main>';
   }
@@ -2614,6 +2672,11 @@ const aircraftList = [
 
   function densityAltitudeView() {
     const result = densityAltitudeResult();
+    const airfieldDatalist='<datalist id="density-airfields">'+state.airfieldCatalog.map(function(record){return '<option value="'+escapeHtml(record.icao)+'">'+escapeHtml(record.name||'')+'</option>';}).join('')+'</datalist>';
+    const metarControl='<label class="choice-toggle density-metar-toggle"><input data-density="useMetarData" type="checkbox" '+(state.density.useMetarData?'checked':'')+'><span><strong>Utiliser les données du METAR</strong><small>Sélectionner un aérodrome pour remplir automatiquement l’altitude terrain, le QNH, la température et le point de rosée lorsqu’ils sont disponibles.</small></span></label>'+(state.density.useMetarData?'<div class="field-row density-metar-field"><label><span>Aérodrome / code OACI</span><div><input data-density="icao" list="density-airfields" maxlength="4" value="'+escapeHtml(state.density.icao)+'" autocapitalize="characters"><button data-action="load-density-metar" '+(state.densityWeather.status==='loading'?'disabled':'')+'>'+(state.densityWeather.status==='loading'?'Chargement…':'Utiliser le METAR')+'</button></div><small>Les données terrain et le METAR sont indépendants : si l’un manque, l’autre reste utilisé et les champs manquants restent modifiables.</small></label></div>'+airfieldDatalist:'');
+    const densityAirfield=state.densityAirfield.record;
+    const weatherNeighbor=Boolean(state.densityWeather.stationNote)||Boolean(state.densityWeather.station&&state.density.icao&&String(state.densityWeather.station).toUpperCase()!==String(state.density.icao).toUpperCase());
+    const densityContextStatus=state.density.useMetarData&&(['loaded','stale','partial','error','missing'].includes(state.densityWeather.status)||state.densityAirfield.message||densityAirfield)?'<div class="weather-readout '+(state.densityWeather.status==='loaded'&&!weatherNeighbor?'':'warning')+'"><strong>'+(densityAirfield?escapeHtml(densityAirfield.icao+' · '+densityAirfield.name):'Terrain non prérempli')+(state.densityWeather.rawMetar?' · METAR '+escapeHtml(state.densityWeather.station||''):'')+(weatherNeighbor?' · STATION VOISINE':'')+'</strong>'+(state.densityWeather.rawMetar?'<code>'+escapeHtml(state.densityWeather.rawMetar)+'</code>':'')+'<small>'+escapeHtml([state.densityAirfield.message,state.densityWeather.stationNote,state.densityWeather.message,state.densityWeather.observedAt?('Observation '+shortUtc(state.densityWeather.observedAt)):''].filter(Boolean).join(' · '))+'</small></div>':'';
     const inputs = [
       { key: 'elevation', label: 'Altitude du terrain', unit: 'ft', min: -1500, max: 25000, step: 10, note: 'Altitude publiée de l’aérodrome.' },
       { key: 'qnh', label: 'QNH', unit: 'hPa', min: 800, max: 1100, step: 0.1, note: 'Pression réduite au niveau de la mer.' },
@@ -2621,7 +2684,7 @@ const aircraftList = [
       { key: 'dewPoint', label: 'Point de rosée', unit: '°C', min: -100, max: 70, step: 1, note: 'Groupe température/point de rosée du METAR.' }
     ].map(function(input) {
       return '<label><span>' + escapeHtml(input.label) + '</span><div><input data-density="' + input.key + '" inputmode="decimal" type="number" min="' + input.min + '" max="' + input.max + '" step="' + input.step + '" value="' + escapeHtml(state.density[input.key]) + '"><b>' + escapeHtml(input.unit) + '</b></div><small>' + escapeHtml(input.note) + '</small></label>';
-    }).join('') + '<label class="choice-toggle"><input data-density="useHumidity" type="checkbox" ' + (state.density.useHumidity ? 'checked' : '') + '><span><strong>Utiliser l’humidité</strong><small>Calcule la densité réelle de l’air humide. Méthode non prévue dans les tables constructeur.</small></span></label>';
+    }).join('') + '<label class="choice-toggle optional-choice"><input data-density="useHumidity" type="checkbox" ' + (state.density.useHumidity ? 'checked' : '') + '><span><strong>Utiliser l’humidité <em class="requirement-tag optional">Facultatif</em></strong><small>Calcule la densité réelle de l’air humide. Méthode non prévue dans les tables constructeur.</small></span></label>';
     const resultPanel = result.valid ?
       '<div class="density-result"><span>Altitude-densité calculée</span><strong>' + formatFr(Math.round(result.densityAltitude), 0) + ' <small>ft</small></strong><p>' + signedFeet(result.differenceFromField) + ' par rapport à l’altitude du terrain.</p></div>' +
       '<div class="density-metrics"><div><span>Altitude-pression</span><strong>' + formatFr(Math.round(result.pressureAltitude), 0) + ' ft</strong></div><div><span>Température ISA</span><strong>' + formatFr(result.isaTemperature, 1) + ' °C</strong></div><div><span>Écart ISA</span><strong>' + (result.isaDeviation >= 0 ? '+' : '−') + formatFr(Math.abs(result.isaDeviation), 1) + ' °C</strong></div>' + (result.relativeHumidity == null ? '' : '<div><span>Humidité estimée</span><strong>' + formatFr(result.relativeHumidity, 0) + ' %</strong></div><div><span>Altitude-densité air sec</span><strong>' + formatFr(Math.round(result.dryDensityAltitude), 0) + ' ft</strong></div><div><span>Effet humidité</span><strong>' + signedFeet(result.humidityAltitudeEffect) + '</strong></div>') + '</div>' +
@@ -2629,8 +2692,8 @@ const aircraftList = [
       '<div class="density-invalid"><div><strong>Valeur hors plage</strong><p>Vérifier l’altitude, le QNH et la température saisis.</p></div></div>';
     return '<main class="' + appClass() + '">' +
       '<header class="cover-topbar"><div class="club-brand">' + logoImage('') + '<span><strong>Aéroclub Jean-Doudiès</strong><small>Altitude-densité</small></span></div><div class="cover-actions bases-actions"><button data-action="screen" data-screen="home">← Avions</button><button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div></header>' +
-      '<section class="density-page"><div class="density-intro"><span class="eyebrow">Atmosphère et performances</span><h1>Altitude-densité</h1><p>Estimer l’altitude à laquelle l’aéronef « ressent » la densité de l’air du jour à partir de l’altitude du terrain, du QNH et de la température. QNH et température sont volontairement effacés à chaque ouverture pour éviter un résultat fondé sur d’anciennes conditions.</p></div>' +
-      '<div class="density-grid"><section class="density-panel"><div class="density-panel-heading"><span>Données du jour</span><h2>Conditions au terrain</h2></div><div class="density-inputs">' + inputs + '</div></section>' +
+      '<section class="density-page"><div class="density-intro"><span class="eyebrow">Atmosphère et performances</span><h1>Altitude-densité</h1><p>Estimer l’altitude à laquelle l’aéronef « ressent » la densité de l’air du jour. Les valeurs peuvent être saisies manuellement ou chargées depuis les données terrain et un METAR récent ; elles sont effacées à chaque nouvelle ouverture.</p></div>' +
+      '<div class="density-grid"><section class="density-panel"><div class="density-panel-heading"><span>Données du jour</span><h2>Conditions au terrain</h2></div>'+metarControl+densityContextStatus+'<div class="density-inputs">' + inputs + '</div></section>' +
       '<section class="density-panel"><div class="density-panel-heading"><span>Résultat atmosphérique</span><h2>Altitude équivalente</h2></div>' + resultPanel + '</section></div>' +
       '<div class="formula-card"><strong>Méthode appliquée</strong><p>La pression au terrain est estimée depuis le QNH et l’altitude selon l’atmosphère standard. La densité est calculée avec l’équation des gaz parfaits. Lorsque l’option humidité est active, les pressions partielles de l’air sec et de la vapeur d’eau sont calculées séparément à partir du point de rosée, puis la densité obtenue est convertie en altitude-densité ISA.</p></div></section>' + footerNote() + '</main>';
   }
@@ -2729,7 +2792,12 @@ const aircraftList = [
     const slope = departure.slope === '' ? NaN : Number(departure.slope);
     const safetyMarginPercent = departure.safetyMarginPercent === '' ? NaN : Number(departure.safetyMarginPercent);
     const issues = [];
+    const advisories = [];
     let outOfTable = false;
+    const minimumPublishedMass=performance.masses?performance.masses[0]:null;
+    const maximumPublishedMass=performance.masses?performance.masses[performance.masses.length-1]:null;
+    const useMinimumPublishedMass=Boolean(performance.masses&&performance.conservativeBelowMinimumMass&&Number.isFinite(mass)&&mass<minimumPublishedMass);
+    const calculationMass=useMinimumPublishedMass?minimumPublishedMass:mass;
     const loadConfirmationCurrent=departure.loadConfirmed===aircraft.id&&confirmationTimestampCurrent(departure.loadConfirmedAt);
     const runwayConfirmationCurrent=departure.runwayConfirmed===true&&confirmationTimestampCurrent(departure.runwayConfirmedAt);
     if (!atmosphere.valid) issues.push('Conditions atmosphériques incomplètes ou incohérentes.');
@@ -2739,20 +2807,23 @@ const aircraftList = [
     if (!runwayConfirmationCurrent) issues.push(departure.runwayConfirmed?'Confirmation piste expirée ou non datée : revoir VAC, NOTAM, sens, surface, pente, TORA et TODA.':'Piste non confirmée : contrôler sens, surface, état, pente, TORA et TODA sur les informations en vigueur.');
     if (!Number.isFinite(tora) || tora <= 0) issues.push('TORA / distance de roulement disponible manquante.');
     if (!Number.isFinite(toda) || toda <= 0) issues.push('TODA / distance totale disponible manquante.');
-    if (departure.surface === 'unknown' || departure.surface === '') issues.push('Nature et état de piste non renseignés.');
-    else if (departure.surface !== 'hard' && departure.surface !== 'grass') issues.push('Nature ou état de piste non couvert par la table.');
+    const normalizedSurface=normalizeSurfaceValue(departure.surface);
+    const calculationSurface=surfaceFamily(normalizedSurface);
+    if (normalizedSurface === 'unknown' || normalizedSurface === '') issues.push('Nature et état de piste non renseignés.');
+    else if (!surfaceIsDryAndSupported(normalizedSurface)) issues.push((calculationSurface==='grass'?'Herbe mouillée':'Piste dure mouillée')+' : aucune correction validée dans la table utilisée.');
     if (!Number.isFinite(windComponent)) issues.push('Composante de vent manquante ou invalide.');
     if (!Number.isFinite(slope)) issues.push('Pente de piste manquante ou invalide.');
     if (!Number.isFinite(safetyMarginPercent) || safetyMarginPercent < 0 || safetyMarginPercent > 100) issues.push('Marge de sécurité manquante ou invalide (0 à 100 %).');
-    if (departure.surface !== 'unknown' && departure.surface !== '' && departure.surface !== 'hard' && departure.surface !== 'grass') outOfTable = true;
+    if (normalizedSurface !== 'unknown' && normalizedSurface !== '' && !surfaceIsDryAndSupported(normalizedSurface)) outOfTable = true;
     if (windComponent < 0) { issues.push('Vent arrière : aucune correction validée dans la série utilisée.'); outOfTable=true; }
     if (slope > 0) { issues.push('Piste montante : aucune correction validée dans la série utilisée.'); outOfTable=true; }
     if (performance.headwindFactors && windComponent > performance.headwindFactors[performance.headwindFactors.length - 1][0]) { issues.push('Vent de face hors table : correction publiée limitée à ' + performance.headwindFactors[performance.headwindFactors.length - 1][0] + ' kt.'); outOfTable=true; }
-    if (performance.masses && Number.isFinite(mass) && (mass < performance.masses[0] || mass > performance.masses[performance.masses.length - 1])) { issues.push('Masse hors table : domaine ' + performance.masses[0] + '–' + performance.masses[performance.masses.length - 1] + ' kg.'); outOfTable=true; }
+    if (useMinimumPublishedMass) advisories.push('Masse réelle '+formatFr(mass,1)+' kg, inférieure au plus petit point publié. Calcul conservateur effectué à '+formatFr(minimumPublishedMass,0)+' kg, sans extrapolation vers le bas.');
+    if (performance.masses && Number.isFinite(mass) && mass > maximumPublishedMass) { issues.push('Masse hors table : maximum publié ' + maximumPublishedMass + ' kg.'); outOfTable=true; }
     if (!performance.masses && Number.isFinite(mass) && mass > performance.maxMass) { issues.push('Masse supérieure à la masse de référence de la table.'); outOfTable=true; }
     let base = null;
     if (atmosphere.valid) {
-      base = performanceAtConditions(performance, mass, atmosphere.pressureAltitude, atmosphere.temperature, departure.surface, Number.isFinite(windComponent)?windComponent:0);
+      base = performanceAtConditions(performance, calculationMass, atmosphere.pressureAltitude, atmosphere.temperature, calculationSurface, Number.isFinite(windComponent)?windComponent:0);
       if (!base) {
         outOfTable=true;
         const minimumAltitude=performance.altitudes[0], maximumAltitude=performance.altitudes[performance.altitudes.length-1];
@@ -2772,7 +2843,7 @@ const aircraftList = [
     }
     let humidEstimate = null;
     if (base && atmosphere.useHumidity && Number.isFinite(atmosphere.equivalentDryPressureAltitude)) {
-      humidEstimate = performanceAtConditions(performance, mass, atmosphere.equivalentDryPressureAltitude, atmosphere.temperature, departure.surface, Number.isFinite(windComponent)?windComponent:0);
+      humidEstimate = performanceAtConditions(performance, calculationMass, atmosphere.equivalentDryPressureAltitude, atmosphere.temperature, calculationSurface, Number.isFinite(windComponent)?windComponent:0);
       if (!humidEstimate) { issues.push('Correction théorique d’humidité hors domaine de la table : aucun résultat de performance n’est présenté.'); outOfTable=true; }
     }
     const selected = atmosphere.useHumidity ? (base && humidEstimate ? { roll: Math.max(base.roll, humidEstimate.roll), total: Math.max(base.total, humidEstimate.total) } : null) : base;
@@ -2785,7 +2856,7 @@ const aircraftList = [
     const rollMargin = valid ? tora - roll : null;
     const totalMargin = valid ? toda - total : null;
     const margin = valid ? Math.min(rollMargin, totalMargin) : null;
-    return { available: true, valid: valid, outOfTable:outOfTable, performance: performance, departure: departure, atmosphere: atmosphere, balance: balance, mass: mass, base: base, humidEstimate: humidEstimate, selected: selected, rawRoll:rawRoll, rawTotal:rawTotal, safetyMarginPercent:safetyMarginPercent, safetyFactor:safetyFactor, roll: roll, total: total, tora:tora, toda:toda, rollMargin:rollMargin, totalMargin:totalMargin, margin:margin, sufficient: valid && rollMargin > 0 && totalMargin > 0, issues: issues };
+    return { available: true, valid: valid, outOfTable:outOfTable, performance: performance, departure: departure, atmosphere: atmosphere, balance: balance, mass: mass, calculationMass:calculationMass, useMinimumPublishedMass:useMinimumPublishedMass, base: base, humidEstimate: humidEstimate, selected: selected, rawRoll:rawRoll, rawTotal:rawTotal, safetyMarginPercent:safetyMarginPercent, safetyFactor:safetyFactor, roll: roll, total: total, tora:tora, toda:toda, rollMargin:rollMargin, totalMargin:totalMargin, margin:margin, sufficient: valid && rollMargin > 0 && totalMargin > 0, issues: issues, advisories:advisories };
   }
 
   function performanceView() {
@@ -2793,6 +2864,9 @@ const aircraftList = [
     const loadConfirmationCurrent=departure.loadConfirmed===aircraft.id&&confirmationTimestampCurrent(departure.loadConfirmedAt);
     const runwayConfirmationCurrent=departure.runwayConfirmed===true&&confirmationTimestampCurrent(departure.runwayConfirmedAt);
     if (!result.available) return '<main class="' + appClass() + '">' + header('PERFORMANCES', aircraft.name, 'aircraft', '') + '<section class="performance-page"><div class="performance-empty"><strong>Performances non disponibles</strong><p>' + escapeHtml(result.issues[0]) + '</p></div></section>' + footerNote() + '</main>';
+    const selectedRunway=selectedPublishedRunway();
+    const surfaceOptions=availableSurfaceOptions(selectedRunway?{runways:[selectedRunway]}:state.airfield.record);
+    const normalizedSurface=normalizeSurfaceValue(departure.surface);
     const numericInputs = [
       { key:'elevation', label:'Altitude terrain', unit:'ft', min:-1500, max:15000, step:10 },
       { key:'qnh', label:'QNH', unit:'hPa', min:800, max:1100, step:0.1 },
@@ -2800,9 +2874,9 @@ const aircraftList = [
       { key:'dewPoint', label:'Point de rosée', unit:'°C', min:-100, max:70, step:1 },
       { key:'tora', label:'TORA / roulement disponible', unit:'m', min:1, max:10000, step:1, note:'Distance comparée au roulement calculé.' },
       { key:'toda', label:'TODA / distance totale', unit:'m', min:1, max:10000, step:1, note:departure.todaDerived?'Valeur prudente dérivée de la TORA faute de TODA publiée dans le jeu local ; à confirmer sur la VAC.':'Distance comparée au passage des 15 m / 50 ft.' },
-      { key:'windComponent', label:'Composante de vent', unit:'kt', min:-50, max:50, step:1, note:'Positive = face · négative = arrière' },
-      { key:'slope', label:'Pente', unit:'%', min:-10, max:10, step:0.1, note:'Positive = montante' },
-      { key:'safetyMarginPercent', label:'Marge de sécurité retenue', unit:'%', min:0, max:100, step:1, note:'Politique pilote/club appliquée après la table ; saisir 0 si aucune marge additionnelle n’est retenue.' }
+      { key:'windComponent', label:'Composante de vent', unit:'kt', min:-50, max:50, step:0.1, note:(departure.windNote||'Positive = face · négative = arrière')+' Positive = face · négative = arrière.' },
+      { key:'slope', label:'Pente', unit:'%', min:-10, max:10, step:0.1, note:departure.slopeSource==='published'?'Valeur issue du jeu terrain ; positive = montante.':'Pente non publiée dans le jeu terrain : 0 % proposé par défaut, à vérifier. Positive = montante.' },
+      { key:'safetyMarginPercent', label:'Marge de sécurité retenue', unit:'%', min:0, max:100, step:1, note:'0 % par défaut. Ajuster selon les consignes du club et la marge décidée par le pilote ; cette valeur s’applique après la table.' }
     ].map(function(input){return '<label><span>'+escapeHtml(input.label)+'</span><div><input data-departure="'+input.key+'" type="number" inputmode="decimal" min="'+input.min+'" max="'+input.max+'" step="'+input.step+'" value="'+escapeHtml(departure[input.key])+'"><b>'+escapeHtml(input.unit)+'</b></div>'+(input.note?'<small>'+escapeHtml(input.note)+'</small>':'')+'</label>';}).join('');
     const liveMetarQuality = metarObservationQuality({observedAt:state.weather.observedAt});
     const liveTafState = tafValidity({status:state.weather.tafRelayStatus},{raw:state.weather.rawTaf,validFrom:state.weather.tafValidFrom,validTo:state.weather.tafValidTo});
@@ -2812,19 +2886,23 @@ const aircraftList = [
     const tafMeta = [liveTafState.label,state.weather.tafValidFrom&&state.weather.tafValidTo?('validité '+shortUtc(state.weather.tafValidFrom)+' → '+shortUtc(state.weather.tafValidTo)):''].filter(Boolean).join(' · ');
     const weatherStatus = ['loaded','stale','partial'].includes(state.weather.status) ? '<div class="weather-readout '+(state.weather.status==='loaded'&&liveMetarQuality.usable&&liveTafState.status==='current'&&!weatherIsNeighbor?'':'warning')+'"><strong>'+(state.weather.rawMetar?'METAR '+escapeHtml(state.weather.station||''):'Météo partielle')+(weatherIsNeighbor?' · STATION VOISINE':'')+(state.weather.status==='stale'?' · relais sur cache périmé':'')+(!liveMetarQuality.usable?' · OBSERVATION NON ACTUELLE':'')+'</strong>'+(state.weather.rawMetar?'<code>'+escapeHtml(state.weather.rawMetar)+'</code>':'')+'<small>'+escapeHtml(metarMeta)+'</small>'+(state.weather.rawTaf?'<strong>TAF · '+escapeHtml(tafMeta||'statut non vérifié')+'</strong><code>'+escapeHtml(state.weather.rawTaf)+'</code>':'<strong>TAF · indisponible</strong>')+'</div>' : state.weather.message ? '<div class="weather-readout warning"><strong>Météo non chargée</strong><small>'+escapeHtml(state.weather.message)+'</small></div>' : '';
     const airfield = state.airfield.record;
-    const runwayPicker = airfield && Array.isArray(airfield.runways) && airfield.runways.length ? '<div class="airfield-readout '+(state.airfield.stale?'stale':'')+'"><div><strong>'+escapeHtml(airfield.icao+' · '+airfield.name)+'</strong><small>Altitude publiée : '+formatFr(airfield.elevationFt,0)+' ft · jeu '+escapeHtml(state.airfield.cycle||'non identifié')+(state.airfield.stale?' · CYCLE À ACTUALISER':'')+'</small></div><label><span>Piste / distance déclarée</span><select data-runway><option value="">Choisir une piste</option>'+airfield.runways.map(function(runway){return '<option value="'+escapeHtml(runway.id)+'" '+(departure.runwayId===runway.id?'selected':'')+'>'+escapeHtml(runway.label||runway.id)+' · '+formatFr(runway.toraM,0)+' m</option>';}).join('')+'</select></label>'+(airfield.vacUrl?'<a href="'+escapeHtml(airfield.vacUrl)+'" target="_blank" rel="noopener">Ouvrir l’Atlas VAC SIA ↗</a>':'')+'<small class="airfield-source">'+escapeHtml((state.airfield.stale?'Données locales anciennes : contrôler impérativement la VAC en vigueur. ':'')+(airfield.sourceNote||'Donnée aéronautique à vérifier sur la VAC en vigueur.'))+'</small></div>' : state.airfield.message ? '<div class="weather-readout warning"><strong>Terrain non prérempli</strong><small>'+escapeHtml(state.airfield.message)+'</small></div>' : '';
-    const conditionsConfirmation = '<label class="choice-toggle confirmation-toggle"><input data-departure="conditionsConfirmed" type="checkbox" '+(conditionsConfirmationCurrent(departure)?'checked':'')+'><span><strong>Conditions du jour vérifiées</strong><small>Confirmer après comparaison du METAR — éventuellement voisin — avec les observations et informations disponibles au terrain. La composante de vent reste à saisir. Cette confirmation expire après 60 minutes et à chaque rechargement.</small></span></label>';
-    const runwayConfirmation = '<label class="choice-toggle confirmation-toggle"><input data-departure="runwayConfirmed" type="checkbox" '+(runwayConfirmationCurrent?'checked':'')+'><span><strong>Piste et distances vérifiées</strong><small>Confirmer le QFU, la pente, l’état de surface, la TORA et la TODA sur la VAC, les NOTAM et les informations du jour. Cette confirmation expire après 60 minutes.</small></span></label>';
+    const runwayPicker = airfield && Array.isArray(airfield.runways) && airfield.runways.length ? '<div class="airfield-readout '+(state.airfield.stale?'stale':'')+'"><div><strong>'+escapeHtml(airfield.icao+' · '+airfield.name)+'</strong><small>Altitude publiée : '+formatFr(airfield.elevationFt,0)+' ft · jeu '+escapeHtml(state.airfield.cycle||'non identifié')+(state.airfield.stale?' · CYCLE À ACTUALISER':'')+'</small></div><label><span>Piste / distance déclarée</span><select data-runway><option value="">Choisir une piste</option>'+airfield.runways.map(function(runway){const toraValue=firstFinite(runway.toraM),distanceLabel=toraValue===null?' · distances à vérifier':' · '+formatFr(toraValue,0)+' m';return '<option value="'+escapeHtml(runway.id)+'" '+(departure.runwayId===runway.id?'selected':'')+'>'+escapeHtml(runway.label||runway.id)+distanceLabel+'</option>';}).join('')+'</select></label>'+(airfield.vacUrl?'<a href="'+escapeHtml(airfield.vacUrl)+'" target="_blank" rel="noopener">Ouvrir l’Atlas VAC SIA ↗</a>':'')+'<small class="airfield-source">'+escapeHtml((state.airfield.stale?'Données locales anciennes : contrôler impérativement la VAC en vigueur. ':'')+(airfield.sourceNote||'Donnée aéronautique à vérifier sur la VAC en vigueur.'))+'</small></div>' : state.airfield.message ? '<div class="weather-readout warning"><strong>Terrain non prérempli</strong><small>'+escapeHtml(state.airfield.message)+'</small></div>' : '';
+    const conditionsConfirmation = '<label class="choice-toggle confirmation-toggle required-choice"><input data-departure="conditionsConfirmed" type="checkbox" '+(conditionsConfirmationCurrent(departure)?'checked':'')+'><span><strong>Conditions du jour vérifiées <em class="requirement-tag required">Obligatoire</em></strong><small>Confirmer après comparaison du METAR — éventuellement voisin — avec les observations et informations disponibles au terrain, y compris la composante de vent calculée ou ajustée. Cette confirmation expire après 60 minutes et à chaque rechargement.</small></span></label>';
+    const runwayConfirmation = '<label class="choice-toggle confirmation-toggle required-choice"><input data-departure="runwayConfirmed" type="checkbox" '+(runwayConfirmationCurrent?'checked':'')+'><span><strong>Piste et distances vérifiées <em class="requirement-tag required">Obligatoire</em></strong><small>Confirmer le QFU, la pente, l’état de surface, la TORA et la TODA sur la VAC, les NOTAM et les informations du jour. Cette confirmation expire après 60 minutes.</small></span></label>';
     const performanceSourceLink = result.performance.sourceUrl ? '<a class="performance-source-link" href="'+escapeHtml(result.performance.sourceUrl)+'" target="_blank" rel="noopener">Source générique ↗</a>' : '';
     const indicativeOnly = Boolean(result.performance.generic || result.performance.provisional);
     const insufficientTitle = result.margin === 0 ? 'Aucune marge de piste résiduelle' : 'Longueur de piste insuffisante'+(indicativeOnly?' selon les données provisoires':'');
     const insufficientCopy = result.margin === 0 ? 'La distance retenue est exactement égale à la distance disponible ; le critère strictement positif n’est pas satisfait.' : 'Sur le critère restrictif de longueur de piste, la distance requise dépasse la distance disponible de '+formatFr(Math.abs(result.margin),0)+' m.';
-    const resultCard = !result.valid ? '<div class="performance-status out"><span>!</span><div><small>Résultat</small><strong>'+(result.outOfTable?'HORS TABLE':'CALCUL BLOQUÉ')+'</strong><p>'+escapeHtml(result.issues.join(' '))+'</p></div></div><div class="performance-information"><strong>Informations conservées</strong><p>Altitude-pression : '+(result.atmosphere&&result.atmosphere.valid?formatFr(Math.round(result.atmosphere.pressureAltitude),0)+' ft':'—')+' · Masse : '+(Number.isFinite(result.mass)?formatFr(result.mass,1)+' kg':'—')+'. Aucune distance extrapolée et aucun verdict de piste.</p></div>' :
+    const massAdvisory=result.advisories&&result.advisories.length?'<div class="performance-information conservative"><strong>Calcul conservateur de masse</strong><p>'+escapeHtml(result.advisories.join(' '))+'</p></div>':'';
+    const resultCard = !result.valid ? '<div class="performance-status out"><span>!</span><div><small>Résultat</small><strong>'+(result.outOfTable?'HORS TABLE':'CALCUL BLOQUÉ')+'</strong><p>'+escapeHtml(result.issues.join(' '))+'</p></div></div><div class="performance-information"><strong>Informations conservées</strong><p>Altitude-pression : '+(result.atmosphere&&result.atmosphere.valid?formatFr(Math.round(result.atmosphere.pressureAltitude),0)+' ft':'—')+' · Masse réelle : '+(Number.isFinite(result.mass)?formatFr(result.mass,1)+' kg':'—')+'. Aucune distance extrapolée et aucun verdict de piste.</p></div>'+massAdvisory :
       '<div class="performance-status '+(result.sufficient?(indicativeOnly?'caution':'safe'):'unsafe')+'"><span>'+(result.sufficient?(indicativeOnly?'i':'✓'):'!')+'</span><div><small>'+(result.performance.generic?'Résultat générique non validé pour cet avion':result.performance.provisional?'Série SportStar provisoire à valider':'Résultat le plus restrictif')+'</small><strong>'+(result.sufficient?(indicativeOnly?'Distances piste indicatives':'Distances piste compatibles'):insufficientTitle)+'</strong><p>'+(result.sufficient?'Sur les seuls critères roulement/TORA et passage 15 m/TODA, la distance disponible reste supérieure de '+formatFr(result.margin,0)+' m.'+(indicativeOnly?' Ne pas utiliser comme donnée approuvée pour cet avion.':''):insufficientCopy)+'</p></div></div>'+
-      '<div class="performance-metrics"><div><span>Roulement retenu / TORA</span><strong>'+formatFr(result.roll,0)+' / '+formatFr(result.tora,0)+' m</strong><small>Table '+formatFr(result.rawRoll,0)+' m · +'+formatFr(result.safetyMarginPercent,0)+' %</small></div><div><span>Passage 15 m retenu / TODA</span><strong>'+formatFr(result.total,0)+' / '+formatFr(result.toda,0)+' m</strong><small>Table '+formatFr(result.rawTotal,0)+' m · +'+formatFr(result.safetyMarginPercent,0)+' %</small></div><div><span>Marge restrictive</span><strong>'+formatFr(result.margin,0)+' m</strong></div><div><span>Altitude-pression</span><strong>'+formatFr(Math.round(result.atmosphere.pressureAltitude),0)+' ft</strong></div><div><span>Écart ISA</span><strong>'+(result.base.isaDeviation>=0?'+':'−')+formatFr(Math.abs(result.base.isaDeviation),1)+' °C</strong></div><div><span>Masse</span><strong>'+formatFr(result.mass,1)+' kg</strong></div></div>'+
+      '<div class="performance-metrics"><div><span>Roulement retenu / TORA</span><strong>'+formatFr(result.roll,0)+' / '+formatFr(result.tora,0)+' m</strong><small>Table '+formatFr(result.rawRoll,0)+' m · +'+formatFr(result.safetyMarginPercent,0)+' %</small></div><div><span>Passage 15 m retenu / TODA</span><strong>'+formatFr(result.total,0)+' / '+formatFr(result.toda,0)+' m</strong><small>Table '+formatFr(result.rawTotal,0)+' m · +'+formatFr(result.safetyMarginPercent,0)+' %</small></div><div><span>Marge restrictive</span><strong>'+formatFr(result.margin,0)+' m</strong></div><div><span>Altitude-pression</span><strong>'+formatFr(Math.round(result.atmosphere.pressureAltitude),0)+' ft</strong></div><div><span>Écart ISA</span><strong>'+(result.base.isaDeviation>=0?'+':'−')+formatFr(Math.abs(result.base.isaDeviation),1)+' °C</strong></div><div><span>Masse réelle'+(result.useMinimumPublishedMass?' / calcul':'')+'</span><strong>'+formatFr(result.mass,1)+' kg'+(result.useMinimumPublishedMass?' / '+formatFr(result.calculationMass,0)+' kg':'')+'</strong></div></div>'+massAdvisory+
       (result.humidEstimate?'<div class="humidity-comparison"><strong>Comparaison humidité</strong><p>Table constructeur sans correction : '+formatFr(Math.ceil(result.base.total),0)+' m · estimation théorique air humide : '+formatFr(Math.ceil(result.humidEstimate.total),0)+' m. La plus grande valeur est retenue.</p></div>':'');
-    return '<main class="'+appClass()+'">'+header('PERFORMANCES',aircraft.name,'aircraft','<button class="desktop-only" data-action="screen" data-screen="balance">Masse & centrage</button>')+
-      '<div class="validation-banner"><strong>'+escapeHtml(result.performance.status.toUpperCase())+'</strong><span>'+escapeHtml(result.performance.source)+'</span>'+performanceSourceLink+'</div><section class="performance-page"><div class="performance-intro"><span class="eyebrow">Décollage</span><h1>Terrain, météo et piste</h1><p>Les paramètres sont vérifiés contre le domaine strict de la table. Aucune extrapolation n’est effectuée.</p></div><div class="performance-layout"><section class="performance-input-panel"><label class="choice-toggle load-confirmation"><input data-departure="loadConfirmed" type="checkbox" '+(loadConfirmationCurrent?'checked':'')+'><span><strong>Chargement vérifié pour '+escapeHtml(aircraft.registration)+'</strong><small>Confirmer seulement après contrôle de chaque poste dans Masse & centrage. Toute modification annule cette confirmation, qui expire après 60 minutes.</small></span></label><div class="field-row"><label><span>Terrain / station OACI</span><div><input data-departure="icao" maxlength="4" value="'+escapeHtml(departure.icao)+'" autocapitalize="characters"><button data-action="load-weather" '+(state.weather.status==='loading'?'disabled':'')+'>'+(state.weather.status==='loading'?'Chargement…':'Terrain + METAR')+'</button></div><small>Recherche d’abord les données terrain locales issues du jeu SIA, puis le METAR/TAF via le relais API. La saisie manuelle reste disponible.</small></label></div>'+runwayPicker+weatherStatus+conditionsConfirmation+'<div class="performance-input-grid">'+numericInputs+'<label><span>Nature et état de piste</span><div><select data-departure="surface"><option value="unknown" '+(departure.surface==='unknown'||departure.surface===''?'selected':'')+'>Choisir et vérifier</option><option value="hard" '+(departure.surface==='hard'?'selected':'')+'>Dur, sec</option><option value="grass" '+(departure.surface==='grass'?'selected':'')+'>Herbe, état conforme à la table</option><option value="unsupported" '+(departure.surface==='unsupported'?'selected':'')+'>Humide, longue, molle ou contaminée</option></select></div><small>Une nature inconnue bloque le calcul ; un état non publié force « hors table ».</small></label></div>'+runwayConfirmation+'<label class="choice-toggle"><input data-departure="useHumidity" type="checkbox" '+(departure.useHumidity?'checked':'')+'><span><strong>Comparer avec l’air humide</strong><small>Estimation théorique non prévue par le manuel ; la valeur la plus restrictive est retenue. Si ce calcul sort lui-même de la table, le résultat entier passe hors table.</small></span></label></section><section class="performance-result-panel">'+resultCard+'<div class="performance-warning"><strong>Portée : longueur de piste uniquement</strong><p>Ce résultat ne constitue pas une décision globale de décollage. Il n’évalue ni obstacles ou trajectoire après 50 ft, ni gradient de montée, ni vent traversier, rafales, limitations avion, pilote ou exploitation.</p></div><div class="performance-warning"><strong>Limites actives</strong><ul>'+result.performance.limitations.map(function(limit){return '<li>'+escapeHtml(limit)+'</li>';}).join('')+'</ul></div></section></div></section>'+footerNote()+'</main>';
+    const surfaceSelect='<label><span>Nature et état de piste</span><div><select data-departure="surface"><option value="unknown" '+(normalizedSurface==='unknown'||normalizedSurface===''?'selected':'')+'>Choisir et vérifier</option>'+surfaceOptions.map(function(option){return '<option value="'+option.value+'" '+(normalizedSurface===option.value?'selected':'')+'>'+escapeHtml(option.label)+'</option>';}).join('')+'</select></div><small>'+(selectedRunway&&selectedRunway.surface==='unpaved'?'La source indique seulement « non revêtue » : elle ne permet pas d’affirmer qu’il s’agit d’herbe. Vérifier la VAC ; le calcul reste bloqué tant que la surface n’est pas classée dans les données.':'Les choix correspondent à la piste sélectionnée. Une piste mouillée reste hors table tant qu’aucune correction applicable n’est validée.')+'</small></label>';
+    const windMode='<label><span>Source de la composante</span><div><select data-departure="windMode"><option value="metar" '+(departure.windMode==='metar'?'selected':'')+'>Calculer depuis le METAR</option><option value="manual" '+(departure.windMode==='manual'?'selected':'')+'>Saisie manuelle</option></select></div><small>Le calcul METAR retient la composante longitudinale la moins favorable disponible. Elle reste à vérifier.</small></label>';
+    const mountainWarning='<div class="mountain-warning"><strong>Terrains de montagne et altisurfaces</strong><p>Se référer à la documentation propre au terrain et à la réglementation applicable : pente, trajectoires, vent, limitations et conditions particulières ne sont pas résumés par ce calculateur.</p></div>';
+    return '<main class="'+appClass()+'">'+header('PERFORMANCES',aircraft.name,'aircraft','<button class="desktop-only" data-action="screen" data-screen="balance">Retour à masse & centrage</button>')+
+      '<div class="validation-banner"><strong>'+escapeHtml(result.performance.status.toUpperCase())+'</strong><span>'+escapeHtml(result.performance.source)+'</span>'+performanceSourceLink+'</div><section class="performance-page"><div class="performance-intro"><span class="eyebrow">Décollage</span><h1>Terrain, météo et piste</h1><p>Les paramètres sont vérifiés contre le domaine strict de la table. Aucune extrapolation n’est effectuée.</p><button class="inline-back-button" data-action="screen" data-screen="balance">← Retour à masse & centrage</button></div><div class="performance-layout"><section class="performance-input-panel"><label class="choice-toggle load-confirmation required-choice"><input data-departure="loadConfirmed" type="checkbox" '+(loadConfirmationCurrent?'checked':'')+'><span><strong>Chargement vérifié pour '+escapeHtml(aircraft.registration)+' <em class="requirement-tag required">Obligatoire</em></strong><small>Confirmer seulement après contrôle de chaque poste dans Masse & centrage. Toute modification annule cette confirmation, qui expire après 60 minutes.</small></span></label><div class="field-row"><label><span>Terrain / station OACI</span><div><input data-departure="icao" maxlength="4" value="'+escapeHtml(departure.icao)+'" autocapitalize="characters"><button data-action="load-weather" '+(state.weather.status==='loading'?'disabled':'')+'>'+(state.weather.status==='loading'?'Chargement…':'Terrain + METAR')+'</button></div><small>Recherche d’abord les données terrain locales issues du jeu SIA, puis le METAR/TAF via le relais API. Un terrain sans METAR reste utilisable avec ses données terrain et une saisie météo manuelle.</small></label></div>'+runwayPicker+weatherStatus+conditionsConfirmation+'<div class="performance-input-grid">'+numericInputs+windMode+surfaceSelect+'</div>'+mountainWarning+runwayConfirmation+'<label class="choice-toggle optional-choice"><input data-departure="useHumidity" type="checkbox" '+(departure.useHumidity?'checked':'')+'><span><strong>Comparer avec l’air humide <em class="requirement-tag optional">Facultatif</em></strong><small>Estimation théorique non prévue par le manuel ; la valeur la plus restrictive est retenue. Ne pas cocher cette option ne bloque pas le calcul.</small></span></label></section><section class="performance-result-panel">'+resultCard+'<div class="performance-warning"><strong>Portée : longueur de piste uniquement</strong><p>Ce résultat ne constitue pas une décision globale de décollage. Il n’évalue ni obstacles ou trajectoire après 50 ft, ni gradient de montée, ni vent traversier, rafales, limitations avion, pilote ou exploitation.</p></div><div class="performance-warning"><strong>Limites actives</strong><ul>'+result.performance.limitations.map(function(limit){return '<li>'+escapeHtml(limit)+'</li>';}).join('')+'</ul></div></section></div></section><footer class="tool-mobile-footer"><button data-action="screen" data-screen="balance">← Masse & centrage</button><button data-action="screen" data-screen="aircraft">Avion</button><button data-action="documents">Documents</button></footer>'+footerNote()+'</main>';
   }
 
   function checklistView() {
@@ -2936,11 +3014,12 @@ const aircraftList = [
     }).join('');
     const tableRows=result.rows.map(function(row){return '<tr><td>'+escapeHtml(row.label)+'</td><td>'+formatFr(row.mass,1)+' kg</td><td>'+formatFr(row.arm,4)+' m</td><td>'+formatFr(row.moment,2)+'</td></tr>';}).join('');
     let statusCopy = result.safe ? 'Marge de masse : '+formatFr(result.margin,1)+' kg.' : result.violations.join(' ');
+    const performanceButton=aircraft.performance?'<button class="performance-cta" data-action="confirm-load-and-performance" '+(result.safe?'':'disabled')+'>'+(result.safe?'Chargement vérifié — passer aux performances':'Compléter un chargement conforme pour continuer')+'</button>':'';
     return '<main class="'+appClass()+'">'+header('MASSE & CENTRAGE',aircraft.name,'aircraft',(aircraft.checklist?'<button class="desktop-only" data-action="screen" data-screen="checklist">Check-list</button>':'')+'<button class="desktop-only" data-action="documents">Documents</button>')+
       '<div class="validation-banner"><strong>VERSION À VALIDER</strong><span>'+escapeHtml(balance.source)+'</span></div><div class="balance-shell"><section class="load-panel"><div class="balance-heading"><div><span class="eyebrow">Chargement au départ</span><h1>Masse & centrage</h1></div><button data-action="reset-load">Réinitialiser</button></div><p class="balance-lead">'+escapeHtml(balance.lead)+'</p><div class="load-inputs">'+inputs+'</div>'+
       '<div class="calculation-table-wrap"><table class="calculation-table"><thead><tr><th>Élément</th><th>Masse</th><th>Bras</th><th>Moment</th></tr></thead><tbody>'+tableRows+'</tbody><tfoot><tr><th>Total</th><th>'+formatFr(result.totalMass,1)+' kg</th><th>'+formatFr(result.cg,4)+' m</th><th>'+formatFr(result.totalMoment,2)+'</th></tr></tfoot></table></div><div class="source-note"><strong>Hypothèses reprises du fichier</strong><span>'+escapeHtml(balance.assumptions)+'</span></div></section>'+
-      '<section class="result-panel"><div class="load-status '+(result.safe?'safe':'unsafe')+'"><span>'+(result.safe?'✓':'!')+'</span><div><small>Résultat</small><strong>'+(result.safe?'Dans l’enveloppe numérisée':'Non conforme')+'</strong><p>'+escapeHtml(statusCopy)+'</p></div></div><div class="metric-grid"><div><span>Masse totale</span><strong>'+formatFr(result.totalMass,1)+' <small>kg</small></strong></div><div><span>Centre de gravité</span><strong>'+formatFr(result.cg,5)+' <small>m</small></strong></div><div class="'+(result.margin<0?'alert':'')+'"><span>Marge masse</span><strong>'+formatFr(result.margin,1)+' <small>kg</small></strong></div></div>'+chart(result)+'<div class="balance-warning"><strong>Contrôle obligatoire</strong><p>'+escapeHtml(balance.envelopeNote||'Vérifier le manuel de vol et la fiche de pesée en vigueur.')+'</p></div></section></div>'+
-      '<footer class="tool-mobile-footer"><button data-action="screen" data-screen="aircraft">← Avion</button>'+(aircraft.checklist?'<button data-action="screen" data-screen="checklist">Check-list</button>':'')+'<button data-action="documents">Documents</button></footer>'+footerNote()+'</main>';
+      '<section class="result-panel"><div class="load-status '+(result.safe?'safe':'unsafe')+'"><span>'+(result.safe?'✓':'!')+'</span><div><small>Résultat</small><strong>'+(result.safe?'Dans l’enveloppe numérisée':'Non conforme')+'</strong><p>'+escapeHtml(statusCopy)+'</p></div></div><div class="metric-grid"><div><span>Masse totale</span><strong>'+formatFr(result.totalMass,1)+' <small>kg</small></strong></div><div><span>Centre de gravité</span><strong>'+formatFr(result.cg,5)+' <small>m</small></strong></div><div class="'+(result.margin<0?'alert':'')+'"><span>Marge masse</span><strong>'+formatFr(result.margin,1)+' <small>kg</small></strong></div></div>'+chart(result)+'<div class="balance-warning"><strong>Contrôle obligatoire</strong><p>'+escapeHtml(balance.envelopeNote||'Vérifier le manuel de vol et la fiche de pesée en vigueur.')+'</p></div>'+performanceButton+'</section></div>'+
+      '<footer class="tool-mobile-footer"><button data-action="screen" data-screen="aircraft">← Avion</button>'+(aircraft.performance?'<button data-action="confirm-load-and-performance" '+(result.safe?'':'disabled')+'>Performances →</button>':'')+(aircraft.checklist?'<button data-action="screen" data-screen="checklist">Check-list</button>':'')+'</footer>'+footerNote()+'</main>';
   }
 
   function footerNote() {
@@ -3005,6 +3084,135 @@ const aircraftList = [
     return date.toLocaleString('fr-FR',{timeZone:'UTC',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+' UTC';
   }
 
+  function normalizeSurfaceValue(value) {
+    if (value === 'hard_dry') return 'hard';
+    if (value === 'grass_dry') return 'grass';
+    if (value === 'hard_wet' || value === 'grass_wet') return value;
+    if (value === 'unsupported') return 'hard_wet';
+    return value;
+  }
+
+  function surfaceFamily(value) {
+    const normalized = normalizeSurfaceValue(value);
+    if (normalized === 'hard' || normalized === 'hard_wet') return 'hard';
+    if (normalized === 'grass' || normalized === 'grass_wet') return 'grass';
+    return null;
+  }
+
+  function surfaceIsDryAndSupported(value) {
+    const normalized = normalizeSurfaceValue(value);
+    return normalized === 'hard' || normalized === 'grass';
+  }
+
+  function airfieldSurfaceFamilies(record) {
+    const values = [];
+    if (record && Array.isArray(record.surfaces)) values.push.apply(values, record.surfaces);
+    if (record && Array.isArray(record.runways)) record.runways.forEach(function(runway) {
+      if (Array.isArray(runway.availableSurfaces)) values.push.apply(values, runway.availableSurfaces);
+      else if (runway.surface) values.push(runway.surface);
+    });
+    const families = new Set(values.map(surfaceFamily).filter(Boolean));
+    return Array.from(families);
+  }
+
+  function defaultDrySurface(record, runway) {
+    const runwayFamilies = runway ? airfieldSurfaceFamilies({runways:[runway]}) : [];
+    if (runwayFamilies.includes('hard')) return 'hard';
+    if (runwayFamilies.includes('grass')) return 'grass';
+    if (runway && (runway.surface || (Array.isArray(runway.availableSurfaces) && runway.availableSurfaces.length))) return 'unknown';
+    const families = airfieldSurfaceFamilies(record);
+    if (families.includes('hard')) return 'hard';
+    if (families.includes('grass')) return 'grass';
+    return 'unknown';
+  }
+
+  function availableSurfaceOptions(record) {
+    const families = airfieldSurfaceFamilies(record);
+    const hasPublishedSurface = Boolean(record && ((Array.isArray(record.surfaces) && record.surfaces.length) || (Array.isArray(record.runways) && record.runways.some(function(runway){ return Boolean(runway.surface) || (Array.isArray(runway.availableSurfaces) && runway.availableSurfaces.length); }))));
+    const selectedFamilies = families.length ? families : (hasPublishedSurface ? [] : ['hard','grass']);
+    const options = [];
+    if (selectedFamilies.includes('hard')) {
+      options.push({value:'hard',label:'Dur sec'});
+      options.push({value:'hard_wet',label:'Dur mouillé'});
+    }
+    if (selectedFamilies.includes('grass')) {
+      options.push({value:'grass',label:'Herbe sèche'});
+      options.push({value:'grass_wet',label:'Herbe mouillée'});
+    }
+    return options;
+  }
+
+  function selectedPublishedRunway() {
+    const record=state.airfield.record;
+    if(!record||!Array.isArray(record.runways))return null;
+    return record.runways.find(function(runway){return runway.id===state.departure.runwayId;})||null;
+  }
+
+  function runwayHeadingDegrees(runway) {
+    if (!runway) return null;
+    const published = firstFinite(runway.trueHeadingDeg, runway.headingDeg, runway.bearingDeg, runway.magneticHeadingDeg);
+    if (published !== null) return ((published % 360) + 360) % 360;
+    const match = String(runway.id || runway.label || '').match(/^(\d{2})/);
+    if (!match) return null;
+    const qfu = Number(match[1]);
+    if (qfu < 1 || qfu > 36) return null;
+    return qfu === 36 ? 360 : qfu * 10;
+  }
+
+  function angularDifferenceDegrees(first, second) {
+    return Math.abs((((first - second) % 360) + 540) % 360 - 180);
+  }
+
+  function windDirectionsInSector(fromDeg, toDeg) {
+    if (!Number.isFinite(fromDeg) || !Number.isFinite(toDeg)) return [];
+    const result=[];
+    let span=((toDeg-fromDeg)%360+360)%360;
+    if(span>180)span=360-span;
+    const direction=(((toDeg-fromDeg)%360+360)%360)<=180?1:-1;
+    for(let offset=0;offset<=span;offset+=1)result.push((fromDeg+direction*offset+360)%360);
+    return result;
+  }
+
+  function conservativeMetarWindComponent(weather, runway) {
+    const speed=firstFinite(weather&&weather.windSpeedKt);
+    const direction=firstFinite(weather&&weather.windDirectionDeg);
+    const runwayHeading=runwayHeadingDegrees(runway);
+    if(speed===0&&Number.isFinite(runwayHeading))return {value:0,note:'Vent calme dans le METAR.'};
+    if(speed===null||direction===null||!Number.isFinite(runwayHeading))return null;
+    const gust=firstFinite(weather&&weather.windGustKt);
+    const speeds=gust!==null&&gust>=speed?[speed,gust]:[speed];
+    const sector=windDirectionsInSector(firstFinite(weather&&weather.windVariableFromDeg),firstFinite(weather&&weather.windVariableToDeg));
+    const directions=sector.length?sector:[direction];
+    const candidates=[];
+    directions.forEach(function(candidateDirection){
+      speeds.forEach(function(candidateSpeed){
+        candidates.push(candidateSpeed*Math.cos(angularDifferenceDegrees(candidateDirection,runwayHeading)*Math.PI/180));
+      });
+    });
+    const value=Math.round(Math.min.apply(null,candidates)*10)/10;
+    const qfuLabel=String(runway.id||'').trim()||formatFr(runwayHeading/10,0);
+    const headingNote=Number.isFinite(firstFinite(runway.trueHeadingDeg,runway.headingDeg,runway.bearingDeg))?'relèvement publié':'QFU arrondi utilisé comme approximation';
+    return {value:value,note:'Composante prudente calculée pour le QFU '+qfuLabel+' depuis le vent METAR'+(gust!==null?' et les rafales':'')+(sector.length?' avec le secteur variable':'')+' ('+headingNote+').'};
+  }
+
+  function resetWindToDefault(note) {
+    state.departure.windComponent=0;
+    state.departure.windSource='default';
+    state.departure.windNote=note||'0 kt par défaut à ajuster.';
+  }
+
+  function updateWindComponentFromWeather() {
+    if(state.departure.windMode!=='metar')return;
+    const computed=conservativeMetarWindComponent(state.weather,selectedPublishedRunway());
+    if(!computed){
+      resetWindToDefault('Composante non calculable depuis le METAR et le QFU : 0 kt proposé par défaut, à ajuster.');
+      return;
+    }
+    state.departure.windComponent=computed.value;
+    state.departure.windSource='metar';
+    state.departure.windNote=computed.note;
+  }
+
   function selectPublishedRunway(runwayId) {
     const record = state.airfield.record;
     if (!record || !Array.isArray(record.runways)) return;
@@ -3014,16 +3222,21 @@ const aircraftList = [
     state.departure.toda='';
     state.departure.todaDerived=false;
     state.departure.surface='unknown';
-    state.departure.slope='';
+    state.departure.slope=0;
+    state.departure.slopeSource='default';
     state.departure.runwayConfirmed=false;
     state.departure.runwayConfirmedAt='';
     if (!runway) return;
-    if (Number.isFinite(Number(runway.toraM))) state.departure.tora = Number(runway.toraM);
-    if (Number.isFinite(Number(runway.todaM))) state.departure.toda = Number(runway.todaM);
-    else if (Number.isFinite(Number(runway.toraM))) { state.departure.toda = Number(runway.toraM); state.departure.todaDerived=true; }
-    state.departure.surface = runway.surface === 'hard' || runway.surface === 'grass' ? runway.surface : 'unknown';
-    state.departure.slope = runway.slopePercent !== '' && runway.slopePercent !== null && runway.slopePercent !== undefined && Number.isFinite(Number(runway.slopePercent)) ? Number(runway.slopePercent) : '';
+    const publishedTora=firstFinite(runway.toraM),publishedToda=firstFinite(runway.todaM);
+    if (publishedTora !== null) state.departure.tora = publishedTora;
+    if (publishedToda !== null) state.departure.toda = publishedToda;
+    else if (publishedTora !== null) { state.departure.toda = publishedTora; state.departure.todaDerived=true; }
+    state.departure.surface = defaultDrySurface(record,runway);
+    const slopePublished=runway.slopePercent !== '' && runway.slopePercent !== null && runway.slopePercent !== undefined && Number.isFinite(Number(runway.slopePercent));
+    state.departure.slope = slopePublished ? Number(runway.slopePercent) : 0;
+    state.departure.slopeSource = slopePublished ? 'published' : 'default';
     state.departure.runwayConfirmed = false;
+    updateWindComponentFromWeather();
   }
 
   function setDepartureNumericValue(key,value) {
@@ -3033,13 +3246,79 @@ const aircraftList = [
   }
 
   function invalidateConditionsAfterEdit(key) {
-    if(!['qnh','temperature','dewPoint','windComponent'].includes(key))return;
+    if(!['qnh','temperature','dewPoint','windComponent','windMode'].includes(key))return;
     state.departure.conditionsConfirmed=false;
     state.departure.conditionsConfirmedAt='';
     if(['qnh','temperature','dewPoint'].includes(key)){
       state.departure.conditionsSource='manual';
       state.departure.conditionsObservedAt='';
     }
+  }
+
+  async function loadDensityContext() {
+    const requestedIcao=String(state.density.icao||'').trim().toUpperCase();
+    state.density.icao=requestedIcao;
+    state.density.useMetarData=true;
+    if(!/^[A-Z]{4}$/.test(requestedIcao)){
+      state.densityAirfield={status:'error',message:'Saisir un indicateur OACI de quatre lettres.',record:null,cycle:''};
+      state.densityWeather={status:'error',message:'Station OACI invalide.',rawMetar:'',observedAt:''};
+      persist();render();return;
+    }
+    state.density.elevation='';
+    state.density.qnh='';
+    state.density.temperature='';
+    state.density.dewPoint='';
+    state.densityAirfield={status:'loading',message:'',record:null,cycle:''};
+    state.densityWeather={status:'loading',message:'',rawMetar:'',observedAt:''};
+    render();
+    let record=null,payload=null;
+    try{
+      const response=await fetch('/data/airfields.json',{cache:'no-cache'});
+      if(!response.ok)throw new Error('jeu local indisponible');
+      payload=await response.json();
+      const records=Array.isArray(payload)?payload:payload.airfields;
+      record=Array.isArray(records)?records.find(function(candidate){return String(candidate.icao||'').toUpperCase()===requestedIcao;}):null;
+      if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
+      if(record){
+        state.densityAirfield={status:'loaded',message:'',record:record,cycle:payload.cycle||payload.effectiveDate||'cycle non indiqué'};
+        const publishedElevation=firstFinite(record.elevationFt);
+        if(publishedElevation!==null)state.density.elevation=publishedElevation;
+      }else state.densityAirfield={status:'missing',message:'Altitude terrain absente du jeu local : la saisir depuis la documentation en vigueur.',record:null,cycle:payload&&payload.cycle||''};
+    }catch(_){
+      if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
+      state.densityAirfield={status:'error',message:'Données terrain indisponibles : saisir l’altitude manuellement.',record:null,cycle:''};
+    }
+    const weatherStation=record&&/^[A-Z]{4}$/.test(String(record.metarStation||''))?String(record.metarStation).toUpperCase():requestedIcao;
+    try{
+      const response=await fetch('/api/weather?icao='+encodeURIComponent(weatherStation),{headers:{Accept:'application/json'}});
+      const weatherPayload=await response.json().catch(function(){return {};});
+      const payloadError=weatherPayload&&weatherPayload.error&&weatherPayload.error.message?weatherPayload.error.message:null;
+      if(!response.ok)throw new Error(payloadError||('service météo HTTP '+response.status));
+      if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
+      const product=weatherPayload.metar||{},metar=product.data||{};
+      const temperature=firstFinite(metar.temperatureC,metar.temperature,metar.temp);
+      const dewPoint=firstFinite(metar.dewpointC,metar.dewPointC,metar.dewPoint,metar.dewp);
+      const qnh=firstFinite(metar.qnhHpa,metar.qnh,metar.altimeterHpa,metar.altim);
+      const observation=metarObservationQuality(metar);
+      const returnedStation=String(metar.station||'').toUpperCase();
+      const stationExact=returnedStation===weatherStation;
+      const serverReportCurrent=!metar.reportStatus||metar.reportStatus==='current';
+      const stationNote=record&&record.metarStationNote?record.metarStationNote:'';
+      const details={station:weatherStation,rawMetar:String(metar.raw||metar.rawOb||''),observedAt:String(metar.observedAt||metar.timestamp||''),stationNote:stationNote};
+      if(temperature===null||qnh===null||!observation.usable||!serverReportCurrent||!stationExact){
+        const reason=!stationExact?'station retournée différente':!observation.usable||!serverReportCurrent?'METAR trop ancien ou heure incohérente':'METAR sans température ou QNH';
+        state.densityWeather=Object.assign({status:'partial',message:reason+' : valeurs météo non utilisées.'},details);
+      }else{
+        state.density.qnh=qnh;
+        state.density.temperature=temperature;
+        state.density.dewPoint=dewPoint===null?'':dewPoint;
+        state.densityWeather=Object.assign({status:product.status==='stale'?'stale':'loaded',message:product.warning&&product.warning.message?product.warning.message:''},details);
+      }
+    }catch(error){
+      if(String(state.density.icao).toUpperCase()!==requestedIcao)return;
+      state.densityWeather={status:'error',message:'Aucun METAR exploitable ('+(error&&error.message?error.message:'erreur réseau')+'). QNH et température restent à saisir manuellement.',rawMetar:'',observedAt:'',station:weatherStation,stationNote:record&&record.metarStationNote?record.metarStationNote:''};
+    }
+    persist();render();
   }
 
   async function loadDepartureContext() {
@@ -3054,12 +3333,16 @@ const aircraftList = [
     state.departure.qnh='';
     state.departure.temperature='';
     state.departure.dewPoint='';
-    state.departure.windComponent='';
+    state.departure.windComponent=0;
+    state.departure.windMode='metar';
+    state.departure.windSource='default';
+    state.departure.windNote='0 kt par défaut à ajuster.';
     state.departure.tora='';
     state.departure.toda='';
     state.departure.todaDerived=false;
     state.departure.surface='unknown';
-    state.departure.slope='';
+    state.departure.slope=0;
+    state.departure.slopeSource='default';
     state.departure.runwayId='';
     state.departure.conditionsConfirmed=false;
     state.departure.conditionsConfirmedAt='';
@@ -3068,7 +3351,7 @@ const aircraftList = [
     state.departure.runwayConfirmed=false;
     state.departure.runwayConfirmedAt='';
     state.airfield = { status:'loading', message:'', record:null, cycle:'' };
-    state.weather = { status:'loading', message:'', rawMetar:'', rawTaf:'', observedAt:'' };
+    state.weather = { status:'loading', message:'', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null };
     render();
 
     let record = null;
@@ -3084,11 +3367,17 @@ const aircraftList = [
         const effectiveAge=Date.now()-effectiveTimestamp;
         const cycleStale=!Number.isFinite(effectiveTimestamp)||effectiveAge<0||effectiveAge>28*24*60*60*1000;
         state.airfield = { status:'loaded', message:'', record:record, cycle:payload.cycle || payload.effectiveDate || 'cycle non indiqué', effectiveDate:payload.effectiveDate||'', stale:cycleStale };
-        if (Number.isFinite(Number(record.elevationFt))) state.departure.elevation = Number(record.elevationFt);
+        const publishedElevation=firstFinite(record.elevationFt);
+        if (publishedElevation!==null) state.departure.elevation = publishedElevation;
         const runwayStillExists = Array.isArray(record.runways) && record.runways.some(function(runway){ return runway.id === state.departure.runwayId; });
         if (runwayStillExists) selectPublishedRunway(state.departure.runwayId);
         else if (Array.isArray(record.runways) && record.runways.length === 1) selectPublishedRunway(record.runways[0].id);
-        else state.departure.runwayId = '';
+        else {
+          state.departure.runwayId = '';
+          state.departure.surface=defaultDrySurface(record,null);
+          state.departure.slope=0;
+          state.departure.slopeSource='default';
+        }
       } else {
         state.airfield = { status:'missing', message:'Terrain absent du jeu local : saisir et vérifier altitude, piste et VAC manuellement.', record:null, cycle:payload.cycle || '' };
       }
@@ -3130,10 +3419,15 @@ const aircraftList = [
         tafValidFrom:String(taf.validFrom||''),
         tafValidTo:String(taf.validTo||''),
         stationNote:record&&record.metarStationNote?record.metarStationNote:''
+        ,windDirectionDeg:firstFinite(metar.windDirectionDeg),
+        windSpeedKt:firstFinite(metar.windSpeedKt),
+        windGustKt:firstFinite(metar.windGustKt),
+        windVariableFromDeg:firstFinite(metar.windVariableFromDeg),
+        windVariableToDeg:firstFinite(metar.windVariableToDeg)
       };
       if (temperature === null || qnh === null || !observation.usable || !serverReportCurrent || !stationExact) {
         const reason = !stationExact ? 'station retournée différente de la station demandée' : !observation.usable || !serverReportCurrent ? 'heure du METAR absente, incohérente ou observation de plus de 2 heures' : 'METAR sans température ou QNH exploitable';
-        state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';state.departure.windComponent='';state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
+        state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';resetWindToDefault();state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
         state.weather=Object.assign({status:'partial',message:reason+' : aucune valeur météo n’est préremplie ; saisie manuelle et vérification requises.'},weatherDetails);
         persist();render();return;
       }
@@ -3145,10 +3439,11 @@ const aircraftList = [
       state.departure.conditionsSource = 'metar';
       state.departure.conditionsObservedAt = String(metar.observedAt||metar.timestamp||'');
       state.weather = Object.assign({status:metarProduct.status==='stale'?'stale':'loaded',message:metarProduct.warning&&metarProduct.warning.message?metarProduct.warning.message:''},weatherDetails);
+      updateWindComponentFromWeather();
     } catch (error) {
       if (String(state.departure.icao).toUpperCase() !== requestedIcao) return;
-      state.weather = { status:'error', message:'METAR/TAF indisponible (' + (error && error.message ? error.message : 'erreur réseau') + '). Vérifier puis saisir manuellement.', rawMetar:'', rawTaf:'', observedAt:'' };
-      state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';state.departure.windComponent='';state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
+      state.weather = { status:'error', message:'METAR/TAF indisponible (' + (error && error.message ? error.message : 'erreur réseau') + '). Vérifier puis saisir manuellement.', rawMetar:'', rawTaf:'', observedAt:'', windDirectionDeg:null, windSpeedKt:null, windGustKt:null, windVariableFromDeg:null, windVariableToDeg:null };
+      state.departure.qnh='';state.departure.temperature='';state.departure.dewPoint='';resetWindToDefault();state.departure.conditionsConfirmed=false;state.departure.conditionsConfirmedAt='';state.departure.conditionsSource='';state.departure.conditionsObservedAt='';
     }
     persist();
     render();
@@ -3222,7 +3517,7 @@ const aircraftList = [
     if(!button||button.disabled)return;
     const action=button.dataset.action;
     if(action==='select-aircraft'){state.aircraftId=button.dataset.aircraft;state.phaseIndex=0;state.screen='aircraft';state.showFacts=false;state.showPhases=false;scrollTo(0,0);}
-    if(action==='screen'){state.screen=button.dataset.screen;state.showFacts=false;state.showPhases=false;scrollTo(0,0);}
+    if(action==='screen'){state.screen=button.dataset.screen;state.showFacts=false;state.showPhases=false;scrollTo(0,0);if(state.screen==='density')ensureAirfieldCatalog();}
     if(action==='theme'){state.night=!state.night;persist();}
     if(action==='documents'){state.showDisclaimer=true;}
     if(action==='accept-disclaimer'){state.showDisclaimer=false;}
@@ -3233,7 +3528,18 @@ const aircraftList = [
     if(action==='check'){const aircraft=currentAircraft(),phase=aircraft.checklist.phases[state.phaseIndex],key=itemKey(phase,Number(button.dataset.index));state.checked[aircraft.id]=state.checked[aircraft.id]||{};state.checked[aircraft.id][key]=!state.checked[aircraft.id][key];persist();}
     if(action==='reset-checklist'){if(confirm('Démarrer un nouveau vol et effacer toute la progression des check-lists ?')){state.checked={};state.checklistSession=freshChecklistSession();persist();}}
     if(action==='reset-load'){state.loads[currentAircraft().id]=defaultLoad(currentAircraft().balance);state.departure.loadConfirmed='';state.departure.loadConfirmedAt='';persist();}
+    if(action==='confirm-load-and-performance'){
+      const aircraft=currentAircraft(),result=aircraft.balance?balanceResult(aircraft):null;
+      if(result&&result.safe&&aircraft.performance){
+        state.departure.loadConfirmed=aircraft.id;
+        state.departure.loadConfirmedAt=Date.now();
+        state.screen='performance';
+        scrollTo(0,0);
+        persist();
+      }
+    }
     if(action==='load-weather'){loadDepartureContext();return;}
+    if(action==='load-density-metar'){loadDensityContext();return;}
     render();
   });
 
@@ -3241,7 +3547,23 @@ const aircraftList = [
     const densityInput=event.target.closest('[data-density]');
     if(densityInput){
       const key=densityInput.dataset.density;
-      if(densityInput.type==='checkbox') state.density[key]=densityInput.checked;
+      if(densityInput.type==='checkbox') {
+        state.density[key]=densityInput.checked;
+        if(key==='useMetarData'&&!densityInput.checked){
+          state.densityWeather={status:'idle',message:'',rawMetar:'',observedAt:''};
+          state.densityAirfield={status:'idle',message:'',record:null,cycle:''};
+        }
+        if(key==='useMetarData'&&densityInput.checked)ensureAirfieldCatalog();
+      }
+      else if(key==='icao'){
+        const nextIcao=String(densityInput.value).trim().toUpperCase().slice(0,4);
+        if(nextIcao!==state.density.icao){
+          state.density.elevation='';state.density.qnh='';state.density.temperature='';state.density.dewPoint='';
+          state.densityWeather={status:'idle',message:'',rawMetar:'',observedAt:''};
+          state.densityAirfield={status:'idle',message:'',record:null,cycle:''};
+        }
+        state.density.icao=nextIcao;
+      }
       else {
         const raw=String(densityInput.value).trim();
         const parsed=raw===''?'':Number(raw.replace(',','.'));
@@ -3272,16 +3594,28 @@ const aircraftList = [
       else if(key==='icao') {
         const nextIcao=String(departureInput.value).trim().toUpperCase().slice(0,4);
         if(nextIcao!==state.departure.icao){
-          state.airfield={status:'idle',message:'',record:null,cycle:''};state.weather={status:'idle',message:'',rawMetar:'',rawTaf:'',observedAt:''};
-          Object.assign(state.departure,{elevation:'',qnh:'',temperature:'',dewPoint:'',windComponent:'',tora:'',toda:'',todaDerived:false,surface:'unknown',slope:'',runwayId:'',conditionsConfirmed:false,conditionsConfirmedAt:'',conditionsSource:'',conditionsObservedAt:'',runwayConfirmed:false,runwayConfirmedAt:''});
+          state.airfield={status:'idle',message:'',record:null,cycle:''};state.weather={status:'idle',message:'',rawMetar:'',rawTaf:'',observedAt:'',windDirectionDeg:null,windSpeedKt:null,windGustKt:null,windVariableFromDeg:null,windVariableToDeg:null};
+          Object.assign(state.departure,{elevation:'',qnh:'',temperature:'',dewPoint:'',windComponent:0,windMode:'metar',windSource:'default',windNote:'0 kt par défaut à ajuster.',tora:'',toda:'',todaDerived:false,surface:'unknown',slope:0,slopeSource:'default',runwayId:'',conditionsConfirmed:false,conditionsConfirmedAt:'',conditionsSource:'',conditionsObservedAt:'',runwayConfirmed:false,runwayConfirmedAt:''});
         }
         state.departure[key]=nextIcao;
       }
-      else if(departureInput.tagName==='SELECT') state.departure[key]=departureInput.value;
+      else if(departureInput.tagName==='SELECT') {
+        state.departure[key]=key==='surface'?normalizeSurfaceValue(departureInput.value):departureInput.value;
+        if(key==='windMode'){
+          if(state.departure.windMode==='metar')updateWindComponentFromWeather();
+          else {state.departure.windSource='manual';state.departure.windNote='Valeur ajustable manuellement par le pilote.';}
+        }
+      }
       else {
         const raw=String(departureInput.value).trim();
         const parsed=raw===''?'':Number(raw.replace(',','.'));
         setDepartureNumericValue(key,Number.isFinite(parsed)?parsed:'');
+        if(key==='windComponent'){
+          state.departure.windMode='manual';
+          state.departure.windSource='manual';
+          state.departure.windNote='Valeur saisie manuellement par le pilote.';
+        }
+        if(key==='slope')state.departure.slopeSource='manual';
       }
       invalidateConditionsAfterEdit(key);
       if(['elevation','tora','toda','surface','slope','safetyMarginPercent'].includes(key)){state.departure.runwayConfirmed=false;state.departure.runwayConfirmedAt='';}

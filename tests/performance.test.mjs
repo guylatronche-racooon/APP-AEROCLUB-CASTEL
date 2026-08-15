@@ -11,6 +11,7 @@ assert.ok(inlineScript, 'Le script principal de app/index.html doit être presen
 
 const appElement = { innerHTML: '' };
 const storage = new Map([['acjd-flight-tools-disclaimer-v1', 'accepted']]);
+const documentListeners = new Map();
 let fetchImplementation = async () => {
   throw new Error('Aucun acces reseau reel ne doit etre effectue par les tests');
 };
@@ -19,7 +20,7 @@ const context = vm.createContext({
   console,
   confirm: () => true,
   document: {
-    addEventListener: () => {},
+    addEventListener: (name, listener) => documentListeners.set(name, listener),
     documentElement: { style: {} },
     getElementById: () => appElement,
     querySelector: () => null,
@@ -38,7 +39,11 @@ const source = `${inlineScript[1]}\n` +
   'sportStarPerformance, dr400Performance, sportStarBalance, dr400Balance, ' +
   'aircraftList, state, atmosphereResult, interpolateSportStar, interpolateDr400, ' +
   'performanceAtConditions, performanceResult, headwindFactor, loadDepartureContext, ' +
-  'selectPublishedRunway, setDepartureNumericValue, invalidateConditionsAfterEdit, homeView, balanceView, performanceView, densityAltitudeView, calculationBasesView' +
+  'loadDensityContext, densityAltitudeResult, ' +
+  'selectPublishedRunway, setDepartureNumericValue, invalidateConditionsAfterEdit, ' +
+  'normalizeSurfaceValue, surfaceFamily, surfaceIsDryAndSupported, availableSurfaceOptions, ' +
+  'defaultDrySurface, conservativeMetarWindComponent, runwayHeadingDegrees, defaultLoad, ' +
+  'DEPARTURE_DEFAULTS, homeView, balanceView, performanceView, densityAltitudeView, calculationBasesView' +
   '};';
 
 new vm.Script(source, { filename: APP_URL.pathname }).runInContext(context, { timeout: 5_000 });
@@ -46,6 +51,8 @@ new vm.Script(source, { filename: APP_URL.pathname }).runInContext(context, { ti
 const {
   sportStarPerformance,
   dr400Performance,
+  sportStarBalance,
+  dr400Balance,
   aircraftList,
   state,
   atmosphereResult,
@@ -54,9 +61,20 @@ const {
   performanceResult,
   headwindFactor,
   loadDepartureContext,
+  loadDensityContext,
+  densityAltitudeResult,
   selectPublishedRunway,
   setDepartureNumericValue,
   invalidateConditionsAfterEdit,
+  normalizeSurfaceValue,
+  surfaceFamily,
+  surfaceIsDryAndSupported,
+  availableSurfaceOptions,
+  defaultDrySurface,
+  conservativeMetarWindComponent,
+  runwayHeadingDegrees,
+  defaultLoad,
+  DEPARTURE_DEFAULTS,
   homeView,
   balanceView,
   performanceView,
@@ -93,6 +111,22 @@ function setDr400Load() {
   };
 }
 
+function setDr400Mass(targetMass) {
+  const fixedMass = 844.8;
+  const additionalPayload = targetMass - fixedMass;
+  assert.ok(additionalPayload >= 0, 'La masse cible doit conserver au moins le pilote et les pleins');
+  const rearPassengers = Math.min(250, additionalPayload);
+  const frontPassenger = additionalPayload - rearPassengers;
+  state.loads['f-gghl'] = {
+    pilot: 80,
+    frontPassenger,
+    rearPassengers,
+    baggage: 0,
+    mainFuelLitres: 110,
+    wingFuelLitres: 80,
+  };
+}
+
 function setDeparture(overrides = {}) {
   const defaults = {
     icao: 'TEST',
@@ -119,6 +153,52 @@ function setDeparture(overrides = {}) {
   state.airfield = { status: 'idle', message: '', record: null, cycle: '' };
   state.weather = { status: 'idle', message: '', rawMetar: '', rawTaf: '', observedAt: '' };
 }
+
+function setDensity(overrides = {}) {
+  state.density = {
+    icao: 'LFBL',
+    useMetarData: true,
+    elevation: '',
+    qnh: '',
+    temperature: '',
+    dewPoint: '',
+    useHumidity: false,
+    ...overrides,
+  };
+  state.densityAirfield = { status: 'idle', message: '', record: null, cycle: '' };
+  state.densityWeather = { status: 'idle', message: '', rawMetar: '', observedAt: '' };
+}
+
+function surfaceOptionPairs(record) {
+  return Array.from(availableSurfaceOptions(record), (option) => [option.value, option.label]);
+}
+
+test('Les pleins, la pente, le vent et la marge ont des valeurs initiales explicites', () => {
+  assert.equal(defaultLoad(sportStarBalance).fuelLitres, 120);
+  assert.equal(defaultLoad(dr400Balance).mainFuelLitres, 110);
+  assert.equal(defaultLoad(dr400Balance).wingFuelLitres, 80);
+  assert.equal(DEPARTURE_DEFAULTS.windComponent, 0);
+  assert.equal(DEPARTURE_DEFAULTS.slope, 0);
+  assert.equal(DEPARTURE_DEFAULTS.safetyMarginPercent, 0);
+  assert.equal(DEPARTURE_DEFAULTS.useHumidity, false);
+});
+
+test('Le parcours Masse et centrage vers Performances et les statuts obligatoire/facultatif sont visibles', () => {
+  state.aircraftId = 'f-hdlt';
+  setSportStarLoad();
+  setDeparture();
+
+  const balance = balanceView();
+  assert.match(balance, /data-action="confirm-load-and-performance"/);
+  assert.match(balance, /Chargement vérifié — passer aux performances/);
+
+  const performance = performanceView();
+  assert.match(performance, /Retour à masse &amp; centrage|Retour à masse & centrage/);
+  assert.equal((performance.match(/requirement-tag required/g) || []).length, 3);
+  assert.equal((performance.match(/requirement-tag optional/g) || []).length, 1);
+  assert.match(performance, /Piste et distances vérifiées[^]*Obligatoire/);
+  assert.match(performance, /Comparer avec l’air humide[^]*Facultatif/);
+});
 
 test('SportStar RTC : les quatre colonnes et les noeuds publies sont restitues exactement', () => {
   const hard = performanceAtConditions(sportStarPerformance, 600, 4_000, 27.1, 'hard', 0);
@@ -265,6 +345,105 @@ test('Une nature de piste inconnue bloque sans être classée hors table', () =>
   assert.ok(result.issues.some((issue)=>issue.includes('non renseignés')));
 });
 
+test('Les surfaces sèches utilisent leur colonne et les surfaces mouillées restent hors table', () => {
+  state.aircraftId = 'f-hdlt';
+  setSportStarLoad();
+
+  setDeparture({ surface: 'hard' });
+  const hardDry = performanceResult(sportStar);
+  assert.equal(hardDry.valid, true);
+  assert.equal(hardDry.base.roll, 143);
+  assert.equal(hardDry.base.total, 361);
+
+  setDeparture({ surface: 'grass' });
+  const grassDry = performanceResult(sportStar);
+  assert.equal(grassDry.valid, true);
+  assert.equal(grassDry.base.roll, 185);
+  assert.equal(grassDry.base.total, 407);
+
+  for (const [surface, expectedIssue] of [
+    ['hard_wet', 'Piste dure mouillée'],
+    ['grass_wet', 'Herbe mouillée'],
+  ]) {
+    setDeparture({ surface });
+    const wet = performanceResult(sportStar);
+    assert.equal(wet.valid, false, surface);
+    assert.equal(wet.outOfTable, true, surface);
+    assert.equal(wet.sufficient, false, surface);
+    assert.ok(wet.issues.some((issue) => issue.includes(expectedIssue)), surface);
+    const rendered = performanceView();
+    assert.match(rendered, /HORS TABLE/);
+    assert.doesNotMatch(rendered, /class="performance-metrics"/);
+  }
+});
+
+test('Les choix de surface dépendent des surfaces publiées et privilégient le dur sec', () => {
+  const hardOnly = { runways: [{ id: '11', surface: 'hard' }] };
+  const grassOnly = { runways: [{ id: '11', surface: 'grass' }] };
+  const mixed = {
+    runways: [
+      { id: '11D', availableSurfaces: ['hard'] },
+      { id: '11H', availableSurfaces: ['grass'] },
+    ],
+  };
+  const combinedRunway = { runways: [{ id: '11', availableSurfaces: ['grass', 'hard'] }] };
+
+  assert.deepEqual(surfaceOptionPairs(hardOnly), [
+    ['hard', 'Dur sec'],
+    ['hard_wet', 'Dur mouillé'],
+  ]);
+  assert.deepEqual(surfaceOptionPairs(grassOnly), [
+    ['grass', 'Herbe sèche'],
+    ['grass_wet', 'Herbe mouillée'],
+  ]);
+  assert.deepEqual(surfaceOptionPairs(mixed), [
+    ['hard', 'Dur sec'],
+    ['hard_wet', 'Dur mouillé'],
+    ['grass', 'Herbe sèche'],
+    ['grass_wet', 'Herbe mouillée'],
+  ]);
+  assert.deepEqual(surfaceOptionPairs(null), surfaceOptionPairs(mixed));
+  assert.equal(defaultDrySurface(mixed, null), 'hard');
+  assert.equal(defaultDrySurface(grassOnly, grassOnly.runways[0]), 'grass');
+  assert.equal(defaultDrySurface(combinedRunway, combinedRunway.runways[0]), 'hard');
+  assert.equal(normalizeSurfaceValue('hard_dry'), 'hard');
+  assert.equal(normalizeSurfaceValue('grass_dry'), 'grass');
+  assert.equal(surfaceFamily('grass_wet'), 'grass');
+  assert.equal(surfaceIsDryAndSupported('hard_wet'), false);
+});
+
+test('La liste rendue ne propose que les états de la piste sélectionnée', () => {
+  state.aircraftId = 'f-hdlt';
+  setSportStarLoad();
+  setDeparture({ runwayId: '11D', surface: 'hard' });
+  state.airfield = {
+    status: 'loaded',
+    cycle: 'TEST',
+    record: {
+      icao: 'TEST',
+      name: 'Terrain mixte',
+      elevationFt: 0,
+      runways: [
+        { id: '11D', label: '11 dur', toraM: 800, todaM: 800, surface: 'hard' },
+        { id: '11H', label: '11 herbe', toraM: 650, todaM: 650, surface: 'grass' },
+      ],
+    },
+  };
+
+  const hardRunway = performanceView();
+  assert.match(hardRunway, />Dur sec</);
+  assert.match(hardRunway, />Dur mouillé</);
+  assert.doesNotMatch(hardRunway, />Herbe sèche</);
+  assert.doesNotMatch(hardRunway, />Herbe mouillée</);
+
+  state.departure.runwayId = '11H';
+  state.departure.surface = 'grass';
+  const grassRunway = performanceView();
+  assert.doesNotMatch(grassRunway, />Dur sec</);
+  assert.match(grassRunway, />Herbe sèche</);
+  assert.match(grassRunway, />Herbe mouillée</);
+});
+
 test('Humidite : la valeur la plus restrictive est retenue', () => {
   setSportStarLoad();
   setDeparture({
@@ -317,6 +496,38 @@ test('Vent arriere et piste montante interdisent le verdict SportStar', () => {
   assert.ok(uphill.issues.some((issue) => issue.includes('Piste montante')));
 });
 
+test('La composante METAR retient le cas le plus défavorable du secteur et des rafales', () => {
+  const weather = {
+    windDirectionDeg: 280,
+    windSpeedKt: 12,
+    windGustKt: 20,
+    windVariableFromDeg: 240,
+    windVariableToDeg: 310,
+  };
+
+  const runway29 = conservativeMetarWindComponent(weather, { id: '29' });
+  assert.equal(runwayHeadingDegrees({ id: '29' }), 290);
+  assert.equal(runway29.value, 7.7, 'le plus faible vent de face du secteur doit être retenu');
+  assert.match(runway29.note, /rafales/);
+  assert.match(runway29.note, /secteur variable/);
+
+  const runway11 = conservativeMetarWindComponent(weather, { id: '11' });
+  assert.equal(runway11.value, -20, 'la rafale arrière la plus défavorable doit être retenue');
+
+  const steadyHeadwind = conservativeMetarWindComponent(
+    { windDirectionDeg: 290, windSpeedKt: 12, windGustKt: 20 },
+    { id: '29', trueHeadingDeg: 290 },
+  );
+  assert.equal(steadyHeadwind.value, 12, 'une rafale de face ne doit pas être comptée comme un gain');
+  assert.match(steadyHeadwind.note, /relèvement publié/);
+
+  assert.equal(
+    conservativeMetarWindComponent({ windDirectionDeg: null, windSpeedKt: 12 }, { id: '29' }),
+    null,
+  );
+  assert.equal(conservativeMetarWindComponent({ windDirectionDeg: 0, windSpeedKt: 0 }, { id: '36' }).value, 0);
+});
+
 test('DR400 generique : la correction de vent est bornee a 30 kt', () => {
   closeTo(headwindFactor(dr400Performance, 0), 1);
   closeTo(headwindFactor(dr400Performance, 10), 0.81);
@@ -333,6 +544,61 @@ test('DR400 generique : la correction de vent est bornee a 30 kt', () => {
   assert.equal(outside.valid, false);
   assert.equal(outside.margin, null);
   assert.ok(outside.issues.some((issue) => issue.includes('Vent de face hors table')));
+});
+
+test('DR400 générique : les masses sous 900 kg utilisent la ligne 900 kg sans extrapolation', () => {
+  state.aircraftId = 'f-gghl';
+
+  for (const mass of [844.8, 899.9]) {
+    setDr400Mass(mass);
+    setDeparture({ loadConfirmed: 'f-gghl', tora: 2_000, toda: 2_000 });
+    const result = performanceResult(dr400);
+
+    closeTo(result.mass, mass, 1e-8);
+    assert.equal(result.calculationMass, 900);
+    assert.equal(result.useMinimumPublishedMass, true);
+    assert.equal(result.valid, true);
+    assert.equal(result.base.roll, 200);
+    assert.equal(result.base.total, 400);
+    assert.equal(result.advisories.length, 1);
+    assert.match(result.advisories[0], /Calcul conservateur effectué à 900 kg/);
+  }
+
+  setDr400Mass(844.8);
+  setDeparture({ loadConfirmed: 'f-gghl', tora: 2_000, toda: 2_000 });
+  assert.match(performanceView(), /Calcul conservateur de masse/);
+  assert.match(performanceView(), /844,8 kg \/ 900 kg/);
+});
+
+test('DR400 générique : frontières et interpolation de masse restent exactes', () => {
+  const cases = [
+    { mass: 900, roll: 200, total: 400 },
+    { mass: 1_000, roll: 257.5, total: 505 },
+    { mass: 1_100, roll: 315, total: 610 },
+  ];
+
+  for (const scenario of cases) {
+    setDr400Mass(scenario.mass);
+    setDeparture({ loadConfirmed: 'f-gghl', tora: 2_000, toda: 2_000 });
+    const result = performanceResult(dr400);
+
+    closeTo(result.mass, scenario.mass, 1e-8);
+    closeTo(result.calculationMass, scenario.mass, 1e-8);
+    assert.equal(result.useMinimumPublishedMass, false);
+    assert.equal(result.valid, true);
+    closeTo(result.base.roll, scenario.roll, 1e-8);
+    closeTo(result.base.total, scenario.total, 1e-8);
+    assert.equal(result.advisories.length, 0);
+  }
+
+  setDr400Mass(1_100.1);
+  setDeparture({ loadConfirmed: 'f-gghl', tora: 2_000, toda: 2_000 });
+  const aboveMaximum = performanceResult(dr400);
+  assert.equal(aboveMaximum.valid, false);
+  assert.equal(aboveMaximum.outOfTable, true);
+  assert.equal(aboveMaximum.base, null);
+  assert.equal(aboveMaximum.roll, null);
+  assert.ok(aboveMaximum.issues.some((issue) => issue.includes('maximum publié 1100 kg')));
 });
 
 test('Le verdict exige une confirmation explicite du chargement courant', () => {
@@ -492,8 +758,227 @@ test('Contrat reel relais meteo/interface : ICAO, enveloppes data et terrain voi
   assert.equal(state.departure.tora,'');
   assert.equal(state.departure.toda,'');
   assert.equal(state.departure.surface,'unknown');
-  assert.equal(state.departure.slope,'');
+  assert.equal(state.departure.slope,0);
+  assert.equal(state.departure.slopeSource,'default');
   assert.equal(state.departure.runwayConfirmed,false);
+});
+
+test('Altitude-densité : un terrain et son METAR exact remplissent toutes les données exploitables', async () => {
+  setDensity({ icao: 'LFBL' });
+  const observedAt = new Date(Date.now() - 20 * 60 * 1000).toISOString();
+  const requestedUrls = [];
+  fetchImplementation = async (url) => {
+    requestedUrls.push(String(url));
+    if (String(url) === '/data/airfields.json') {
+      return {
+        ok: true,
+        json: async () => ({
+          cycle: 'TEST',
+          airfields: [{ icao: 'LFBL', name: 'Limoges', elevationFt: 1_300, runways: [] }],
+        }),
+      };
+    }
+    if (String(url) === '/api/weather?icao=LFBL') {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          metar: {
+            status: 'fresh',
+            data: {
+              station: 'LFBL',
+              raw: 'METAR LFBL TEST 19003KT CAVOK 25/13 Q1016',
+              observedAt,
+              reportStatus: 'current',
+              temperatureC: 25,
+              dewpointC: 13,
+              qnhHpa: 1016,
+            },
+          },
+        }),
+      };
+    }
+    throw new Error(`URL inattendue : ${url}`);
+  };
+
+  await loadDensityContext();
+
+  assert.deepEqual(requestedUrls, ['/data/airfields.json', '/api/weather?icao=LFBL']);
+  assert.equal(state.density.useMetarData, true);
+  assert.equal(state.density.elevation, 1_300);
+  assert.equal(state.density.qnh, 1016);
+  assert.equal(state.density.temperature, 25);
+  assert.equal(state.density.dewPoint, 13);
+  assert.equal(state.densityAirfield.status, 'loaded');
+  assert.equal(state.densityWeather.status, 'loaded');
+  assert.equal(state.densityWeather.station, 'LFBL');
+  assert.equal(densityAltitudeResult().valid, true);
+});
+
+test('Altitude-densité : un terrain connu conserve son altitude quand aucun METAR n’est disponible', async () => {
+  setDensity({ icao: 'LFAQ' });
+  fetchImplementation = async (url) => {
+    if (String(url) === '/data/airfields.json') {
+      return {
+        ok: true,
+        json: async () => ({
+          cycle: 'TEST',
+          airfields: [{ icao: 'LFAQ', name: 'Terrain sans METAR', elevationFt: 364, runways: [] }],
+        }),
+      };
+    }
+    if (String(url) === '/api/weather?icao=LFAQ') {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ metar: { status: 'no_data', data: null } }),
+      };
+    }
+    throw new Error(`URL inattendue : ${url}`);
+  };
+
+  await loadDensityContext();
+
+  assert.equal(state.densityAirfield.status, 'loaded');
+  assert.equal(state.density.elevation, 364);
+  assert.equal(state.densityWeather.status, 'partial');
+  assert.equal(state.density.qnh, '');
+  assert.equal(state.density.temperature, '');
+  assert.equal(state.density.dewPoint, '');
+});
+
+test('Altitude-densité : un METAR exact reste utilisable quand le terrain est absent du jeu local', async () => {
+  setDensity({ icao: 'LFXA' });
+  const observedAt = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+  fetchImplementation = async (url) => {
+    if (String(url) === '/data/airfields.json') {
+      return { ok: true, json: async () => ({ cycle: 'TEST', airfields: [] }) };
+    }
+    if (String(url) === '/api/weather?icao=LFXA') {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          metar: {
+            status: 'fresh',
+            data: {
+              station: 'LFXA',
+              raw: 'METAR LFXA TEST 00000KT CAVOK 18/08 Q1020',
+              observedAt,
+              reportStatus: 'current',
+              temperatureC: 18,
+              dewpointC: 8,
+              qnhHpa: 1020,
+            },
+          },
+        }),
+      };
+    }
+    throw new Error(`URL inattendue : ${url}`);
+  };
+
+  await loadDensityContext();
+
+  assert.equal(state.densityAirfield.status, 'missing');
+  assert.equal(state.density.elevation, '');
+  assert.equal(state.densityWeather.status, 'loaded');
+  assert.equal(state.density.qnh, 1020);
+  assert.equal(state.density.temperature, 18);
+  assert.equal(state.density.dewPoint, 8);
+});
+
+test('Altitude-densité : un METAR ancien ou provenant d’une autre station ne préremplit pas la météo', async () => {
+  const scenarios = [
+    {
+      label: 'ancien',
+      station: 'LFBL',
+      observedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+      reportStatus: 'old',
+    },
+    {
+      label: 'station différente',
+      station: 'LFMK',
+      observedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+      reportStatus: 'current',
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    setDensity({ icao: 'LFBL', qnh: 999, temperature: 99, dewPoint: 98 });
+    fetchImplementation = async (url) => {
+      if (String(url) === '/data/airfields.json') {
+        return {
+          ok: true,
+          json: async () => ({
+            cycle: 'TEST',
+            airfields: [{ icao: 'LFBL', name: 'Limoges', elevationFt: 1_300, runways: [] }],
+          }),
+        };
+      }
+      if (String(url) === '/api/weather?icao=LFBL') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            metar: {
+              status: 'fresh',
+              data: {
+                station: scenario.station,
+                raw: 'METAR TEST',
+                observedAt: scenario.observedAt,
+                reportStatus: scenario.reportStatus,
+                temperatureC: 20,
+                dewpointC: 10,
+                qnhHpa: 1015,
+              },
+            },
+          }),
+        };
+      }
+      throw new Error(`URL inattendue : ${url}`);
+    };
+
+    await loadDensityContext();
+
+    assert.equal(state.density.elevation, 1_300, scenario.label);
+    assert.equal(state.densityWeather.status, 'partial', scenario.label);
+    assert.equal(state.density.qnh, '', scenario.label);
+    assert.equal(state.density.temperature, '', scenario.label);
+    assert.equal(state.density.dewPoint, '', scenario.label);
+  }
+});
+
+test('Altitude-densité : décocher le METAR conserve les valeurs déjà chargées', () => {
+  setDensity({
+    icao: 'LFBL',
+    useMetarData: true,
+    elevation: 1_300,
+    qnh: 1016,
+    temperature: 25,
+    dewPoint: 13,
+  });
+  state.densityAirfield = { status: 'loaded', message: '', record: { icao: 'LFBL' }, cycle: 'TEST' };
+  state.densityWeather = { status: 'loaded', message: '', rawMetar: 'METAR LFBL TEST', observedAt: new Date().toISOString() };
+  const changeListener = documentListeners.get('change');
+  assert.equal(typeof changeListener, 'function');
+
+  const checkbox = {
+    type: 'checkbox',
+    checked: false,
+    dataset: { density: 'useMetarData' },
+    closest(selector) {
+      return selector === '[data-density]' ? this : null;
+    },
+  };
+  changeListener({ target: checkbox });
+
+  assert.equal(state.density.useMetarData, false);
+  assert.equal(state.density.elevation, 1_300);
+  assert.equal(state.density.qnh, 1016);
+  assert.equal(state.density.temperature, 25);
+  assert.equal(state.density.dewPoint, 13);
+  assert.equal(state.densityAirfield.status, 'idle');
+  assert.equal(state.densityWeather.status, 'idle');
 });
 
 test('Un METAR trop ancien reste visible mais ne préremplit aucune condition', async () => {

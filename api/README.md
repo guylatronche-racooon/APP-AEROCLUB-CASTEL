@@ -7,8 +7,11 @@ l'API AWC n'autorise pas les requêtes CORS directes depuis un navigateur.
 Le handler ne dépend d'aucune bibliothèque et suit le format serverless Vercel
 (`export default async function`). Il valide un identifiant ICAO de quatre lettres,
 normalise notamment le texte brut, les horodatages, la température, le point de
-rosée et le QNH, puis conserve en mémoire le METAR pendant 60 s et le TAF pendant
-600 s. Le rapport doit correspondre exactement à la station demandée. Pour le METAR,
+rosée, le QNH, la direction et la vitesse du vent, les rafales et le secteur variable,
+puis conserve en mémoire le METAR pendant 60 s et le TAF pendant 600 s. Si les champs
+structurés du vent manquent, le groupe TAC (`dddffGggKT`, `VRBffKT`, `dddVddd`) est
+analysé sans inventer de direction pour un vent variable. Le rapport doit correspondre
+exactement à la station demandée. Pour le METAR,
 `reportStatus` et `reportAgeSeconds` qualifient l'heure d'observation elle-même :
 une heure absente, future de plus de cinq minutes ou vieille de plus de deux heures
 n'est pas confondue avec un fetch récent. `receiptTime` n'est jamais utilisé comme

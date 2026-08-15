@@ -176,6 +176,12 @@ test('relais météo AWC', async (suite) => {
       assert.equal(fresh.body.metar.data.temperatureC, 25);
       assert.equal(fresh.body.metar.data.dewpointC, 13);
       assert.equal(fresh.body.metar.data.qnhHpa, 1016);
+      assert.equal(fresh.body.metar.data.windDirectionDeg, 190);
+      assert.equal(fresh.body.metar.data.windSpeedKt, 3);
+      assert.equal(fresh.body.metar.data.windGustKt, null);
+      assert.equal(fresh.body.metar.data.windVariable, false);
+      assert.equal(fresh.body.metar.data.windVariableFromDeg, null);
+      assert.equal(fresh.body.metar.data.windVariableToDeg, null);
       assert.ok(fresh.body.metar.data.relativeHumidityPercent > 0);
       assert.ok(fresh.body.metar.data.relativeHumidityPercent <= 100);
       assert.equal(fresh.body.taf.status, 'fresh');
@@ -195,6 +201,54 @@ test('relais météo AWC', async (suite) => {
       assert.equal(cached.body.metar.cached, true);
       assert.equal(cached.body.taf.cached, true);
       assert.equal(requestedUrls.length, 2, 'le second appel ne doit pas joindre AWC');
+    });
+
+    await suite.test('extrait direction, vitesse, rafale et secteur variable depuis le METAR brut', async () => {
+      const handler = await loadHandler('raw-wind-fallback');
+      const observationSeconds = Math.floor((Date.now() - 15 * 60 * 1000) / 1000);
+      globalThis.fetch = async (url) => String(url).includes('/metar?')
+        ? upstreamResponse({
+          body: [{
+            icaoId: 'LFBL',
+            obsTime: observationSeconds,
+            rawOb: 'METAR LFBL TEST 28012G20KT 240V310 CAVOK 18/08 Q1015',
+          }],
+        })
+        : upstreamResponse({ status: 204 });
+
+      const result = await invoke(handler, { icao: 'LFBL' });
+
+      assert.equal(result.status, 200);
+      assert.equal(result.body.metar.data.windDirectionDeg, 280);
+      assert.equal(result.body.metar.data.windSpeedKt, 12);
+      assert.equal(result.body.metar.data.windGustKt, 20);
+      assert.equal(result.body.metar.data.windVariable, false);
+      assert.equal(result.body.metar.data.windVariableFromDeg, 240);
+      assert.equal(result.body.metar.data.windVariableToDeg, 310);
+    });
+
+    await suite.test('conserve VRB et les rafales quand le vent n’existe que dans le METAR brut', async () => {
+      const handler = await loadHandler('raw-variable-wind');
+      const observationSeconds = Math.floor((Date.now() - 15 * 60 * 1000) / 1000);
+      globalThis.fetch = async (url) => String(url).includes('/metar?')
+        ? upstreamResponse({
+          body: [{
+            icaoId: 'LFBL',
+            obsTime: observationSeconds,
+            rawOb: 'METAR LFBL TEST VRB15G25KT CAVOK 18/08 Q1015',
+          }],
+        })
+        : upstreamResponse({ status: 204 });
+
+      const result = await invoke(handler, { icao: 'LFBL' });
+
+      assert.equal(result.status, 200);
+      assert.equal(result.body.metar.data.windDirectionDeg, null);
+      assert.equal(result.body.metar.data.windSpeedKt, 15);
+      assert.equal(result.body.metar.data.windGustKt, 25);
+      assert.equal(result.body.metar.data.windVariable, true);
+      assert.equal(result.body.metar.data.windVariableFromDeg, null);
+      assert.equal(result.body.metar.data.windVariableToDeg, null);
     });
 
     await suite.test('transforme deux réponses 204 en états no_data', async () => {
