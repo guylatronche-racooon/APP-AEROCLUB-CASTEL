@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "cycle": "Cycle SIA 08-26 indiqué · entrée pilote à valider",
+  "effectiveDate": "2026-08-06",
+  "generatedAt": "2026-08-14T00:00:00Z",
+  "source": "Transcription pilote non validée · à contrôler sur l’Atlas VAC SIA",
+  "sourceUrl": "https://www.sia.aviation-civile.gouv.fr/atlas-vac.html",
+  "airfields": [
+    {
+      "icao": "LFMW",
+      "name": "Castelnaudary — Villeneuve",
+      "elevationFt": 553,
+      "metarStation": "LFMK",
+      "metarStationNote": "LFMW ne publie pas nécessairement de METAR ; LFMK est une observation voisine et ne décrit pas automatiquement les conditions à LFMW.",
+      "vacUrl": "https://www.sia.aviation-civile.gouv.fr/atlas-vac.html",
+      "sourceNote": "Préremplissage pilote à contrôler sur la VAC en vigueur avant usage ; les distances déclarées, NOTAM et restrictions du jour font foi.",
+      "runways": [
+        { "id": "11", "label": "11 · TORA/TODA", "toraM": 810, "todaM": 810, "surface": "hard" },
+        { "id": "29", "label": "29 · TORA/TODA", "toraM": 810, "todaM": 810, "surface": "hard" }
+      ]
+    }
+  ]
+}
