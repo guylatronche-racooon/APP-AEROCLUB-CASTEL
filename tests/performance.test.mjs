@@ -87,6 +87,13 @@ const {
 const sportStar = aircraftList.find((aircraft) => aircraft.id === 'f-hdlt');
 const dr400 = aircraftList.find((aircraft) => aircraft.id === 'f-gghl');
 
+test('Les en-têtes mobiles respectent la zone de sécurité supérieure iOS', () => {
+  assert.match(html, /height: calc\(64px \+ env\(safe-area-inset-top\)\)/);
+  assert.match(html, /top: calc\(64px \+ env\(safe-area-inset-top\)\)/);
+  assert.match(html, /top: calc\(104px \+ env\(safe-area-inset-top\)\)/);
+  assert.match(html, /max\(14px, env\(safe-area-inset-left\)\)/);
+});
+
 function closeTo(actual, expected, tolerance = 1e-9) {
   assert.ok(
     Math.abs(actual - expected) <= tolerance,
