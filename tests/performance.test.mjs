@@ -42,7 +42,7 @@ const source = `${inlineScript[1]}\n` +
   'loadDensityContext, densityAltitudeResult, ' +
   'selectPublishedRunway, setDepartureNumericValue, invalidateConditionsAfterEdit, ' +
   'normalizeSurfaceValue, surfaceFamily, surfaceIsDryAndSupported, availableSurfaceOptions, ' +
-  'defaultDrySurface, conservativeMetarWindComponent, runwayHeadingDegrees, defaultLoad, ' +
+  'defaultDrySurface, conservativeMetarWindComponent, metarWindAnalysis, recommendedRunwayFromWeather, runwayHeadingDegrees, defaultLoad, ' +
   'DEPARTURE_DEFAULTS, homeView, balanceView, performanceView, densityAltitudeView, calculationBasesView' +
   '};';
 
@@ -72,6 +72,8 @@ const {
   availableSurfaceOptions,
   defaultDrySurface,
   conservativeMetarWindComponent,
+  metarWindAnalysis,
+  recommendedRunwayFromWeather,
   runwayHeadingDegrees,
   defaultLoad,
   DEPARTURE_DEFAULTS,
@@ -496,7 +498,7 @@ test('Vent arriere et piste montante interdisent le verdict SportStar', () => {
   assert.ok(uphill.issues.some((issue) => issue.includes('Piste montante')));
 });
 
-test('La composante METAR retient le cas le plus défavorable du secteur et des rafales', () => {
+test('La composante METAR distingue le vent moyen, le secteur variable et les rafales', () => {
   const weather = {
     windDirectionDeg: 280,
     windSpeedKt: 12,
@@ -507,12 +509,15 @@ test('La composante METAR retient le cas le plus défavorable du secteur et des 
 
   const runway29 = conservativeMetarWindComponent(weather, { id: '29' });
   assert.equal(runwayHeadingDegrees({ id: '29' }), 290);
-  assert.equal(runway29.value, 7.7, 'le plus faible vent de face du secteur doit être retenu');
-  assert.match(runway29.note, /rafales/);
-  assert.match(runway29.note, /secteur variable/);
+  assert.equal(runway29.value, 11.8, 'le champ doit reprendre le vent moyen');
+  assert.equal(runway29.minimum, 7.7, 'le minimum du secteur doit rester visible séparément');
+  assert.equal(runway29.maximum, 12);
+  assert.equal(runway29.gustComponent, 19.7, 'la rafale est informative, pas appliquée au champ');
+  assert.equal(runway29.crossesZero, false);
 
   const runway11 = conservativeMetarWindComponent(weather, { id: '11' });
-  assert.equal(runway11.value, -20, 'la rafale arrière la plus défavorable doit être retenue');
+  assert.equal(runway11.value, -11.8, 'le vent moyen arrière reste identifié');
+  assert.equal(runway11.gustComponent, -19.7);
 
   const steadyHeadwind = conservativeMetarWindComponent(
     { windDirectionDeg: 290, windSpeedKt: 12, windGustKt: 20 },
@@ -526,6 +531,37 @@ test('La composante METAR retient le cas le plus défavorable du secteur et des 
     null,
   );
   assert.equal(conservativeMetarWindComponent({ windDirectionDeg: 0, windSpeedKt: 0 }, { id: '36' }).value, 0);
+});
+
+test('Quimper : le vent moyen du 350 propose le QFU 27 et la variation traversante retient 0 kt', () => {
+  const weather = {
+    station: 'LFRQ',
+    windDirectionDeg: 350,
+    windSpeedKt: 9,
+    windGustKt: null,
+    windVariableFromDeg: 320,
+    windVariableToDeg: 40,
+  };
+  const record = {
+    icao: 'LFRQ',
+    runways: [
+      { id: '09', trueHeadingDeg: 93.5, surface: 'hard', toraM: 2_150 },
+      { id: '27', trueHeadingDeg: 273.5, surface: 'hard', toraM: 2_113 },
+    ],
+  };
+
+  const recommendation = recommendedRunwayFromWeather(record, weather);
+  assert.equal(recommendation.runway.id, '27');
+  assert.equal(recommendation.component, 2.1);
+  assert.match(recommendation.note, /Piste 27 proposée/);
+  assert.match(recommendation.note, /350° \/ 9 kt/);
+
+  const analysis = metarWindAnalysis(weather, recommendation.runway);
+  assert.equal(analysis.mean, 2.1);
+  assert.equal(analysis.minimum, -5.4);
+  assert.equal(analysis.maximum, 6.2);
+  assert.equal(analysis.crossesZero, true);
+  assert.equal(analysis.value, 0);
 });
 
 test('DR400 generique : la correction de vent est bornee a 30 kt', () => {
@@ -761,6 +797,71 @@ test('Contrat reel relais meteo/interface : ICAO, enveloppes data et terrain voi
   assert.equal(state.departure.slope,0);
   assert.equal(state.departure.slopeSource,'default');
   assert.equal(state.departure.runwayConfirmed,false);
+});
+
+test('Le chargement de Quimper présélectionne le QFU 27 avec un vent moyen du 350', async () => {
+  setSportStarLoad();
+  setDeparture({ icao: 'LFRQ', loadConfirmed: 'f-hdlt' });
+  const observedAt = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  fetchImplementation = async (url) => {
+    if (String(url) === '/data/airfields.json') {
+      return {
+        ok: true,
+        json: async () => ({
+          cycle: 'TEST',
+          effectiveDate: new Date().toISOString(),
+          airfields: [{
+            icao: 'LFRQ',
+            name: 'QUIMPER PLUGUFFAN',
+            elevationFt: 297,
+            runways: [
+              { id: '09', trueHeadingDeg: 93.5, surface: 'hard', toraM: 2_150, todaM: 2_150 },
+              { id: '27', trueHeadingDeg: 273.5, surface: 'hard', toraM: 2_113, todaM: 2_113 },
+            ],
+          }],
+        }),
+      };
+    }
+    if (String(url) === '/api/weather?icao=LFRQ') {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          metar: {
+            status: 'fresh',
+            data: {
+              station: 'LFRQ',
+              raw: 'METAR LFRQ TEST 35009KT 320V040 CAVOK 27/18 Q1017',
+              observedAt,
+              reportStatus: 'current',
+              temperatureC: 27,
+              dewpointC: 18,
+              qnhHpa: 1017,
+              windDirectionDeg: 350,
+              windSpeedKt: 9,
+              windVariableFromDeg: 320,
+              windVariableToDeg: 40,
+            },
+          },
+          taf: { status: 'no_data', data: null },
+        }),
+      };
+    }
+    throw new Error(`URL inattendue : ${url}`);
+  };
+
+  await loadDepartureContext();
+
+  assert.equal(state.departure.runwayId, '27');
+  assert.equal(state.departure.runwaySelectionSource, 'metar');
+  assert.equal(state.departure.tora, 2_113);
+  assert.equal(state.departure.toda, 2_113);
+  assert.equal(state.departure.windComponent, 0);
+  assert.match(state.departure.runwaySelectionNote, /Piste 27 proposée/);
+  const rendered = performanceView();
+  assert.match(rendered, /Vent METAR sur le QFU 27/);
+  assert.match(rendered, /Variation 320V040/);
+  assert.match(rendered, /Valeur proposée dans le calcul : 0 kt/);
 });
 
 test('Altitude-densité : un terrain et son METAR exact remplissent toutes les données exploitables', async () => {
@@ -1035,7 +1136,14 @@ test('Les cinq écrans principaux se rendent sans erreur et exposent leurs avert
   assert.match(balanceView(), /Dans l’enveloppe numérisée/);
   assert.match(performanceView(), /HORS TABLE/);
   assert.match(performanceView(), /ISA \+29,45/);
-  assert.match(densityAltitudeView(), /Altitude-densité/);
+  const performanceHtml=performanceView();
+  assert.match(performanceHtml, /class="icao-entry"/);
+  assert.match(performanceHtml, /placeholder="Ex\. LFRQ"/);
+  assert.match(performanceHtml, /autocomplete="off"/);
+  const densityHtml=densityAltitudeView();
+  assert.match(densityHtml, /Altitude-densité/);
+  assert.match(densityHtml, /Calcul atmosphérique général, indépendant de l’avion/);
+  assert.doesNotMatch(densityHtml, /Méthode non prévue dans les tables constructeur/);
 
   const methods = calculationBasesView();
   assert.match(methods, /Méthodes, données et limites/);
