@@ -1,4 +1,4 @@
-const CACHE = "acjd-flight-tools-static-v14-wind-runway";
+const CACHE = "acjd-flight-tools-static-v15-ios-safe-area";
 const CORE = [
   "/",
   "/manifest.webmanifest",
