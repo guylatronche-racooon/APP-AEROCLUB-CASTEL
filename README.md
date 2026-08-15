@@ -49,6 +49,14 @@ consignes du club restent seules opposables.
    ligne publiée à 900 kg sans extrapoler vers le bas et affiche l'écart comme calcul
    conservateur. Au-dessus de 1 100 kg, le résultat reste « HORS TABLE ».
 
+## Manuel utilisateur
+
+Le guide complet est disponible dans l'application sous « Manuel d'utilisation » et dans
+`app/documents/manuel-utilisation-outils-de-vol.pdf`. La source modifiable se trouve dans
+`docs/manuel-utilisation-outils-de-vol.docx`. Il décrit le parcours utilisateur, les
+messages, les modes de reprise manuelle, les méthodes de calcul et les réserves d'emploi.
+Sa version 0.9 reste un document de travail soumis à validation par le club.
+
 ## Prévisualisation locale
 
 ```bash

@@ -49,6 +49,7 @@ test('service worker : installation sans route /index.html inexistante',async()=
     '/icons/icon-maskable-512.png',
     '/icons/apple-touch-icon.png',
     '/data/airfields.json',
+    '/documents/manuel-utilisation-outils-de-vol.pdf',
   ]);
 });
 

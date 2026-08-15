@@ -865,6 +865,29 @@ button, input { font: inherit; }
 .documents-block p { color: var(--muted); font-size: 11px; margin: 10px 0 6px; }
 .documents-block ul { columns: 2; column-gap: 34px; margin: 0; padding-left: 20px; }
 .documents-block li { break-inside: avoid; color: var(--muted); font-size: 10px; line-height: 1.45; margin-bottom: 5px; }
+.manual-download {
+  align-items: center;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin: 0 0 16px;
+  padding: 13px 14px;
+}
+.manual-download strong { display: block; font-size: 13px; }
+.manual-download span { color: var(--muted); display: block; font-size: 10px; line-height: 1.45; margin-top: 3px; }
+.manual-download a {
+  background: var(--teal-950);
+  border-radius: 8px;
+  color: #fff;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 850;
+  padding: 11px 14px;
+  text-decoration: none;
+}
 .disclaimer > p:not(.disclaimer-lead) { color: var(--muted); font-size: 10px; line-height: 1.55; }
 .disclaimer-final {
   background: var(--yellow-soft);
@@ -1231,6 +1254,8 @@ button, input { font: inherit; }
   }
   .disclaimer-header img { height: 54px; width: 54px; }
   .documents-block ul { columns: 1; }
+  .manual-download { align-items: stretch; flex-direction: column; gap: 10px; }
+  .manual-download a { text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1255,10 +1280,10 @@ button, input { font: inherit; }
   font-size: 10px; gap: 10px; line-height: 1.5; margin: 18px auto 0;
   max-width: 1120px; padding: 0 24px 22px; text-align: center;
 }
-.static-app .app-footer-note button {
+.static-app .app-footer-note button, .static-app .app-footer-note a {
   background: transparent; border: 1px solid var(--line); border-radius: 999px;
   color: var(--teal-700); cursor: pointer; font-size: 10px; font-weight: 850;
-  min-height: 34px; padding: 0 15px;
+  line-height: 32px; min-height: 34px; padding: 0 15px; text-decoration: none;
 }
 .static-app .bases-page { margin: 0 auto; max-width: 1180px; padding: 30px 22px 48px; }
 .static-app .bases-intro { max-width: 820px; }
@@ -3039,13 +3064,13 @@ const aircraftList = [
   }
 
   function footerNote() {
-    return '<footer class="app-footer-note"><span>Prototype de l’Aéroclub Jean-Doudiès — version à valider. La documentation approuvée de l’aéronef et les consignes du club font foi.</span>' + (state.screen === 'density' ? '' : '<button data-action="screen" data-screen="density">Altitude-densité</button>') + (state.screen === 'bases' ? '' : '<button data-action="screen" data-screen="bases">Méthodes & sources</button>') + '</footer>';
+    return '<footer class="app-footer-note"><span>Prototype de l’Aéroclub Jean-Doudiès — version à valider. La documentation approuvée de l’aéronef et les consignes du club font foi.</span><a href="/documents/manuel-utilisation-outils-de-vol.pdf" target="_blank" rel="noopener">Manuel d’utilisation</a>' + (state.screen === 'density' ? '' : '<button data-action="screen" data-screen="density">Altitude-densité</button>') + (state.screen === 'bases' ? '' : '<button data-action="screen" data-screen="bases">Méthodes & sources</button>') + '</footer>';
   }
 
   function disclaimer() {
     if (!state.showDisclaimer) return '';
     return '<div class="overlay disclaimer-overlay"><section class="disclaimer" role="dialog" aria-modal="true" aria-labelledby="disclaimer-title"><div class="disclaimer-header"><div><span>Avant utilisation</span><h2 id="disclaimer-title">Documentation et responsabilité du pilote</h2></div>'+logoImage('')+'</div>'+
-      '<p class="disclaimer-lead">Cette application constitue uniquement une aide à l’exécution des check-lists et aux calculs de masse, centrage, atmosphère et performances. Les données terrain, METAR et TAF peuvent être absentes, voisines, périmées ou incomplètes. Elle ne remplace ni le manuel de vol, ni les procédures approuvées, ni la préparation réglementaire du vol.</p><div class="documents-block"><strong>Avant chaque vol, vérifier la présence, l’accessibilité et, lorsqu’une durée s’applique, la validité des documents et informations requis.</strong><p>Liste indicative et non exhaustive :</p><ul><li>manuel de vol de l’aéronef ou document équivalent ;</li><li>certificat d’immatriculation original ;</li><li>certificat de navigabilité original ou titre applicable ;</li><li>certificat acoustique, liste des agréments spécifiques et licence de station d’aéronef, si applicables ;</li><li>attestation d’assurance responsabilité civile ;</li><li>carnet de route ou document équivalent ;</li><li>plan de vol ATS, si applicable ;</li><li>VAC, cartes aéronautiques, NOTAM et briefing météo à jour pour le trajet et les déroutements raisonnablement envisageables ;</li><li>procédures et signaux visuels applicables en cas d’interception ;</li><li>MEL ou CDL, si applicable ;</li><li>licence, qualifications, expérience récente et certificat médical du pilote en cours de validité ;</li><li>toute autre autorisation ou documentation exigée par le vol ou les États concernés.</li></ul></div>'+
+      '<p class="disclaimer-lead">Cette application constitue uniquement une aide à l’exécution des check-lists et aux calculs de masse, centrage, atmosphère et performances. Les données terrain, METAR et TAF peuvent être absentes, voisines, périmées ou incomplètes. Elle ne remplace ni le manuel de vol, ni les procédures approuvées, ni la préparation réglementaire du vol.</p><div class="manual-download"><div><strong>Manuel d’utilisation et méthodes de calcul</strong><span>Guide détaillé de 21 pages, version 0.9 — document de travail à valider par le club.</span></div><a href="/documents/manuel-utilisation-outils-de-vol.pdf" target="_blank" rel="noopener">Ouvrir le PDF</a></div><div class="documents-block"><strong>Avant chaque vol, vérifier la présence, l’accessibilité et, lorsqu’une durée s’applique, la validité des documents et informations requis.</strong><p>Liste indicative et non exhaustive :</p><ul><li>manuel de vol de l’aéronef ou document équivalent ;</li><li>certificat d’immatriculation original ;</li><li>certificat de navigabilité original ou titre applicable ;</li><li>certificat acoustique, liste des agréments spécifiques et licence de station d’aéronef, si applicables ;</li><li>attestation d’assurance responsabilité civile ;</li><li>carnet de route ou document équivalent ;</li><li>plan de vol ATS, si applicable ;</li><li>VAC, cartes aéronautiques, NOTAM et briefing météo à jour pour le trajet et les déroutements raisonnablement envisageables ;</li><li>procédures et signaux visuels applicables en cas d’interception ;</li><li>MEL ou CDL, si applicable ;</li><li>licence, qualifications, expérience récente et certificat médical du pilote en cours de validité ;</li><li>toute autre autorisation ou documentation exigée par le vol ou les États concernés.</li></ul></div>'+
       '<p>Pour certains vols décollant et atterrissant sur le même aérodrome, ou restant dans une zone déterminée, certains documents peuvent être conservés à l’aérodrome. Ils doivent néanmoins exister, être valides et pouvoir être présentés dans un délai raisonnable.</p><div class="disclaimer-final"><strong>La réglementation en vigueur, la documentation approuvée de l’aéronef et les consignes de l’aéroclub font foi.</strong><span>Le commandant de bord demeure responsable de la préparation, de la décision et de la conduite du vol.</span></div><button class="accept-button" data-action="accept-disclaimer">J’ai compris — accéder à l’application</button></section></div>';
   }
 

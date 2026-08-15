@@ -1,4 +1,4 @@
-const CACHE = "acjd-flight-tools-static-v15-ios-safe-area";
+const CACHE = "acjd-flight-tools-static-v16-user-manual";
 const CORE = [
   "/",
   "/manifest.webmanifest",
@@ -7,6 +7,7 @@ const CORE = [
   "/icons/icon-maskable-512.png",
   "/icons/apple-touch-icon.png",
   "/data/airfields.json",
+  "/documents/manuel-utilisation-outils-de-vol.pdf",
 ];
 
 async function cacheSuccessfulResponse(key, response) {
