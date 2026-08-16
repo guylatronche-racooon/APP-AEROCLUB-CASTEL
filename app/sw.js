@@ -1,4 +1,4 @@
-const CACHE = "acjd-flight-tools-static-v18-vac-catalogue";
+const CACHE = "acjd-flight-tools-static-v19-negative-input";
 const CORE = [
   "/",
   "/manifest.webmanifest",

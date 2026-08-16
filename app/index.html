@@ -1344,6 +1344,9 @@ button, input { font: inherit; }
 .static-app .density-metar-field { margin-bottom: 10px; }
 .static-app .density-inputs label > span { display: block; font-size: 11px; font-weight: 800; margin-bottom: 6px; }
 .static-app .density-inputs label > div { align-items: center; background: var(--sky-soft); border: 1px solid #c9e4ee; border-radius: 9px; display: grid; grid-template-columns: 1fr auto; min-height: 58px; padding: 0 13px; }
+.static-app .density-inputs label > div.signed-number-field, .static-app .performance-input-grid label > div.signed-number-field { grid-template-columns: auto 1fr auto; padding-left: 7px; }
+.static-app .sign-toggle { align-items: center; background: #fff; border: 1px solid #83bfd2; border-radius: 7px; color: var(--teal-950); cursor: pointer; display: inline-flex; font: inherit; font-size: 12px; font-weight: 900; height: 36px; justify-content: center; margin-right: 8px; min-width: 38px; padding: 0 7px; }
+.static-app .sign-toggle:active { background: #d9f1f7; transform: translateY(1px); }
 .static-app .density-inputs input { background: transparent; border: 0; color: var(--ink); font: inherit; font-size: 21px; font-weight: 850; min-width: 0; outline: 0; width: 100%; }
 .static-app .density-inputs b { color: var(--muted); font-size: 11px; }
 .static-app .density-inputs small { color: var(--muted); display: block; font-size: 9px; line-height: 1.4; margin-top: 5px; }
@@ -1494,6 +1497,7 @@ button, input { font: inherit; }
 .static-app .validation-checklist { background: var(--paper); border: 1px solid var(--line); border-radius: 11px; margin: 0; padding: 12px 18px 12px 34px; }
 .static-app .validation-checklist li { color: var(--muted); font-size: 10px; line-height: 1.55; margin: 6px 0; }
 .night .density-inputs label > div, .night .density-metrics div { background: #142b3a; border-color: #315978; }
+.night .sign-toggle { background: #071219; border-color: #4f91a7; color: #d9f1f7; }
 .night .density-warning { background: #332d13; border-color: #665b2d; color: #f7e49a; }
 .night .metar-alternatives { background: #332d13; border-color: #665b2d; }
 .night .metar-alternatives > p, .night .metar-alternative small { color: #f7e49a; }
@@ -2670,9 +2674,12 @@ const aircraftList = [
     const temperature = toDensityNumber(values.temperature);
     const dewPoint = toDensityNumber(values.dewPoint);
     const useHumidity = Boolean(values.useHumidity);
-    const humidityValid = !useHumidity || (Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= temperature);
-    const valid = Number.isFinite(elevation) && Number.isFinite(qnh) && Number.isFinite(temperature) && elevation >= -1500 && elevation <= 25000 && qnh >= 800 && qnh <= 1100 && temperature >= -80 && temperature <= 70 && humidityValid;
-    if (!valid) return { valid: false };
+    const baseValid = Number.isFinite(elevation) && Number.isFinite(qnh) && Number.isFinite(temperature) && elevation >= -1500 && elevation <= 25000 && qnh >= 800 && qnh <= 1100 && temperature >= -80 && temperature <= 70;
+    const dewPointInRange = Number.isFinite(dewPoint) && dewPoint >= -100 && dewPoint <= 70;
+    const dewPointCoherent = dewPointInRange && dewPoint <= temperature;
+    if (!baseValid) return { valid: false, issue: 'base_values' };
+    if (useHumidity && !dewPointInRange) return { valid: false, issue: 'dewpoint_missing' };
+    if (useHumidity && !dewPointCoherent) return { valid: false, issue: 'dewpoint_above_temperature' };
     const seaLevelTemperature = 288.15;
     const lapseRate = 0.0065;
     const gravity = 9.80665;
@@ -2684,11 +2691,12 @@ const aircraftList = [
     const pressureAltitudeMetres = (seaLevelTemperature / lapseRate) * (1 - Math.pow(stationPressure / standardPressure, dryAirGasConstant * lapseRate / gravity));
     const absoluteTemperature = temperature + 273.15;
     const dryAirDensity = (stationPressure * 100) / (dryAirGasConstant * absoluteTemperature);
-    const vaporPressure = Number.isFinite(dewPoint) ? 6.112 * Math.exp((17.67 * dewPoint) / (dewPoint + 243.5)) : 0;
+    const usableDewPoint = dewPointCoherent ? dewPoint : NaN;
+    const vaporPressure = Number.isFinite(usableDewPoint) ? 6.112 * Math.exp((17.67 * usableDewPoint) / (usableDewPoint + 243.5)) : 0;
     const saturationPressure = 6.112 * Math.exp((17.67 * temperature) / (temperature + 243.5));
-    const relativeHumidity = Number.isFinite(dewPoint) ? Math.max(0, Math.min(100, 100 * vaporPressure / saturationPressure)) : null;
+    const relativeHumidity = Number.isFinite(usableDewPoint) ? Math.max(0, Math.min(100, 100 * vaporPressure / saturationPressure)) : null;
     const waterVaporGasConstant = 461.495;
-    const moistAirDensity = Number.isFinite(dewPoint) ? (((stationPressure - vaporPressure) * 100) / (dryAirGasConstant * absoluteTemperature)) + ((vaporPressure * 100) / (waterVaporGasConstant * absoluteTemperature)) : dryAirDensity;
+    const moistAirDensity = Number.isFinite(usableDewPoint) ? (((stationPressure - vaporPressure) * 100) / (dryAirGasConstant * absoluteTemperature)) + ((vaporPressure * 100) / (waterVaporGasConstant * absoluteTemperature)) : dryAirDensity;
     const densityExponent = 1 / ((gravity / (dryAirGasConstant * lapseRate)) - 1);
     const densityAltitudeFromDensity = function(density) { return (seaLevelTemperature / lapseRate) * (1 - Math.pow(density / standardDensity, densityExponent)); };
     const dryDensityAltitudeMetres = densityAltitudeFromDensity(dryAirDensity);
@@ -2707,6 +2715,7 @@ const aircraftList = [
       qnh: qnh,
       temperature: temperature,
       dewPoint: dewPoint,
+      dewPointCoherent: dewPointCoherent,
       useHumidity: useHumidity,
       stationPressure: stationPressure,
       pressureAltitude: pressureAltitude,
@@ -2781,13 +2790,14 @@ const aircraftList = [
       { key: 'temperature', label: 'Température extérieure', unit: '°C', min: -80, max: 70, step: 1, note: 'Température observée au terrain.' },
       { key: 'dewPoint', label: 'Point de rosée', unit: '°C', min: -100, max: 70, step: 1, note: 'Groupe température/point de rosée du METAR.' }
     ].map(function(input) {
-      return '<label><span>' + escapeHtml(input.label) + '</span><div><input data-density="' + input.key + '" inputmode="decimal" type="number" min="' + input.min + '" max="' + input.max + '" step="' + input.step + '" value="' + escapeHtml(state.density[input.key]) + '"><b>' + escapeHtml(input.unit) + '</b></div><small>' + escapeHtml(input.note) + '</small></label>';
+      const signed=input.min<0;
+      return '<label><span>' + escapeHtml(input.label) + '</span><div class="'+(signed?'signed-number-field':'')+'">'+(signed?'<button type="button" class="sign-toggle" data-action="toggle-sign" data-sign-context="density" data-sign-key="'+escapeHtml(input.key)+'" aria-label="Changer le signe de '+escapeHtml(input.label)+'">+/−</button>':'')+'<input data-density="' + input.key + '" inputmode="decimal" type="number" min="' + input.min + '" max="' + input.max + '" step="' + input.step + '" value="' + escapeHtml(state.density[input.key]) + '"><b>' + escapeHtml(input.unit) + '</b></div><small>' + escapeHtml(input.note+(signed?' Saisir la valeur puis utiliser +/− pour changer son signe sur mobile.':'')) + '</small></label>';
     }).join('') + '<label class="choice-toggle optional-choice"><input data-density="useHumidity" type="checkbox" ' + (state.density.useHumidity ? 'checked' : '') + '><span><strong>Tenir compte de l’humidité <em class="requirement-tag optional">Facultatif</em></strong><small>Calcule l’altitude-densité à partir de la densité de l’air humide. Calcul atmosphérique général, indépendant de l’avion.</small></span></label>';
     const resultPanel = result.valid ?
       '<div class="density-result"><span>Altitude-densité calculée</span><strong>' + formatFr(Math.round(result.densityAltitude), 0) + ' <small>ft</small></strong><p>' + signedFeet(result.differenceFromField) + ' par rapport à l’altitude du terrain.</p></div>' +
       '<div class="density-metrics"><div><span>Altitude-pression</span><strong>' + formatFr(Math.round(result.pressureAltitude), 0) + ' ft</strong></div><div><span>Température ISA</span><strong>' + formatFr(result.isaTemperature, 1) + ' °C</strong></div><div><span>Écart ISA</span><strong>' + (result.isaDeviation >= 0 ? '+' : '−') + formatFr(Math.abs(result.isaDeviation), 1) + ' °C</strong></div>' + (result.relativeHumidity == null ? '' : '<div><span>Humidité estimée</span><strong>' + formatFr(result.relativeHumidity, 0) + ' %</strong></div><div><span>Altitude-densité air sec</span><strong>' + formatFr(Math.round(result.dryDensityAltitude), 0) + ' ft</strong></div><div><span>Effet humidité</span><strong>' + signedFeet(result.humidityAltitudeEffect) + '</strong></div>') + '</div>' +
-      '<div class="density-warning"><strong>Interprétation et limites</strong><p>' + escapeHtml(result.useHumidity ? 'La densité de l’air humide est calculée avec la température, le point de rosée et la pression au terrain. Ce calcul atmosphérique est indépendant de l’avion ; toute utilisation pour évaluer ses performances doit être vérifiée dans son manuel de vol.' : 'Le résultat principal utilise l’air sec, conformément à la méthode habituelle. Le point de rosée reste affiché pour information.') + '</p></div>' :
-      '<div class="density-invalid"><div><strong>Valeur hors plage</strong><p>Vérifier l’altitude, le QNH et la température saisis.</p></div></div>';
+      '<div class="density-warning"><strong>Interprétation et limites</strong><p>' + escapeHtml(result.useHumidity ? 'La densité de l’air humide est calculée avec la température, le point de rosée et la pression au terrain. Ce calcul atmosphérique est indépendant de l’avion ; toute utilisation pour évaluer ses performances doit être vérifiée dans son manuel de vol.' : result.dewPointCoherent ? 'Le résultat principal utilise l’air sec, conformément à la méthode habituelle. Le point de rosée reste affiché pour information.' : 'Le résultat principal utilise l’air sec. Le point de rosée saisi est supérieur à la température : il est incohérent et n’est utilisé dans aucun calcul d’humidité.') + '</p></div>' :
+      '<div class="density-invalid"><div><strong>'+(result.issue==='dewpoint_above_temperature'?'Point de rosée incohérent':result.issue==='dewpoint_missing'?'Point de rosée manquant':'Valeur hors plage')+'</strong><p>'+(result.issue==='dewpoint_above_temperature'?'Le point de rosée ne peut pas être supérieur à la température extérieure.':result.issue==='dewpoint_missing'?'Saisir un point de rosée valide pour tenir compte de l’humidité.':'Vérifier l’altitude, le QNH et la température saisis.')+'</p></div></div>';
     return '<main class="' + appClass() + '">' +
       '<header class="cover-topbar"><div class="club-brand">' + logoImage('') + '<span><strong>Aéroclub Jean-Doudiès</strong><small>Altitude-densité</small></span></div><div class="cover-actions bases-actions"><button data-action="screen" data-screen="home">← Avions</button><button data-action="theme">' + (state.night ? '☀ Jour' : '☾ Nuit') + '</button></div></header>' +
       '<section class="density-page"><div class="density-intro"><span class="eyebrow">Atmosphère et performances</span><h1>Altitude-densité</h1><p>Estimer l’altitude à laquelle l’aéronef « ressent » la densité de l’air du jour. Les valeurs peuvent être saisies manuellement ou chargées depuis les données terrain et un METAR récent ; elles sont effacées à chaque nouvelle ouverture.</p></div>'+aviationWeatherLinks() +
@@ -2975,7 +2985,7 @@ const aircraftList = [
       { key:'windComponent', label:'Composante de vent', unit:'kt', min:-50, max:50, step:0.1, note:(departure.windNote||'Positive = face · négative = arrière')+' Positive = face · négative = arrière.' },
       { key:'slope', label:'Pente', unit:'%', min:-10, max:10, step:0.1, note:departure.slopeSource==='published'?'Valeur issue du jeu terrain ; positive = montante.':'Pente non publiée dans le jeu terrain : 0 % proposé par défaut, à vérifier. Positive = montante.' },
       { key:'safetyMarginPercent', label:'Marge de sécurité retenue', unit:'%', min:0, max:100, step:1, note:'0 % par défaut. Ajuster selon les consignes du club et la marge décidée par le pilote ; cette valeur s’applique après la table.' }
-    ].map(function(input){return '<label><span>'+escapeHtml(input.label)+'</span><div><input data-departure="'+input.key+'" type="number" inputmode="decimal" min="'+input.min+'" max="'+input.max+'" step="'+input.step+'" value="'+escapeHtml(departure[input.key])+'"><b>'+escapeHtml(input.unit)+'</b></div>'+(input.note?'<small>'+escapeHtml(input.note)+'</small>':'')+'</label>';}).join('');
+    ].map(function(input){const signed=input.min<0;return '<label><span>'+escapeHtml(input.label)+'</span><div class="'+(signed?'signed-number-field':'')+'">'+(signed?'<button type="button" class="sign-toggle" data-action="toggle-sign" data-sign-context="departure" data-sign-key="'+escapeHtml(input.key)+'" aria-label="Changer le signe de '+escapeHtml(input.label)+'">+/−</button>':'')+'<input data-departure="'+input.key+'" type="number" inputmode="decimal" min="'+input.min+'" max="'+input.max+'" step="'+input.step+'" value="'+escapeHtml(departure[input.key])+'"><b>'+escapeHtml(input.unit)+'</b></div>'+((input.note||signed)?'<small>'+escapeHtml((input.note||'')+(input.note&&signed?' ':'')+(signed?'Saisir la valeur puis utiliser +/− pour changer son signe sur mobile.':''))+'</small>':'')+'</label>';}).join('');
     const liveMetarQuality = metarObservationQuality({observedAt:state.weather.observedAt});
     const liveTafState = tafValidity({status:state.weather.tafRelayStatus},{raw:state.weather.rawTaf,validFrom:state.weather.tafValidFrom,validTo:state.weather.tafValidTo});
     const weatherIsNeighbor = Boolean(state.weather.stationNote) || Boolean(state.weather.station && departure.icao && String(state.weather.station).toUpperCase() !== String(departure.icao).toUpperCase());
@@ -3688,6 +3698,16 @@ const aircraftList = [
         state.departure.loadConfirmedAt=Date.now();
         state.screen='performance';
         scrollTo(0,0);
+        persist();
+      }
+    }
+    if(action==='toggle-sign'){
+      const context=button.dataset.signContext,key=button.dataset.signKey;
+      const target=context==='density'?state.density:context==='departure'?state.departure:null;
+      if(target&&key){
+        const current=firstFinite(target[key]);
+        target[key]=current===null||current===0?-1:-current;
+        if(context==='departure')invalidateConditionsAfterEdit(key);
         persist();
       }
     }

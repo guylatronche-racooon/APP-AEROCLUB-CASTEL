@@ -192,6 +192,54 @@ test('Les pleins, la pente, le vent et la marge ont des valeurs initiales explic
   assert.equal(DEPARTURE_DEFAULTS.useHumidity, false);
 });
 
+test('Une altitude-densité négative reste valide par air froid et haute pression', () => {
+  const result = atmosphereResult({
+    elevation: 434,
+    qnh: 1016,
+    temperature: 0,
+    dewPoint: 19,
+    useHumidity: false,
+  });
+
+  assert.equal(result.valid, true);
+  assert.ok(result.densityAltitude < 0);
+  assert.ok(Math.abs(result.densityAltitude - (-1390)) < 40);
+  assert.equal(result.relativeHumidity, null, 'un point de rosée supérieur à la température doit être ignoré');
+  assert.equal(result.dewPointCoherent, false);
+});
+
+test('Le calcul humide refuse explicitement un point de rosée supérieur à la température', () => {
+  const result = atmosphereResult({
+    elevation: 434,
+    qnh: 1016,
+    temperature: 0,
+    dewPoint: 3,
+    useHumidity: true,
+  });
+
+  assert.equal(result.valid, false);
+  assert.equal(result.issue, 'dewpoint_above_temperature');
+  setDensity({ elevation:434, qnh:1016, temperature:0, dewPoint:3, useHumidity:true });
+  assert.match(densityAltitudeView(), /Point de rosée incohérent/);
+  assert.match(densityAltitudeView(), /ne peut pas être supérieur à la température extérieure/);
+});
+
+test('Le bouton mobile +/− permet de saisir les températures négatives', () => {
+  setDensity({ elevation:434, qnh:1016, temperature:5, dewPoint:3 });
+  const clickListener=documentListeners.get('click');
+  const signButton={
+    disabled:false,
+    dataset:{action:'toggle-sign',signContext:'density',signKey:'temperature'},
+    closest(selector){return selector==='[data-action]'?this:null;},
+  };
+
+  clickListener({target:signButton});
+
+  assert.equal(state.density.temperature,-5);
+  assert.match(densityAltitudeView(), /class="sign-toggle"/);
+  assert.match(densityAltitudeView(), /data-sign-key="temperature"/);
+});
+
 test('Le parcours Masse et centrage vers Performances et les statuts obligatoire/facultatif sont visibles', () => {
   state.aircraftId = 'f-hdlt';
   setSportStarLoad();
